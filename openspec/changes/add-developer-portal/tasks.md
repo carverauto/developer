@@ -10,7 +10,7 @@
 - [x] 2.1 Define the docs content structure for versioned API and SDK documentation
 - [x] 2.2 Implement version-aware docs routing and navigation
 - [x] 2.3 Add initial pages for getting started, architecture, Go SDK, and Rust SDK
-- [ ] 2.4 Add validation for markdown content and broken references
+- [x] 2.4 Add validation for markdown content and broken references
 
 ## 3. Plugin Registry
 - [x] 3.1 Define the plugin metadata schema for official and community entries
@@ -27,7 +27,7 @@
 
 ## 5. Quality
 - [x] 5.1 Add tests for docs routing, registry rendering, search/filtering, and auth entry points
-- [ ] 5.2 Add validation for plugin metadata, including signature-related fields
+- [x] 5.2 Add validation for plugin metadata, including signature-related fields
 - [x] 5.3 Add the repository-standard Elixir quality contract and CI entrypoint
 - [x] 5.4 Run final validation and launch-readiness checks
 

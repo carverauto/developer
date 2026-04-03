@@ -1,0 +1,65 @@
+startup --max_idle_secs=60
+
+common --announce_rc
+common --color=yes
+common --curses=yes
+common --experimental_convenience_symlinks=clean
+common --repository_cache=third_party/bazel-repo-cache
+common --repo_contents_cache=
+common --disk_cache=third_party/bazel-disk-cache
+common --distdir=third_party/distdir
+common --enable_platform_specific_config
+
+build --keep_going
+build --jobs=auto
+build --show_timestamps
+build --repo_env=RULES_ERLANG_SKIP_SYSTEM=1
+build --repo_env=RULES_ELIXIR_SKIP_SYSTEM=1
+build --java_runtime_version=local_jdk
+build --tool_java_runtime_version=local_jdk
+build --workspace_status_command=$(pwd)/scripts/workspace_status.sh
+
+test --test_output=errors
+test --flaky_test_attempts=2
+
+try-import %workspace%/.bazelrc.local
+try-import %workspace%/.bazelrc.remote
+
+build:no_remote --remote_executor=
+build:no_remote --remote_cache=
+build:no_remote --remote_upload_local_results=false
+build:no_remote --remote_download_minimal
+build:no_remote --bes_backend=
+build:no_remote --bes_results_url=
+
+build:ci --keep_going --build_tag_filters=-manual
+build:ci --config=remote_base
+build:ci --build_metadata=ROLE=CI
+build:ci --bes_results_url=https://carverauto.buildbuddy.io/invocation/
+build:ci --bes_backend=grpcs://carverauto.buildbuddy.io
+build:ci --remote_cache=grpcs://carverauto.buildbuddy.io
+build:ci --remote_timeout=15m
+
+test:ci --test_tag_filters=-manual --test_output=errors
+
+build:remote_base --remote_executor=grpcs://remote.buildbuddy.io
+build:remote_base --host_platform=//build/platforms:rbe_linux_amd64
+build:remote_base --platforms=//build/platforms:rbe_linux_amd64
+build:remote_base --define=EXECUTOR=remote
+build:remote_base --incompatible_strict_action_env
+build:remote_base --remote_download_minimal
+build:remote_base --remote_upload_local_results
+build:remote_base --jobs=100
+
+build:remote --config=remote_base
+build:remote --bes_results_url=https://carverauto.buildbuddy.io/invocation/
+build:remote --bes_backend=grpcs://carverauto.buildbuddy.io
+build:remote --remote_cache=grpcs://remote.buildbuddy.io
+build:remote --remote_timeout=10m
+
+build:remote_push --config=remote
+build:remote_push --remote_download_outputs=all
+run:remote_push --config=remote
+run:remote_push --remote_download_outputs=all
+
+build --build_metadata=REPO_URL=ssh://git@git.carverauto.dev/carverauto/developer.git

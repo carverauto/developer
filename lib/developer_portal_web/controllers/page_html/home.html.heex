@@ -1,0 +1,153 @@
+<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+  <section class="hero-shell px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+      <div class="space-y-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+          WebAssembly plugins, versioned docs, trusted distribution
+        </p>
+        <h1 class="max-w-4xl text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
+          Build, publish, and discover ServiceRadar extensions in one place.
+        </h1>
+        <p class="max-w-2xl text-lg leading-8 text-base-content/72">
+          The ServiceRadar Developer Portal publishes SDK and API documentation for plugin authors,
+          gives operators a searchable plugin registry, and makes trust visible through artifact-signing
+          status and official vs community provenance.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href={~p"/docs/v1"} class="btn btn-primary btn-wide sm:btn-md">Read V1 docs</a>
+          <a href={~p"/plugins"} class="btn btn-outline btn-wide sm:btn-md">Browse plugins</a>
+          <a href={~p"/contribute"} class="btn btn-ghost btn-wide sm:btn-md">Submit a plugin</a>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <article class="card border border-base-300 bg-base-200/70 shadow-xl sm:col-span-2">
+          <div class="card-body">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+              Current baseline
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="badge badge-primary badge-outline">Phoenix LiveView</span>
+              <span class="badge badge-secondary badge-outline">Ash</span>
+              <span class="badge badge-accent badge-outline">Auth via Authentik</span>
+              <span class="badge badge-outline">serviceradar-cnpg</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card border border-base-300 bg-base-100 shadow-lg">
+          <div class="card-body">
+            <p class="text-sm font-semibold text-primary">Docs are versioned</p>
+            <p class="text-sm text-base-content/70">
+              API and SDK content is organized around versions so plugin authors can target the right platform contract.
+            </p>
+          </div>
+        </article>
+
+        <article class="card border border-base-300 bg-base-100 shadow-lg">
+          <div class="card-body">
+            <p class="text-sm font-semibold text-primary">Registry is trust-aware</p>
+            <p class="text-sm text-base-content/70">
+              Plugin pages distinguish official from community packages and surface whether the artifact is signed.
+            </p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
+      <article class="card border border-base-300 bg-base-100 shadow-lg">
+        <div class="card-body">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            Versioned docs
+          </p>
+          <h2 class="card-title">API and SDK references</h2>
+          <p class="text-sm text-base-content/70">
+            Start with V1 and switch between Go and Rust SDK guidance without losing route stability.
+          </p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <%= for version <- @versions do %>
+              <a href={~p"/docs/#{version.id}"} class="badge badge-outline hover:badge-primary">
+                {version.label}
+              </a>
+            <% end %>
+          </div>
+        </div>
+      </article>
+
+      <article class="card border border-base-300 bg-base-100 shadow-lg">
+        <div class="card-body">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            Contribution flow
+          </p>
+          <h2 class="card-title">PR-driven plugin submissions</h2>
+          <p class="text-sm text-base-content/70">
+            Plugins are published through reviewable pull requests that add manifests, schemas, signatures, and WASM artifacts to the Forgejo-backed registry.
+          </p>
+          <div class="card-actions justify-start">
+            <a href={~p"/contribute"} class="btn btn-sm btn-outline">See submission steps</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card border border-base-300 bg-base-100 shadow-lg">
+        <div class="card-body">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            Runtime model
+          </p>
+          <h2 class="card-title">Kubernetes and GitOps</h2>
+          <p class="text-sm text-base-content/70">
+            The portal deploys to Kubernetes with Envoy Gateway, MetalLB, cert-manager, external-dns, and Argo CD-managed Kustomize overlays.
+          </p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="px-4 py-8 pb-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            Featured plugins
+          </p>
+          <h2 class="text-2xl font-semibold">Initial registry examples</h2>
+        </div>
+        <a href={~p"/plugins"} class="link link-hover text-sm font-medium">View full directory</a>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        <%= for plugin <- @featured_plugins do %>
+          <article class="card border border-base-300 bg-base-100 shadow-lg">
+            <div class="card-body">
+              <div class="flex flex-wrap gap-2">
+                <span class={[
+                  "badge",
+                  plugin.type == "official" && "badge-primary",
+                  plugin.type == "community" && "badge-secondary"
+                ]}>
+                  {String.capitalize(plugin.type)}
+                </span>
+                <span class="badge badge-outline">{plugin.language}</span>
+                <span class={[
+                  "badge",
+                  plugin.signed && "badge-success",
+                  !plugin.signed && "badge-warning"
+                ]}>
+                  {if plugin.signed, do: "Signed", else: "Unsigned"}
+                </span>
+              </div>
+              <h3 class="card-title">{plugin.name}</h3>
+              <p class="text-sm text-base-content/70">{plugin.summary}</p>
+              <div class="card-actions justify-end">
+                <a href={~p"/plugins/#{plugin.slug}"} class="btn btn-sm btn-outline">Details</a>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</Layouts.app>

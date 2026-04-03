@@ -1,0 +1,108 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - prod
+      image_tag:
+        description: "Image tag to deploy (defaults to sha-<current commit>)"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: developer-portal-deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    env:
+      FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+      ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FORGEJO_TOKEN }}
+
+      - name: Resolve deployment metadata
+        run: |
+          set -euo pipefail
+          env_name="${{ inputs.environment }}"
+          image_tag="${{ inputs.image_tag }}"
+          if [[ -z "${image_tag}" ]]; then
+            image_tag="sha-$(git rev-parse --short=12 HEAD)"
+          fi
+
+          if [[ "${env_name}" == "prod" ]]; then
+            app_name="developer-portal"
+          else
+            app_name="developer-portal-staging"
+          fi
+
+          if [[ ! "${image_tag}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "invalid image tag: ${image_tag}" >&2
+            exit 1
+          fi
+
+          {
+            echo "DEPLOY_ENV=${env_name}"
+            echo "IMAGE_TAG=${image_tag}"
+            echo "ARGOCD_APP=${app_name}"
+            echo "GITOPS_CHANGED=false"
+          } >> "$GITHUB_ENV"
+
+      - name: Update kustomize image tag
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          env_name = os.environ["DEPLOY_ENV"]
+          image_tag = os.environ["IMAGE_TAG"]
+          path = Path(f"k8s/{env_name}/kustomization.yaml")
+          text = path.read_text()
+          updated = re.sub(r"(newTag:\s*)(\S+)", rf"\1{image_tag}", text, count=1)
+          if updated == text:
+            raise SystemExit("failed to update image tag in " + str(path))
+          path.write_text(updated)
+          PY
+
+      - name: Commit GitOps change
+        run: |
+          set -euo pipefail
+          git config user.name "forgejo-actions[bot]"
+          git config user.email "forgejo-actions[bot]@carverauto.dev"
+          git add "k8s/${DEPLOY_ENV}/kustomization.yaml"
+          if git diff --cached --quiet; then
+            echo "No GitOps change to commit."
+            echo "GITOPS_CHANGED=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "GITOPS_CHANGED=true" >> "$GITHUB_ENV"
+          git commit -m "deploy(${DEPLOY_ENV}): developer-portal ${IMAGE_TAG}"
+          git push origin "HEAD:${{ github.ref_name }}"
+
+      - name: Install Argo CD CLI
+        if: ${{ env.GITOPS_CHANGED == 'true' && env.ARGOCD_SERVER != '' && env.ARGOCD_AUTH_TOKEN != '' }}
+        run: |
+          curl -fsSL -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          install -m 0755 /tmp/argocd /usr/local/bin/argocd
+
+      - name: Trigger Argo CD sync
+        if: ${{ env.GITOPS_CHANGED == 'true' && env.ARGOCD_SERVER != '' && env.ARGOCD_AUTH_TOKEN != '' }}
+        run: |
+          argocd --server "${ARGOCD_SERVER}" --auth-token "${ARGOCD_AUTH_TOKEN}" --grpc-web app sync "${ARGOCD_APP}"
+          argocd --server "${ARGOCD_SERVER}" --auth-token "${ARGOCD_AUTH_TOKEN}" --grpc-web app wait "${ARGOCD_APP}" --health --sync

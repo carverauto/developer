@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o nounset
+set -o pipefail
+
+mkdir -p "${HOME}/.docker"
+config_path="${HOME}/.docker/config.json"
+registry="${OCI_REGISTRY:-registry.carverauto.dev}"
+dockerhub_registry="https://index.docker.io/v1/"
+
+if [[ -f "${config_path}" && -z "${DOCKER_AUTH_CONFIG_JSON:-}" && -z "${OCI_DOCKER_AUTH:-}" && -z "${OCI_USERNAME:-}" && -z "${OCI_TOKEN:-}" ]]; then
+  echo "Docker config already present at ${config_path}; nothing to do." >&2
+  exit 0
+fi
+
+if [[ -n "${DOCKER_AUTH_CONFIG_JSON:-}" ]]; then
+  printf '%s\n' "${DOCKER_AUTH_CONFIG_JSON}" > "${config_path}"
+  exit 0
+fi
+
+declare -A auths
+
+if [[ -n "${OCI_USERNAME:-}" && -n "${OCI_TOKEN:-}" ]]; then
+  auths["${registry}"]="$(printf '%s:%s' "${OCI_USERNAME}" "${OCI_TOKEN}" | base64 | tr -d '\n')"
+elif [[ -n "${OCI_DOCKER_AUTH:-}" ]]; then
+  auths["${registry}"]="${OCI_DOCKER_AUTH}"
+fi
+
+if [[ -n "${DOCKERHUB_USERNAME:-}" && -n "${DOCKERHUB_TOKEN:-}" ]]; then
+  auths["${dockerhub_registry}"]="$(printf '%s:%s' "${DOCKERHUB_USERNAME}" "${DOCKERHUB_TOKEN}" | base64 | tr -d '\n')"
+fi
+
+if (( ${#auths[@]} == 0 )); then
+  cat >&2 <<EOF_ERR
+Missing registry credentials.
+Provide one of the following before running this script:
+  * DOCKER_AUTH_CONFIG_JSON: Full docker config JSON.
+  * OCI_DOCKER_AUTH: Base64-encoded "username:token" string for ${registry}.
+  * OCI_USERNAME and OCI_TOKEN environment variables.
+Optional:
+  * DOCKERHUB_USERNAME and DOCKERHUB_TOKEN to avoid Docker Hub rate limits.
+EOF_ERR
+  exit 1
+fi
+
+{
+  printf '{ "auths": {'
+  first=1
+  for reg in "${!auths[@]}"; do
+    auth="${auths[$reg]}"
+    if (( first == 0 )); then
+      printf ','
+    fi
+    first=0
+    printf '"%s": {"auth":"%s"}' "${reg}" "${auth}"
+  done
+  printf '} }\n'
+} > "${config_path}"

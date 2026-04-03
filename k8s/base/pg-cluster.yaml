@@ -1,0 +1,43 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: developer-portal-pg
+  namespace: serviceradar-developer
+spec:
+  instances: 2
+
+  # Replace this with the published serviceradar-cnpg image from Harbor once
+  # the exact repository path and tag are finalized.
+  # imageName: registry.carverauto.dev/serviceradar/serviceradar-cnpg:<tag>
+
+  postgresql:
+    parameters:
+      shared_buffers: 256MB
+      max_connections: "100"
+      password_encryption: scram-sha-256
+
+  storage:
+    size: 20Gi
+    storageClass: local-path
+
+  bootstrap:
+    initdb:
+      database: developer_portal
+      owner: developer_portal
+      secret:
+        name: developer-portal-db-credentials
+
+  managed:
+    roles:
+      - name: developer_portal
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        inherit: true
+        replication: false
+        bypassrls: false
+
+  monitoring:
+    enablePodMonitor: true

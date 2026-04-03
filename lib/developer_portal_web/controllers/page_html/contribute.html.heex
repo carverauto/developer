@@ -1,0 +1,71 @@
+<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+  <section class="px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl space-y-8">
+      <div class="space-y-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          Contribution workflow
+        </p>
+        <h1 class="text-4xl font-semibold tracking-tight">
+          Submit a plugin through a reviewed PR.
+        </h1>
+        <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+          Community plugins enter the ServiceRadar ecosystem through pull requests that add the
+          published package set to the Forgejo-backed registry. The portal reads the manifest,
+          schema, checksum, signature, and WASM artifact links directly from that repository and
+          keeps trust signals visible in the UI.
+        </p>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-5">
+        <%= for {step, idx} <- Enum.with_index([
+          {"Develop", "Build the plugin with the Go or Rust SDK and compile it to WASM."},
+          {"Package", "Prepare the manifest, config schema, checksum, signature, and WASM artifact set."},
+          {"Submit", "Open a pull request that adds the published package files to the Forgejo-backed registry."},
+          {"Review", "Maintainers review the package contents, trust fields, and install guidance."},
+          {"Publish", "After merge, the plugin appears in the public registry."}
+        ], 1) do %>
+          <article class="card border border-base-300 bg-base-100 shadow-lg">
+            <div class="card-body">
+              <span class="badge badge-primary badge-outline">Step {idx}</span>
+              <h2 class="card-title text-lg">{elem(step, 0)}</h2>
+              <p class="text-sm text-base-content/70">{elem(step, 1)}</p>
+            </div>
+          </article>
+        <% end %>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-2">
+        <article class="card border border-base-300 bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title">Required package contents</h2>
+            <ul class="space-y-2 text-sm text-base-content/80">
+              <li>Name, slug, author, version, and category</li>
+              <li>Language or SDK target such as Go or Rust</li>
+              <li>Manifest and config schema files users can download directly</li>
+              <li>Signed WASM artifact plus checksum and signature material</li>
+              <li>Source repository link and release notes when relevant</li>
+              <li>Install instructions and operational notes</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="card border border-base-300 bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title">Platform context</h2>
+            <ul class="space-y-2 text-sm text-base-content/80">
+              <li>
+                Authentication is expected to flow through Authentik with GitHub as the upstream source.
+              </li>
+              <li>
+                The site itself is delivered through Kubernetes and Argo CD-managed overlays.
+              </li>
+              <li>
+                Official and community entries must be clearly distinguishable in the registry UI.
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layouts.app>

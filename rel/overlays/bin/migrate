@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+
+exec /app/bin/developer_portal eval "DeveloperPortal.Release.migrate"

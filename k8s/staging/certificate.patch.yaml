@@ -1,0 +1,8 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: developer-portal-tls
+  namespace: serviceradar-developer
+spec:
+  dnsNames:
+    - developer-staging.serviceradar.cloud

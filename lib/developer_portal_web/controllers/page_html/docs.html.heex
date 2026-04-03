@@ -1,0 +1,51 @@
+<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+  <section class="px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_1fr]">
+      <aside class="card h-fit border border-base-300 bg-base-100 shadow-lg">
+        <div class="card-body">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">Versions</p>
+          <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
+            <%= for version <- @versions do %>
+              <a
+                href={~p"/docs/#{version.id}"}
+                class={[
+                  "rounded-btn px-3 py-2 text-sm",
+                  version.id == @docs_version.id && "bg-primary text-primary-content"
+                ]}
+              >
+                {version.label}
+              </a>
+            <% end %>
+          </div>
+        </div>
+      </aside>
+
+      <div class="space-y-8">
+        <div class="space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            {@docs_version.label}
+          </p>
+          <h1 class="text-4xl font-semibold tracking-tight">{@docs_version.title}</h1>
+          <p class="max-w-3xl text-lg leading-8 text-base-content/72">{@docs_version.summary}</p>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-2">
+          <%= for section <- @docs_version.sections do %>
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <div class="flex items-center justify-between gap-3">
+                  <h2 class="card-title">{section.title}</h2>
+                  <span class="badge badge-outline">{section.audience}</span>
+                </div>
+                <p class="text-sm text-base-content/70">{section.description}</p>
+                <div class="prose prose-sm max-w-none text-base-content/80">
+                  {section.html}
+                </div>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layouts.app>

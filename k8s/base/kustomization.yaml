@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - migration-job.yaml
+  - deployment.yaml
+  - service.yaml
+  - pg-cluster.yaml
+  - certificate.yaml
+  - envoy-proxy.yaml
+  - gateway.yaml
+  - httproute.yaml
+  - networkpolicy.yaml

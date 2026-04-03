@@ -1,0 +1,75 @@
+name: Elixir Quality
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'config/**'
+      - 'test/**'
+      - 'mix.exs'
+      - 'mix.lock'
+      - '.formatter.exs'
+      - '.credo.exs'
+      - '.credo.base.exs'
+      - '.credo.ex_dna.exs'
+      - '.credo.ex_slop.exs'
+      - '.sobelow-conf'
+      - '.deps_audit_ignore'
+      - '.tool-versions'
+      - 'scripts/elixir_quality.sh'
+      - '.forgejo/workflows/elixir-quality.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'config/**'
+      - 'test/**'
+      - 'mix.exs'
+      - 'mix.lock'
+      - '.formatter.exs'
+      - '.credo.exs'
+      - '.credo.base.exs'
+      - '.credo.ex_dna.exs'
+      - '.credo.ex_slop.exs'
+      - '.sobelow-conf'
+      - '.deps_audit_ignore'
+      - '.tool-versions'
+      - 'scripts/elixir_quality.sh'
+      - '.forgejo/workflows/elixir-quality.yml'
+
+jobs:
+  quality:
+    name: Elixir Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Beam
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28.3"
+          elixir-version: "1.19.4"
+
+      - name: Cache Elixir dependencies and build
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.hex
+            ~/.mix
+            deps
+            _build
+          key: ${{ runner.os }}-elixir-quality-${{ hashFiles('mix.exs', 'mix.lock', '.formatter.exs', '.credo.exs', '.credo.base.exs', '.credo.ex_dna.exs', '.credo.ex_slop.exs', '.sobelow-conf', '.deps_audit_ignore', '.tool-versions', 'scripts/elixir_quality.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-elixir-quality-
+
+      - name: Run Elixir quality contract
+        run: ./scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer

@@ -1,0 +1,25 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: developer-portal-edge
+  namespace: serviceradar-developer
+spec:
+  logging:
+    level:
+      default: warn
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/address-pool: k3s-pool
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ipFamilies:
+                - IPv4
+                - IPv6
+              ipFamilyPolicy: PreferDualStack

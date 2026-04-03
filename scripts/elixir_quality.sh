@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/elixir_quality.sh --project <path> [--phoenix] [--force-check-dialyzer]
+
+Runs the repository-standard Elixir quality contract for a single Mix project.
+EOF
+}
+
+project=""
+phoenix="false"
+skip_dialyzer="false"
+force_check_dialyzer="false"
+skip_credo="false"
+skip_warnings_as_errors="false"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --project)
+      project="${2:-}"
+      shift 2
+      ;;
+    --phoenix)
+      phoenix="true"
+      shift
+      ;;
+    --skip-dialyzer)
+      skip_dialyzer="true"
+      shift
+      ;;
+    --force-check-dialyzer)
+      force_check_dialyzer="true"
+      shift
+      ;;
+    --skip-credo)
+      skip_credo="true"
+      shift
+      ;;
+    --skip-warnings-as-errors)
+      skip_warnings_as_errors="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "${project}" ]]; then
+  echo "--project is required" >&2
+  usage >&2
+  exit 1
+fi
+
+if [[ ! -d "${project}" ]]; then
+  echo "Project directory not found: ${project}" >&2
+  exit 1
+fi
+
+run() {
+  echo
+  echo "==> $*"
+  "$@"
+}
+
+pushd "${project}" >/dev/null
+
+run mix deps.get
+run mix deps.compile
+run env MIX_BUILD_PATH="${MIX_BUILD_PATH:-_build/format_check}" mix format --check-formatted
+
+if [[ "${skip_warnings_as_errors}" == "true" ]]; then
+  run mix compile
+else
+  run mix compile --warnings-as-errors
+fi
+
+run mix xref graph --format stats --label compile-connected
+
+if [[ "${skip_credo}" != "true" ]]; then
+  run mix credo --strict
+fi
+
+run mix hex.audit
+
+deps_audit_args=()
+if [[ -f ".deps_audit_ignore" ]]; then
+  deps_audit_args+=(--ignore-file .deps_audit_ignore)
+fi
+run mix deps.audit "${deps_audit_args[@]}"
+
+if [[ "${skip_dialyzer}" != "true" ]]; then
+  dialyzer_args=()
+
+  if [[ "${force_check_dialyzer}" == "true" ]]; then
+    dialyzer_args+=(--force-check)
+  fi
+
+  run mix dialyzer "${dialyzer_args[@]}"
+fi
+
+if [[ "${phoenix}" == "true" ]]; then
+  run mix sobelow
+fi
+
+popd >/dev/null

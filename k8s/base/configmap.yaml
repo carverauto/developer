@@ -7,7 +7,6 @@ data:
   PHX_HOST: developer.example.invalid
   PORT: "4000"
   POOL_SIZE: "10"
-  DNS_CLUSTER_QUERY: developer-portal.serviceradar-developer.svc.cluster.local
   PGHOST: developer-portal-pg-rw.serviceradar-developer.svc.cluster.local
   PGPORT: "5432"
   PGDATABASE: developer_portal

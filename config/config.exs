@@ -45,15 +45,6 @@ config :developer_portal, DeveloperPortal.ApiDocs,
   ],
   sync_init?: false
 
-config :developer_portal, DeveloperPortal.Auth,
-  provider: DeveloperPortal.Auth.Providers.OIDC,
-  provider_opts: [
-    scopes: ["openid", "profile", "email", "groups"],
-    required_group: "serviceradar-developer",
-    groups_claim: "groups",
-    req_options: [receive_timeout: 15_000]
-  ]
-
 config :developer_portal, Oban,
   repo: DeveloperPortal.Repo,
   queues: [registry: 5, api_docs: 3],

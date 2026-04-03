@@ -1,8 +1,6 @@
 defmodule DeveloperPortalWeb.Router do
   use DeveloperPortalWeb, :router
 
-  import DeveloperPortalWeb.UserAuth
-
   @secure_browser_headers %{
     "content-security-policy" =>
       "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
@@ -15,7 +13,6 @@ defmodule DeveloperPortalWeb.Router do
     plug :put_root_layout, html: {DeveloperPortalWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers, @secure_browser_headers
-    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -30,9 +27,6 @@ defmodule DeveloperPortalWeb.Router do
     get "/docs/:version", PageController, :docs
     get "/docs/:version/api", PageController, :api_docs
     get "/contribute", PageController, :contribute
-    get "/auth/login", AuthController, :login
-    get "/auth/callback", AuthController, :callback
-    post "/auth/logout", AuthController, :logout
   end
 
   scope "/", DeveloperPortalWeb do
@@ -44,10 +38,8 @@ defmodule DeveloperPortalWeb.Router do
   scope "/", DeveloperPortalWeb do
     pipe_through :browser
 
-    live_session :default, on_mount: [{DeveloperPortalWeb.UserAuth, :mount_current_user}] do
-      live "/plugins", PluginLive.Index, :index
-      live "/plugins/:slug", PluginLive.Show, :show
-    end
+    live "/plugins", PluginLive.Index, :index
+    live "/plugins/:slug", PluginLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

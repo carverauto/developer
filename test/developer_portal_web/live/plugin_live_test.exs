@@ -26,21 +26,4 @@ defmodule DeveloperPortalWeb.PluginLiveTest do
     assert html =~ "wasi-preview1"
     assert html =~ "run_check"
   end
-
-  test "signed in user is visible in live layout", %{conn: conn} do
-    conn =
-      init_test_session(conn, %{
-        "current_user" => %{
-          "name" => "Portal Developer",
-          "email" => "dev@example.com",
-          "portal_access" => true,
-          "groups" => ["serviceradar-developer"]
-        }
-      })
-
-    {:ok, _view, html} = live(conn, ~p"/plugins")
-
-    assert html =~ "Portal Developer"
-    assert html =~ "Log out"
-  end
 end

@@ -26,8 +26,6 @@ defmodule DeveloperPortalWeb.Layouts do
 
   """
   attr :flash, :map, required: true, doc: "the map of flash messages"
-  attr :current_user, :map, default: nil
-  attr :auth_enabled, :boolean, default: false
 
   attr :current_scope, :map,
     default: nil,
@@ -63,24 +61,6 @@ defmodule DeveloperPortalWeb.Layouts do
             <a href={~p"/plugins"} class="btn btn-ghost">Plugins</a>
             <a href={~p"/contribute"} class="btn btn-ghost">Contribute</a>
             <.theme_toggle />
-            <%= cond do %>
-              <% @current_user -> %>
-                <div class="flex items-center gap-2">
-                  <div class="text-right">
-                    <p class="text-sm font-medium">{@current_user["name"]}</p>
-                    <p class="text-xs text-base-content/60">
-                      {if @current_user["portal_access"], do: "Portal member", else: "Signed in"}
-                    </p>
-                  </div>
-                  <.form for={%{}} action={~p"/auth/logout"} method="post">
-                    <button type="submit" class="btn btn-outline">Log out</button>
-                  </.form>
-                </div>
-              <% @auth_enabled -> %>
-                <a href={~p"/auth/login"} class="btn btn-primary">Login via Authentik</a>
-              <% true -> %>
-                <button class="btn btn-primary" disabled>Login unavailable</button>
-            <% end %>
           </nav>
         </div>
       </header>

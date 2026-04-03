@@ -66,23 +66,6 @@ if config_env() != :test do
     end)
 
   config :developer_portal, DeveloperPortal.ApiDocs, source_opts: api_docs_source_opts
-
-  auth_provider_opts =
-    [
-      issuer: System.get_env("AUTHENTIK_ISSUER"),
-      client_id: System.get_env("AUTHENTIK_CLIENT_ID"),
-      client_secret: System.get_env("AUTHENTIK_CLIENT_SECRET"),
-      required_group: System.get_env("AUTHENTIK_REQUIRED_GROUP") || "serviceradar-developer",
-      scopes:
-        System.get_env("AUTHENTIK_SCOPES", "openid profile email groups")
-        |> String.split(~r/\s+/, trim: true),
-      groups_claim: System.get_env("AUTHENTIK_GROUPS_CLAIM") || "groups",
-      req_options: [receive_timeout: 15_000]
-    ]
-
-  config :developer_portal, DeveloperPortal.Auth,
-    provider: DeveloperPortal.Auth.Providers.OIDC,
-    provider_opts: auth_provider_opts
 end
 
 if config_env() == :prod do

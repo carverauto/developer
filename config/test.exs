@@ -18,20 +18,6 @@ config :developer_portal, Oban,
   queues: false,
   plugins: false
 
-config :developer_portal, DeveloperPortal.Auth,
-  provider: DeveloperPortal.Auth.TestProvider,
-  provider_opts: [
-    enabled?: true,
-    required_group: "serviceradar-developer",
-    user: %{
-      "sub" => "user-123",
-      "email" => "dev@example.com",
-      "name" => "Portal Developer",
-      "preferred_username" => "portaldev",
-      "groups" => ["serviceradar-developer", "engineering"]
-    }
-  ]
-
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

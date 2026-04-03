@@ -1,4 +1,4 @@
-<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+<Layouts.app flash={@flash}>
   <section class="hero-shell px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
     <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
       <div class="space-y-6">
@@ -24,12 +24,12 @@
         <article class="card border border-base-300 bg-base-200/70 shadow-xl sm:col-span-2">
           <div class="card-body">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
-              Current baseline
+              Platform highlights
             </p>
             <div class="flex flex-wrap gap-2">
               <span class="badge badge-primary badge-outline">Phoenix LiveView</span>
               <span class="badge badge-secondary badge-outline">Ash</span>
-              <span class="badge badge-accent badge-outline">Auth via Authentik</span>
+              <span class="badge badge-accent badge-outline">Forgejo-backed registry</span>
               <span class="badge badge-outline">serviceradar-cnpg</span>
             </div>
           </div>
@@ -37,7 +37,7 @@
 
         <article class="card border border-base-300 bg-base-100 shadow-lg">
           <div class="card-body">
-            <p class="text-sm font-semibold text-primary">Docs are versioned</p>
+            <p class="text-sm font-semibold text-primary">Versioned docs</p>
             <p class="text-sm text-base-content/70">
               API and SDK content is organized around versions so plugin authors can target the right platform contract.
             </p>
@@ -46,7 +46,7 @@
 
         <article class="card border border-base-300 bg-base-100 shadow-lg">
           <div class="card-body">
-            <p class="text-sm font-semibold text-primary">Registry is trust-aware</p>
+            <p class="text-sm font-semibold text-primary">Trusted distribution</p>
             <p class="text-sm text-base-content/70">
               Plugin pages distinguish official from community packages and surface whether the artifact is signed.
             </p>

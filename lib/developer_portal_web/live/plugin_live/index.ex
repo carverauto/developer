@@ -2,7 +2,6 @@ defmodule DeveloperPortalWeb.PluginLive.Index do
   use DeveloperPortalWeb, :live_view
 
   alias DeveloperPortal.Registry
-  alias DeveloperPortalWeb.Layouts
 
   @impl true
   def mount(_params, _session, socket) do

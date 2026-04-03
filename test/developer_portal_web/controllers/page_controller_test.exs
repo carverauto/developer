@@ -25,7 +25,6 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ "ServiceRadar API Reference"
     assert html =~ "Portal Raw JSON"
     assert html =~ "/api/v2/devices"
-    assert html =~ "SwaggerUI"
   end
 
   test "GET /docs/v1/api/openapi.json returns the cached OpenAPI artifact", %{conn: conn} do

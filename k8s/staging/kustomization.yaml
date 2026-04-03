@@ -72,6 +72,18 @@ patches:
   - target:
       group: gateway.networking.k8s.io
       version: v1
+      kind: GatewayClass
+      name: developer-portal-envoy
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: developer-portal-staging-envoy
+      - op: replace
+        path: /spec/parametersRef/namespace
+        value: serviceradar-developer-staging
+  - target:
+      group: gateway.networking.k8s.io
+      version: v1
       kind: Gateway
       name: developer-portal-gateway
       namespace: serviceradar-developer
@@ -79,6 +91,9 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: serviceradar-developer-staging
+      - op: replace
+        path: /spec/gatewayClassName
+        value: developer-portal-staging-envoy
   - target:
       group: gateway.networking.k8s.io
       version: v1

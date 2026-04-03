@@ -23,7 +23,12 @@ defmodule DeveloperPortal.Docs do
   end
 
   def all do
-    build_versions(@versions_path, @section_paths)
+    content_root = Path.join(:code.priv_dir(:developer_portal), "content/docs")
+
+    build_versions(
+      Path.join(content_root, "versions.yaml"),
+      Path.wildcard(Path.join(content_root, "*/*.md"))
+    )
   end
 
   defp build_versions(versions_path, section_paths) do

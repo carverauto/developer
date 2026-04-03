@@ -127,6 +127,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     {:ok,
      %{
        api_base_url: Keyword.fetch!(merged, :api_base_url),
+       content_base_url: Keyword.get(merged, :content_base_url),
        owner: Keyword.fetch!(merged, :owner),
        repo: Keyword.fetch!(merged, :repo),
        ref: Keyword.fetch!(merged, :ref),
@@ -180,7 +181,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   end
 
   defp fetch_raw_body!(config, url) do
-    case Req.get(url, config.req_options) do
+    case Req.get(request_url(config, url), config.req_options) do
       {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
         body
 
@@ -190,6 +191,19 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       {:error, reason} ->
         raise "request failed for #{url}: #{inspect(reason)}"
     end
+  end
+
+  defp request_url(%{content_base_url: nil}, url), do: url
+
+  defp request_url(%{content_base_url: content_base_url}, url) do
+    content_uri = URI.parse(content_base_url)
+    request_uri = URI.parse(url)
+
+    request_uri
+    |> Map.put(:scheme, content_uri.scheme)
+    |> Map.put(:host, content_uri.host)
+    |> Map.put(:port, content_uri.port)
+    |> URI.to_string()
   end
 
   defp config_schema_url(kind, directory, dist) do

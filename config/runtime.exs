@@ -24,6 +24,22 @@ config :developer_portal, DeveloperPortalWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
 if config_env() != :test do
+  registry_source_opts =
+    Application.get_env(:developer_portal, DeveloperPortal.Registry, [])
+    |> Keyword.get(:source_opts, [])
+    |> Keyword.merge(
+      api_base_url:
+        System.get_env("FORGEJO_API_BASE_URL") ||
+          Keyword.get(
+            Application.get_env(:developer_portal, DeveloperPortal.Registry, [])
+            |> Keyword.get(:source_opts, []),
+            :api_base_url
+          ),
+      content_base_url: System.get_env("FORGEJO_CONTENT_BASE_URL")
+    )
+
+  config :developer_portal, DeveloperPortal.Registry, source_opts: registry_source_opts
+
   auth_provider_opts =
     [
       issuer: System.get_env("AUTHENTIK_ISSUER"),

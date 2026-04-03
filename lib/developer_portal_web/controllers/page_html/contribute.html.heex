@@ -9,10 +9,7 @@
           Submit a plugin through a reviewed PR.
         </h1>
         <p class="max-w-3xl text-lg leading-8 text-base-content/72">
-          Community plugins enter the ServiceRadar ecosystem through pull requests that add the
-          published package set to the Forgejo-backed registry. The portal reads the manifest,
-          schema, checksum, signature, and WASM artifact links directly from that repository and
-          keeps trust signals visible in the UI.
+          Package your plugin, open a pull request, and include the files users need to install it.
         </p>
       </div>
 
@@ -20,7 +17,7 @@
         <%= for {step, idx} <- Enum.with_index([
           {"Develop", "Build the plugin with the Go or Rust SDK and compile it to WASM."},
           {"Package", "Prepare the manifest, config schema, checksum, signature, and WASM artifact set."},
-          {"Submit", "Open a pull request that adds the published package files to the Forgejo-backed registry."},
+          {"Submit", "Open a pull request with the published package files and installation details."},
           {"Review", "Maintainers review the package contents, trust fields, and install guidance."},
           {"Publish", "After merge, the plugin appears in the public registry."}
         ], 1) do %>
@@ -51,16 +48,16 @@
 
         <article class="card border border-base-300 bg-base-100 shadow-lg">
           <div class="card-body">
-            <h2 class="card-title">Platform context</h2>
+            <h2 class="card-title">Review expectations</h2>
             <ul class="space-y-2 text-sm text-base-content/80">
               <li>
-                Authentication is expected to flow through Authentik with GitHub as the upstream source.
+                Official and community entries must be clearly distinguishable.
               </li>
               <li>
-                The site itself is delivered through Kubernetes and Argo CD-managed overlays.
+                Signed artifacts should include the related checksum and signature files.
               </li>
               <li>
-                Official and community entries must be clearly distinguishable in the registry UI.
+                Installation steps should be complete enough for users to follow without extra digging.
               </li>
             </ul>
           </div>

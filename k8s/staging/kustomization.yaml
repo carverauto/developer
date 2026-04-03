@@ -168,6 +168,16 @@ patches:
       group: networking.k8s.io
       version: v1
       kind: NetworkPolicy
+      name: developer-portal-db-ingress-cnpg
+      namespace: serviceradar-developer
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: serviceradar-developer-staging
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: NetworkPolicy
       name: developer-portal-db-egress-kubernetes-api
       namespace: serviceradar-developer
     patch: |-

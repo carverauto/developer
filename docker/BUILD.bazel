@@ -29,7 +29,7 @@ if [[ -f "$${info_file}" ]]; then
   commit_sha=$$(grep -m1 '^STABLE_COMMIT_SHA ' "$${info_file}" | awk '{print $$2}')
 fi
 commit_short=$$(printf '%s' "$${commit_sha}" | cut -c1-12)
-printf 'latest\\nsha-%s\\n' "$${commit_short}" > "$@"
+printf 'latest\\nstaging\\nsha-%s\\n' "$${commit_short}" > "$@"
 """,
 )
 

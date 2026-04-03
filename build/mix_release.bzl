@@ -144,6 +144,7 @@ fi
 
 PACKAGED_RELEASE_DIR=$(mktemp -d)
 copy_dir "$RELEASE_DIR/" "$PACKAGED_RELEASE_DIR/"
+chmod 0755 "$PACKAGED_RELEASE_DIR"
 mkdir -p "$(dirname "$EXECROOT/{tar_out}")"
 tar -czf "$EXECROOT/{tar_out}" -C "$PACKAGED_RELEASE_DIR" .
 """.format(

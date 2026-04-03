@@ -123,6 +123,34 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: developer-portal-db-ingress-cnpg
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: developer-portal-pg
+      cnpg.io/podRole: instance
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - port: 5432
+          protocol: TCP
+        - port: 8000
+          protocol: TCP
+        - port: 9187
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: developer-portal-db-egress-kubernetes-api
   namespace: serviceradar-developer
 spec:
@@ -138,3 +166,11 @@ spec:
       to:
         - ipBlock:
             cidr: 10.43.0.1/32
+    - ports:
+        - port: 6443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 10.0.2.3/32
+        - ipBlock:
+            cidr: 10.0.2.4/32

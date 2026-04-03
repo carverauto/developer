@@ -9,9 +9,8 @@
           Build, publish, and discover ServiceRadar extensions in one place.
         </h1>
         <p class="max-w-2xl text-lg leading-8 text-base-content/72">
-          The ServiceRadar Developer Portal publishes SDK and API documentation for plugin authors,
-          gives operators a searchable plugin registry, and makes trust visible through artifact-signing
-          status and official vs community provenance.
+          Find the docs you need, browse available plugins, and quickly see which packages are official
+          and signed.
         </p>
         <div class="flex flex-wrap gap-3">
           <a href={~p"/docs/v1"} class="btn btn-primary btn-wide sm:btn-md">Read V1 docs</a>
@@ -21,20 +20,6 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <article class="card border border-base-300 bg-base-200/70 shadow-xl sm:col-span-2">
-          <div class="card-body">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
-              Platform highlights
-            </p>
-            <div class="flex flex-wrap gap-2">
-              <span class="badge badge-primary badge-outline">Phoenix LiveView</span>
-              <span class="badge badge-secondary badge-outline">Ash</span>
-              <span class="badge badge-accent badge-outline">Forgejo-backed registry</span>
-              <span class="badge badge-outline">serviceradar-cnpg</span>
-            </div>
-          </div>
-        </article>
-
         <article class="card border border-base-300 bg-base-100 shadow-lg">
           <div class="card-body">
             <p class="text-sm font-semibold text-primary">Versioned docs</p>
@@ -84,7 +69,7 @@
           </p>
           <h2 class="card-title">PR-driven plugin submissions</h2>
           <p class="text-sm text-base-content/70">
-            Plugins are published through reviewable pull requests that add manifests, schemas, signatures, and WASM artifacts to the Forgejo-backed registry.
+            Submit a plugin through a reviewed pull request with the files users need to install it.
           </p>
           <div class="card-actions justify-start">
             <a href={~p"/contribute"} class="btn btn-sm btn-outline">See submission steps</a>

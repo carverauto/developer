@@ -167,6 +167,41 @@ spec:
           protocol: TCP
         - port: 9187
           protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: developer-portal-pg
+      ports:
+        - port: 5432
+          protocol: TCP
+        - port: 8000
+          protocol: TCP
+        - port: 9187
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-db-egress-cluster
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: developer-portal-pg
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 5432
+          protocol: TCP
+        - port: 8000
+          protocol: TCP
+        - port: 9187
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: developer-portal-pg
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

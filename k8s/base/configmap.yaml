@@ -11,7 +11,7 @@ data:
   PGHOST: developer-portal-pg-rw.serviceradar-developer.svc.cluster.local
   PGPORT: "5432"
   PGDATABASE: developer_portal
-  AUTHENTIK_ISSUER: https://auth.example.invalid/application/o/developer-portal
+  AUTHENTIK_ISSUER: https://auth.carverauto.dev/application/o/developer-portal
   AUTHENTIK_REQUIRED_GROUP: serviceradar-developer
   AUTHENTIK_SCOPES: openid profile email groups
   AUTHENTIK_GROUPS_CLAIM: groups

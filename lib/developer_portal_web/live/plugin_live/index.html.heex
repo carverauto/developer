@@ -47,45 +47,56 @@
         </div>
       </.form>
 
-      <div class="grid gap-4 lg:grid-cols-3">
-        <%= for plugin <- @plugins do %>
-          <article class="card border border-base-300 bg-base-100 shadow-lg">
-            <div class="card-body">
-              <div class="flex flex-wrap gap-2">
-                <span class={[
-                  "badge",
-                  plugin.type == "official" && "badge-primary",
-                  plugin.type == "community" && "badge-secondary"
-                ]}>
-                  {String.capitalize(plugin.type)}
-                </span>
-                <span class="badge badge-outline">{plugin.language}</span>
-                <span class="badge badge-outline">{plugin.category}</span>
-                <span class={[
-                  "badge",
-                  plugin.signed && "badge-success",
-                  !plugin.signed && "badge-warning"
-                ]}>
-                  {if plugin.signed, do: "Signed", else: "Unsigned"}
-                </span>
-              </div>
+      <%= if Enum.empty?(@plugins) do %>
+        <article class="card border border-dashed border-base-300 bg-base-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="card-title">No plugins available yet</h2>
+            <p class="text-sm text-base-content/70">
+              The registry cache is still warming or no plugins matched the current filters.
+            </p>
+          </div>
+        </article>
+      <% else %>
+        <div class="grid gap-4 lg:grid-cols-3">
+          <%= for plugin <- @plugins do %>
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <div class="flex flex-wrap gap-2">
+                  <span class={[
+                    "badge",
+                    plugin.type == "official" && "badge-primary",
+                    plugin.type == "community" && "badge-secondary"
+                  ]}>
+                    {String.capitalize(plugin.type)}
+                  </span>
+                  <span class="badge badge-outline">{plugin.language}</span>
+                  <span class="badge badge-outline">{plugin.category}</span>
+                  <span class={[
+                    "badge",
+                    plugin.signed && "badge-success",
+                    !plugin.signed && "badge-warning"
+                  ]}>
+                    {if plugin.signed, do: "Signed", else: "Unsigned"}
+                  </span>
+                </div>
 
-              <div class="space-y-2">
-                <h2 class="card-title">{plugin.name}</h2>
-                <p class="text-sm text-base-content/70">{plugin.summary}</p>
-                <p class="text-xs uppercase tracking-[0.24em] text-base-content/50">
-                  by {plugin.author}
-                </p>
-              </div>
+                <div class="space-y-2">
+                  <h2 class="card-title">{plugin.name}</h2>
+                  <p class="text-sm text-base-content/70">{plugin.summary}</p>
+                  <p class="text-xs uppercase tracking-[0.24em] text-base-content/50">
+                    by {plugin.author}
+                  </p>
+                </div>
 
-              <div class="card-actions justify-between">
-                <span class="text-sm text-base-content/60">Version {plugin.version}</span>
-                <a href={~p"/plugins/#{plugin.slug}"} class="btn btn-sm btn-outline">Details</a>
+                <div class="card-actions justify-between">
+                  <span class="text-sm text-base-content/60">Version {plugin.version}</span>
+                  <a href={~p"/plugins/#{plugin.slug}"} class="btn btn-sm btn-outline">Details</a>
+                </div>
               </div>
-            </div>
-          </article>
-        <% end %>
-      </div>
+            </article>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </section>
 </Layouts.app>

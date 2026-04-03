@@ -4,6 +4,7 @@ config :developer_portal, :start_repo?, false
 
 config :developer_portal, DeveloperPortal.Registry,
   source: DeveloperPortal.Registry.TestSource,
+  sync_init?: true,
   source_opts: []
 
 config :developer_portal, Oban,

@@ -50,29 +50,38 @@ defmodule DeveloperPortal.Registry.Validator do
     ensure_optional_url!(plugin.wasm_url, :wasm_url)
     ensure_optional_url!(plugin.artifact_url, :artifact_url)
     ensure_optional_url!(plugin.signature_url, :signature_url)
+    ensure_signed_field!(plugin, :wasm_url)
+    ensure_signed_field!(plugin, :signature_url)
+    ensure_signed_field!(plugin, :artifact_url)
+    ensure_unsigned_has_no_signature!(plugin)
+    ensure_signature_has_wasm!(plugin)
+  end
 
-    cond do
-      plugin.signed and is_nil(plugin.wasm_url) ->
-        raise ArgumentError, "plugin #{plugin.slug} is signed but is missing wasm_url"
-
-      plugin.signed and is_nil(plugin.signature_url) ->
-        raise ArgumentError, "plugin #{plugin.slug} is signed but is missing signature_url"
-
-      plugin.signed and is_nil(plugin.artifact_url) ->
-        raise ArgumentError, "plugin #{plugin.slug} is signed but is missing artifact_url"
-
-      not plugin.signed and not is_nil(plugin.signature_url) ->
-        raise ArgumentError,
-              "plugin #{plugin.slug} exposes signature_url but is not marked signed"
-
-      not is_nil(plugin.signature_url) and is_nil(plugin.wasm_url) ->
-        raise ArgumentError,
-              "plugin #{plugin.slug} exposes signature metadata without a wasm_url"
-
-      true ->
-        :ok
+  defp ensure_signed_field!(%Plugin{signed: true} = plugin, field) do
+    if is_nil(Map.fetch!(plugin, field)) do
+      raise ArgumentError, "plugin #{plugin.slug} is signed but is missing #{field}"
     end
   end
+
+  defp ensure_signed_field!(_plugin, _field), do: :ok
+
+  defp ensure_unsigned_has_no_signature!(
+         %Plugin{signed: false, signature_url: signature_url} = plugin
+       )
+       when not is_nil(signature_url) do
+    raise ArgumentError,
+          "plugin #{plugin.slug} exposes signature_url but is not marked signed"
+  end
+
+  defp ensure_unsigned_has_no_signature!(_plugin), do: :ok
+
+  defp ensure_signature_has_wasm!(%Plugin{signature_url: signature_url, wasm_url: nil} = plugin)
+       when not is_nil(signature_url) do
+    raise ArgumentError,
+          "plugin #{plugin.slug} exposes signature metadata without a wasm_url"
+  end
+
+  defp ensure_signature_has_wasm!(_plugin), do: :ok
 
   defp ensure_non_empty!(value, field) when is_binary(value) do
     if String.trim(value) == "" do

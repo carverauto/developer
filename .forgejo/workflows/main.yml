@@ -45,4 +45,18 @@ jobs:
         run: bazel test --config=remote --verbose_failures //:mix_test
 
       - name: OpenSpec validation
-        run: openspec validate add-developer-portal --strict
+        run: |
+          set -euo pipefail
+          openspec validate --specs --strict
+
+          for change in openspec/changes/*; do
+            if [ ! -d "${change}" ]; then
+              continue
+            fi
+
+            if [ "$(basename "${change}")" = "archive" ]; then
+              continue
+            fi
+
+            openspec validate "$(basename "${change}")" --strict
+          done

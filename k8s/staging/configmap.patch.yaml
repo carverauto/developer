@@ -5,5 +5,4 @@ metadata:
   namespace: serviceradar-developer
 data:
   PHX_HOST: developer-staging.serviceradar.cloud
-  DNS_CLUSTER_QUERY: developer-portal.serviceradar-developer-staging.svc.cluster.local
   PGHOST: developer-portal-pg-rw.serviceradar-developer-staging.svc.cluster.local

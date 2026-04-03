@@ -14,7 +14,7 @@ config :developer_portal,
 config :developer_portal, DeveloperPortal.Registry,
   source: DeveloperPortal.Registry.ForgejoSource,
   source_opts: [
-    api_base_url: "https://git.carverauto.dev/api/v1",
+    api_base_url: "https://code.carverauto.dev/api/v1",
     owner: "carverauto",
     repo: "serviceradar",
     ref: "staging",

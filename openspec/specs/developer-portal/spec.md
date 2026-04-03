@@ -97,19 +97,6 @@ The system SHALL load plugin registry entries from a Forgejo-backed repository i
 - **WHEN** the application refreshes plugin data from the configured Forgejo repository
 - **THEN** updated entries become available to new requests without requiring a redeploy
 
-### Requirement: Authenticated User Access
-The system SHALL support user login through the organization's Authentik-based identity flow.
-
-#### Scenario: User signs in
-- **WHEN** a user chooses to sign in
-- **THEN** the system authenticates the user through Authentik
-- **AND** the system establishes an application session for the authenticated user
-
-#### Scenario: Authenticated access is group-backed
-- **WHEN** the system evaluates access for site-specific authenticated capabilities
-- **THEN** it uses a dedicated identity grouping for this site
-- **AND** the authentication flow remains backed by GitHub through Authentik
-
 ### Requirement: Kubernetes GitOps Deployment
 The system SHALL define Kubernetes deployment resources in-repo using Kustomize overlays and Argo CD.
 
@@ -172,3 +159,4 @@ The system SHALL expose the public site through the platform-standard Kubernetes
 - **THEN** it uses Envoy Gateway resources rather than nginx ingress
 - **AND** it integrates with MetalLB, cert-manager, and external-dns
 - **AND** it is designed for external IPv4 and IPv6 reachability
+

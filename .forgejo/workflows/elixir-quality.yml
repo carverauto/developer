@@ -53,7 +53,5 @@ jobs:
       image: docker.io/library/elixir:1.19.4-otp-28
 
     steps:
-      - uses: actions/checkout@v6
-
       - name: Run Elixir quality contract
         run: ./scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer

@@ -58,5 +58,8 @@ jobs:
           docker run --rm \
             --volumes-from "${HOSTNAME}" \
             -w "${PWD}" \
+            -e HEX_HOME=/tmp/hex \
+            -e MIX_HOME=/tmp/mix \
+            -e MIX_BUILD_PATH=/tmp/developer_portal_quality/_build \
             docker.io/library/elixir:1.19.4-otp-28 \
             bash -lc './scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer'

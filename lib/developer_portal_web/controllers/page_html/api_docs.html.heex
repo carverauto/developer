@@ -127,34 +127,6 @@
                   <a href={~p"/docs/#{@docs_version.id}/api/openapi.json"} class="btn btn-primary">
                     Portal Raw JSON
                   </a>
-                  <a
-                    href={Map.fetch!(@api_source, "open_api_url")}
-                    class="btn btn-outline"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Upstream OpenAPI
-                  </a>
-                  <%= if Map.get(@api_source, "swagger_ui_url") do %>
-                    <a
-                      href={Map.get(@api_source, "swagger_ui_url")}
-                      class="btn btn-outline"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      SwaggerUI
-                    </a>
-                  <% end %>
-                  <%= if Map.get(@api_source, "redoc_url") do %>
-                    <a
-                      href={Map.get(@api_source, "redoc_url")}
-                      class="btn btn-outline"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Redoc
-                    </a>
-                  <% end %>
                 </div>
               </div>
             </div>

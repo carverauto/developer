@@ -18,6 +18,29 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ "Rust SDK"
   end
 
+  test "GET /docs/v1/api renders the cached API reference", %{conn: conn} do
+    conn = get(conn, ~p"/docs/v1/api")
+    html = html_response(conn, 200)
+
+    assert html =~ "ServiceRadar API Reference"
+    assert html =~ "Portal Raw JSON"
+    assert html =~ "/api/v2/devices"
+    assert html =~ "SwaggerUI"
+  end
+
+  test "GET /docs/v1/api/openapi.json returns the cached OpenAPI artifact", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> get(~p"/docs/v1/api/openapi.json")
+
+    body = json_response(conn, 200)
+
+    assert body["openapi"] == "3.0.3"
+    assert get_in(body, ["info", "title"]) == "ServiceRadar API"
+    assert get_in(body, ["paths", "/api/v2/devices", "get", "summary"]) == "List devices"
+  end
+
   test "GET /contribute renders the contribution guide", %{conn: conn} do
     conn = get(conn, ~p"/contribute")
     html = html_response(conn, 200)

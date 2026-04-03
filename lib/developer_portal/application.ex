@@ -15,6 +15,7 @@ defmodule DeveloperPortal.Application do
         {DNSCluster,
          query: Application.get_env(:developer_portal, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: DeveloperPortal.PubSub},
+        DeveloperPortal.ApiDocs.Store,
         DeveloperPortal.Registry.Store,
         DeveloperPortalWeb.Endpoint
       ]

@@ -24,6 +24,27 @@ config :developer_portal, DeveloperPortal.Registry,
     req_options: [receive_timeout: 15_000]
   ]
 
+config :developer_portal, DeveloperPortal.ApiDocs,
+  source: DeveloperPortal.ApiDocs.ServiceRadarSource,
+  source_opts: [
+    versions: %{
+      "v1" => %{
+        "label" => "V1 API",
+        "title" => "ServiceRadar API",
+        "summary" =>
+          "Source-of-truth API reference imported from the Ash JSON:API OpenAPI document published by ServiceRadar.",
+        "surface" => "Ash JSON:API",
+        "source_name" => "ServiceRadar",
+        "source_change" => "add-versioned-openapi-publish",
+        "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api",
+        "swagger_ui_url" => "https://demo.serviceradar.cloud/api/v2/swaggerui",
+        "redoc_url" => "https://demo.serviceradar.cloud/api/v2/redoc"
+      }
+    },
+    req_options: [receive_timeout: 15_000]
+  ],
+  sync_init?: false
+
 config :developer_portal, DeveloperPortal.Auth,
   provider: DeveloperPortal.Auth.Providers.OIDC,
   provider_opts: [
@@ -35,11 +56,12 @@ config :developer_portal, DeveloperPortal.Auth,
 
 config :developer_portal, Oban,
   repo: DeveloperPortal.Repo,
-  queues: [registry: 5],
+  queues: [registry: 5, api_docs: 3],
   plugins: [
     {Oban.Plugins.Cron,
      crontab: [
-       {"*/15 * * * *", DeveloperPortal.Registry.RefreshWorker}
+       {"*/15 * * * *", DeveloperPortal.Registry.RefreshWorker},
+       {"*/15 * * * *", DeveloperPortal.ApiDocs.RefreshWorker}
      ]}
   ]
 

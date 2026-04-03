@@ -68,7 +68,7 @@ spec:
                   name: developer-portal-secrets
                   key: authentik_client_secret
             - name: ECTO_IPV6
-              value: "true"
+              value: "false"
           resources:
             requests:
               cpu: 100m

@@ -43,6 +43,10 @@ if config_env() != :test do
 end
 
 if config_env() == :prod do
+  encode_userinfo = fn value ->
+    URI.encode(value, &(URI.char_unreserved?(&1) or &1 == ?- or &1 == ?_ or &1 == ?. or &1 == ?~))
+  end
+
   database_url =
     System.get_env("DATABASE_URL") ||
       case {
@@ -55,7 +59,9 @@ if config_env() == :prod do
         {host, port, database, user, password}
         when is_binary(host) and host != "" and is_binary(database) and database != "" and
                is_binary(user) and user != "" and is_binary(password) and password != "" ->
-          "ecto://#{user}:#{password}@#{host}:#{port}/#{database}"
+          encoded_user = encode_userinfo.(user)
+          encoded_password = encode_userinfo.(password)
+          "ecto://#{encoded_user}:#{encoded_password}@#{host}:#{port}/#{database}"
 
         _ ->
           raise """

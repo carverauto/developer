@@ -49,14 +49,11 @@ jobs:
   quality:
     name: Elixir Quality
     runs-on: ubuntu-latest
+    container:
+      image: docker.io/library/elixir:1.19.4-otp-28
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Run Elixir quality contract
-        run: |
-          docker run --rm \
-            -v "${PWD}:/workspace" \
-            -w /workspace \
-            docker.io/library/elixir:1.19.4-otp-28 \
-            bash -lc './scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer'
+        run: ./scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer

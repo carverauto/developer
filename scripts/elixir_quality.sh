@@ -74,6 +74,8 @@ run() {
 
 pushd "${project}" >/dev/null
 
+run mix local.hex --force
+run mix local.rebar --force
 run mix deps.get
 run mix deps.compile
 run env MIX_BUILD_PATH="${MIX_BUILD_PATH:-_build/format_check}" mix format --check-formatted

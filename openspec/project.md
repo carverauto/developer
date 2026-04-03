@@ -29,7 +29,6 @@ Planned supporting patterns and libraries:
 - HEEx templates for rendering pages and reusable UI components
 - LiveView for search, filtering, and other interactive behaviors without a heavy SPA frontend
 - `NimblePublisher` or a similar repository-backed content pipeline for docs and registry content
-- Authenticated user flows backed by Authentik as the identity provider
 - Forgejo-hosted CI/CD workflows for build, test, publish, and deploy automation
 
 ## Project Conventions
@@ -64,7 +63,6 @@ Planned supporting patterns and libraries:
   - content ingestion and validation
   - domain models for docs/plugins
   - LiveView UI and routing
-  - authentication/authorization integration
 - Live search and filtering should be implemented with LiveView and query-param-friendly URLs so pages remain shareable and crawlable.
 
 ### Testing Strategy
@@ -108,7 +106,6 @@ Important domain concepts:
 - Plugins and extensions should communicate trust metadata, including whether the published artifact is signed.
 - Community contributions are expected to be submitted through a git-based pull request workflow that adds manifests and signed package artifacts to the registry-backed repository.
 - The site explains the WASM plugin model, SDK usage, architecture concepts, and submission process in addition to listing plugins.
-- Users should be able to authenticate to the site, and future member-only capabilities should assume an SSO-backed identity model rather than local credentials.
 - The production deployment model is Kubernetes-native and uses an Envoy Gateway-based ingress path rather than nginx ingress.
 
 ## Important Constraints
@@ -122,7 +119,6 @@ Important domain concepts:
 - Search and filtering should feel immediate, but the implementation should remain simple and Phoenix-native.
 - Published content should be easy for maintainers to review and safe to validate automatically in CI.
 - The portal is a public developer-facing property, so clarity, accuracy, accessibility, and stable URLs matter.
-- Authentication should integrate with existing organizational identity infrastructure rather than introducing a standalone auth system for this site.
 - The application will run in Kubernetes in a dedicated `serviceradar-developer` namespace.
 - The public edge must support external IPv4 and IPv6 exposure.
 - Ingress and edge configuration must follow the platform standard of Envoy Gateway, MetalLB, cert-manager, and external-dns rather than nginx ingress.
@@ -133,8 +129,6 @@ Important domain concepts:
 - `serviceradar-sdk-go`
 - `serviceradar-sdk-rust`
 - Phoenix, LiveView, Ash Framework, TailwindCSS, and daisyUI
-- Authentik as the identity provider for user login and group-based access control
-- GitHub as the upstream authentication source used through Authentik for this site
 - `serviceradar-cnpg`, the ServiceRadar-managed CloudNativePG-based backend stack, including required database extensions
 - `registry.carverauto.dev` (Harbor) as the source for `serviceradar-cnpg` images and related backend artifacts
 - Kubernetes

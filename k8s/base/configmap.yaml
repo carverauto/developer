@@ -12,7 +12,3 @@ data:
   PGDATABASE: developer_portal
   FORGEJO_API_BASE_URL: http://forgejo-http.forgejo.svc.cluster.local:3000/api/v1
   FORGEJO_CONTENT_BASE_URL: http://forgejo-http.forgejo.svc.cluster.local:3000
-  AUTHENTIK_ISSUER: https://auth.carverauto.dev/application/o/developer-portal
-  AUTHENTIK_REQUIRED_GROUP: serviceradar-developer
-  AUTHENTIK_SCOPES: openid profile email groups
-  AUTHENTIK_GROUPS_CLAIM: groups

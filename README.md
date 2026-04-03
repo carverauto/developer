@@ -16,16 +16,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## Required Environment
 
-Auth is optional in local development. To enable Authentik-backed sign-in, set:
-
-* `AUTHENTIK_ISSUER`
-* `AUTHENTIK_CLIENT_ID`
-* `AUTHENTIK_CLIENT_SECRET`
-* `AUTHENTIK_REQUIRED_GROUP` (defaults to `serviceradar-developer`)
-* `AUTHENTIK_SCOPES` (defaults to `openid profile email groups`)
-* `AUTHENTIK_GROUPS_CLAIM` (defaults to `groups`)
-
-The app also requires the usual Phoenix runtime config in deployed environments:
+The app requires the usual Phoenix runtime config in deployed environments:
 
 * `DATABASE_URL`, or `PGHOST` + `PGPORT` + `PGDATABASE` + `PGUSER` + `PGPASSWORD`
 * `SECRET_KEY_BASE`
@@ -33,7 +24,7 @@ The app also requires the usual Phoenix runtime config in deployed environments:
 
 ## Kubernetes
 
-Kubernetes manifests live under `k8s/` with `base`, `staging`, and `prod` overlays. The deployment expects Authentik client credentials through `developer-portal-secrets`, and it derives DB access from the shared `developer-portal-db-credentials` CNPG bootstrap secret plus `PG*` config in `developer-portal-config`. Argo CD also gets a PreSync migration Job from `k8s/base/migration-job.yaml` so schema changes run before the Deployment rolls. See [k8s/README.md](/home/mfreeman/src/community/k8s/README.md).
+Kubernetes manifests live under `k8s/` with `base`, `staging`, and `prod` overlays. The deployment derives DB access from the shared `developer-portal-db-credentials` CNPG bootstrap secret plus `PG*` config in `developer-portal-config`, and uses `developer-portal-secrets` for `SECRET_KEY_BASE`. Argo CD also gets a PreSync migration Job from `k8s/base/migration-job.yaml` so schema changes run before the Deployment rolls. See [k8s/README.md](/home/mfreeman/src/community/k8s/README.md).
 
 ## Build and Release
 

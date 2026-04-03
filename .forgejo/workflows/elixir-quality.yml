@@ -53,11 +53,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Beam
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: "28.3"
-          elixir-version: "1.19.4"
-
       - name: Run Elixir quality contract
-        run: ./scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer
+        run: |
+          docker run --rm \
+            -v "${PWD}:/workspace" \
+            -w /workspace \
+            docker.io/library/elixir:1.19.4-otp-28 \
+            bash -lc './scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer'

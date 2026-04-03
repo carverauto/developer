@@ -41,14 +41,20 @@ defmodule DeveloperPortalWeb.Layouts do
       <header class="border-b border-base-300/70 bg-base-100/90 backdrop-blur">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <a href={~p"/"} class="flex items-center gap-3">
-            <div class="flex size-10 items-center justify-center rounded-box bg-primary text-primary-content shadow-sm">
-              SR
+            <div class="flex size-11 items-center justify-center rounded-box border border-primary/20 bg-base-100 shadow-sm">
+              <img
+                src={~p"/images/logo.svg"}
+                alt="ServiceRadar"
+                class="size-7"
+                width="28"
+                height="28"
+              />
             </div>
             <div>
               <p class="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
                 ServiceRadar
               </p>
-              <p class="text-lg font-semibold">Developer Portal</p>
+              <p class="text-lg font-semibold tracking-tight">Developer Portal</p>
             </div>
           </a>
 

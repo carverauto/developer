@@ -16,7 +16,7 @@ defmodule DeveloperPortal.Registry.Store do
   end
 
   def refresh! do
-    GenServer.call(__MODULE__, :refresh)
+    GenServer.cast(__MODULE__, :refresh)
   end
 
   @impl true
@@ -26,11 +26,16 @@ defmodule DeveloperPortal.Registry.Store do
     state = %{
       plugins: [],
       source: Keyword.get(config, :source, DeveloperPortal.Registry.ForgejoSource),
-      source_opts: Keyword.get(config, :source_opts, [])
+      source_opts: Keyword.get(config, :source_opts, []),
+      refreshing?: false
     }
 
-    state = refresh_plugins(state)
-    {:ok, state}
+    if Keyword.get(config, :sync_init?, false) do
+      {:ok, load_plugins(state)}
+    else
+      send(self(), :refresh)
+      {:ok, state}
+    end
   end
 
   @impl true
@@ -39,23 +44,52 @@ defmodule DeveloperPortal.Registry.Store do
   end
 
   @impl true
-  def handle_call(:refresh, _from, state) do
-    new_state = refresh_plugins(state)
-    {:reply, new_state.plugins, new_state}
+  def handle_cast(:refresh, state) do
+    {:noreply, schedule_refresh(state)}
   end
 
-  defp refresh_plugins(state) do
+  @impl true
+  def handle_info(:refresh, state) do
+    {:noreply, schedule_refresh(state)}
+  end
+
+  @impl true
+  def handle_info({:refresh_result, {:ok, plugins}}, state) do
+    if plugins != state.plugins do
+      Registry.broadcast_refresh(plugins)
+    end
+
+    {:noreply, %{state | plugins: plugins, refreshing?: false}}
+  end
+
+  @impl true
+  def handle_info({:refresh_result, {:error, reason}}, state) do
+    Logger.warning("plugin registry refresh failed: #{inspect(reason)}")
+    {:noreply, %{state | refreshing?: false}}
+  end
+
+  defp load_plugins(state) do
     case state.source.fetch_plugins(state.source_opts) do
       {:ok, plugins} ->
-        if plugins != state.plugins do
-          Registry.broadcast_refresh(plugins)
-        end
-
-        %{state | plugins: plugins}
+        %{state | plugins: plugins, refreshing?: false}
 
       {:error, reason} ->
         Logger.warning("plugin registry refresh failed: #{inspect(reason)}")
-        state
+        %{state | refreshing?: false}
     end
+  end
+
+  defp schedule_refresh(%{refreshing?: true} = state), do: state
+
+  defp schedule_refresh(state) do
+    parent = self()
+    source = state.source
+    source_opts = state.source_opts
+
+    Task.start(fn ->
+      send(parent, {:refresh_result, source.fetch_plugins(source_opts)})
+    end)
+
+    %{state | refreshing?: true}
   end
 end

@@ -42,6 +42,12 @@ spec:
           env:
             - name: PHX_SERVER
               value: "true"
+            - name: LANG
+              value: C.UTF-8
+            - name: LC_ALL
+              value: C.UTF-8
+            - name: ELIXIR_ERL_OPTIONS
+              value: "+fnu"
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:

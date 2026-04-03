@@ -158,6 +158,16 @@ patches:
       group: networking.k8s.io
       version: v1
       kind: NetworkPolicy
+      name: developer-portal-app-egress-forgejo
+      namespace: serviceradar-developer
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: serviceradar-developer-staging
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: NetworkPolicy
       name: developer-portal-db-ingress-app
       namespace: serviceradar-developer
     patch: |-

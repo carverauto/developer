@@ -1,0 +1,121 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-default-deny
+  namespace: serviceradar-developer
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-allow-dns
+  namespace: serviceradar-developer
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-app-ingress
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      app: developer-portal
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+      ports:
+        - port: 4000
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-app-egress-db
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      app: developer-portal
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 5432
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: developer-portal-pg
+              cnpg.io/podRole: instance
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-app-egress-https
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      app: developer-portal
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: ::/0
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: developer-portal-db-ingress-app
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: developer-portal-pg
+      cnpg.io/podRole: instance
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: developer-portal
+      ports:
+        - port: 5432
+          protocol: TCP

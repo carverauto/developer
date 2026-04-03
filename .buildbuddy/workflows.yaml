@@ -1,0 +1,17 @@
+workflows:
+  - name: "Release"
+    description: "Build and publish the developer portal image with Bazel"
+    triggers:
+      push:
+        branches:
+          - "main"
+      workflow_dispatch:
+    bazel_commands:
+      - "run --config=remote_push //docker:developer_portal_image_push"
+    env:
+      - name: OCI_USERNAME
+        value_from_secret: OCI_USERNAME
+      - name: OCI_TOKEN
+        value_from_secret: OCI_TOKEN
+      - name: BUILDBUDDY_API_KEY
+        value_from_secret: BUILDBUDDY_API_KEY

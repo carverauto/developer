@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: developer-portal
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: ssh://git@git.carverauto.dev/carverauto/developer.git
+    targetRevision: HEAD
+    path: k8s/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: serviceradar-developer
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      jsonPointers:
+        - /status
+    - group: postgresql.cnpg.io
+      kind: Cluster
+      jsonPointers:
+        - /spec/instances
+        - /spec/storage/size
+  syncPolicy:
+    automated:
+      allowEmpty: false
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+      - PrunePropagationPolicy=foreground

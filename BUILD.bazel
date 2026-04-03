@@ -1,0 +1,91 @@
+load("//build:mix_release.bzl", "mix_release")
+load("//build:mix_task.bzl", "mix_task")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    ".tool-versions",
+    "VERSION",
+    ".credo.base.exs",
+    ".credo.ex_dna.exs",
+    ".credo.ex_slop.exs",
+])
+
+filegroup(
+    name = "srcs",
+    srcs = glob(
+        ["**"],
+        exclude = [
+            ".git/**",
+            "_build/**",
+            "bazel-*/**",
+            "deps/**",
+            "third_party/bazel-disk-cache/**",
+            "third_party/bazel-repo-cache/**",
+            "third_party/distdir/**",
+        ],
+    ),
+)
+
+filegroup(
+    name = "bootstrap_srcs",
+    srcs = [
+        "mix.exs",
+        "mix.lock",
+        ".formatter.exs",
+        ".credo.exs",
+        ".credo.base.exs",
+        ".credo.ex_dna.exs",
+        ".credo.ex_slop.exs",
+        ".deps_audit_ignore",
+        ".sobelow-conf",
+        ".dialyzer_ignore.exs",
+        ".tool-versions",
+        "VERSION",
+    ] + glob(["config/**"]) + glob(["assets/**"]),
+)
+
+mix_task(
+    name = "compile_stamp",
+    srcs = [":srcs"],
+    bootstrap_srcs = [":bootstrap_srcs"],
+    out = "compile.ok",
+    command = "mix compile --warnings-as-errors",
+    mix_env = "dev",
+)
+
+mix_task(
+    name = "test_stamp",
+    srcs = [":srcs"],
+    bootstrap_srcs = [":bootstrap_srcs"],
+    out = "test.ok",
+    command = "mix test",
+    mix_env = "test",
+)
+
+mix_release(
+    name = "release_tar",
+    srcs = [":srcs"],
+    bootstrap_srcs = [":bootstrap_srcs"],
+    out = "developer-portal-release.tar.gz",
+    app_name = "developer_portal",
+    src_dir = ".",
+)
+
+sh_test(
+    name = "mix_test",
+    srcs = ["scripts/bazel_assert_artifact.sh"],
+    args = ["$(location :test_stamp)"],
+    data = [":test_stamp"],
+)
+
+alias(
+    name = "compile",
+    actual = ":compile_stamp",
+)
+
+alias(
+    name = "image",
+    actual = "//docker:developer_portal_image",
+)

@@ -1,0 +1,91 @@
+<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+  <section class="px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl space-y-8">
+      <div class="space-y-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          Plugin directory
+        </p>
+        <h1 class="text-4xl font-semibold tracking-tight">
+          Official and community plugins in one searchable registry.
+        </h1>
+        <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+          Filter by keyword, provenance, language, and category. Signature status stays visible so operators can quickly evaluate trust.
+        </p>
+      </div>
+
+      <.form
+        for={@form}
+        id="plugin-filters"
+        phx-change="filter"
+        class="card border border-base-300 bg-base-100 shadow-lg"
+      >
+        <div class="card-body grid gap-4 md:grid-cols-4">
+          <.input
+            field={@form[:q]}
+            type="text"
+            label="Search"
+            placeholder="name, author, category..."
+          />
+          <.input
+            field={@form[:type]}
+            type="select"
+            label="Type"
+            options={["", "official", "community"]}
+          />
+          <.input
+            field={@form[:language]}
+            type="select"
+            label="Language"
+            options={["" | @languages]}
+          />
+          <.input
+            field={@form[:category]}
+            type="select"
+            label="Category"
+            options={["" | @categories]}
+          />
+        </div>
+      </.form>
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        <%= for plugin <- @plugins do %>
+          <article class="card border border-base-300 bg-base-100 shadow-lg">
+            <div class="card-body">
+              <div class="flex flex-wrap gap-2">
+                <span class={[
+                  "badge",
+                  plugin.type == "official" && "badge-primary",
+                  plugin.type == "community" && "badge-secondary"
+                ]}>
+                  {String.capitalize(plugin.type)}
+                </span>
+                <span class="badge badge-outline">{plugin.language}</span>
+                <span class="badge badge-outline">{plugin.category}</span>
+                <span class={[
+                  "badge",
+                  plugin.signed && "badge-success",
+                  !plugin.signed && "badge-warning"
+                ]}>
+                  {if plugin.signed, do: "Signed", else: "Unsigned"}
+                </span>
+              </div>
+
+              <div class="space-y-2">
+                <h2 class="card-title">{plugin.name}</h2>
+                <p class="text-sm text-base-content/70">{plugin.summary}</p>
+                <p class="text-xs uppercase tracking-[0.24em] text-base-content/50">
+                  by {plugin.author}
+                </p>
+              </div>
+
+              <div class="card-actions justify-between">
+                <span class="text-sm text-base-content/60">Version {plugin.version}</span>
+                <a href={~p"/plugins/#{plugin.slug}"} class="btn btn-sm btn-outline">Details</a>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</Layouts.app>

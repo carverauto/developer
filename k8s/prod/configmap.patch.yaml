@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: developer-portal-config
+  namespace: serviceradar-developer
+data:
+  PHX_HOST: developer.serviceradar.cloud
+  DNS_CLUSTER_QUERY: developer-portal.serviceradar-developer.svc.cluster.local
+  PGHOST: developer-portal-pg-rw.serviceradar-developer.svc.cluster.local

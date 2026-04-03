@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: developer-portal-config
+  namespace: serviceradar-developer
+data:
+  PHX_HOST: developer.example.invalid
+  PORT: "4000"
+  POOL_SIZE: "10"
+  DNS_CLUSTER_QUERY: developer-portal.serviceradar-developer.svc.cluster.local
+  PGHOST: developer-portal-pg-rw.serviceradar-developer.svc.cluster.local
+  PGPORT: "5432"
+  PGDATABASE: developer_portal
+  AUTHENTIK_ISSUER: https://auth.example.invalid/application/o/developer-portal
+  AUTHENTIK_REQUIRED_GROUP: serviceradar-developer
+  AUTHENTIK_SCOPES: openid profile email groups
+  AUTHENTIK_GROUPS_CLAIM: groups

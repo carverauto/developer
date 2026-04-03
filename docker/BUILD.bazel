@@ -1,0 +1,68 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
+
+package(default_visibility = ["//visibility:public"])
+
+genrule(
+    name = "developer_portal_release_rootfs",
+    srcs = ["//:release_tar"],
+    outs = ["developer_portal_release_rootfs.tar"],
+    cmd = """
+set -euo pipefail
+TAR=$(location //:release_tar)
+ROOT=$(@D)/rootfs
+rm -rf "$${ROOT}"
+mkdir -p "$${ROOT}/app"
+tar -xzf "$${TAR}" -C "$${ROOT}/app"
+tar -czf "$@" -C "$${ROOT}" .
+""",
+)
+
+genrule(
+    name = "developer_portal_push_tags",
+    outs = ["developer_portal_push_tags.txt"],
+    stamp = 1,
+    cmd = """
+set -euo pipefail
+info_file="bazel-out/stable-status.txt"
+commit_sha="dev"
+if [[ -f "$${info_file}" ]]; then
+  commit_sha=$$(grep -m1 '^STABLE_COMMIT_SHA ' "$${info_file}" | awk '{print $$2}')
+fi
+commit_short=$$(printf '%s' "$${commit_sha}" | cut -c1-12)
+printf 'latest\\nsha-%s\\n' "$${commit_short}" > "$@"
+""",
+)
+
+oci_image(
+    name = "developer_portal_image",
+    base = "@ubuntu_noble_linux_amd64//:ubuntu_noble_linux_amd64",
+    tars = [":developer_portal_release_rootfs"],
+    entrypoint = ["/app/bin/developer_portal"],
+    cmd = ["start"],
+    env = {
+        "HOME": "/app",
+        "PATH": "/app/bin:/usr/local/bin:/usr/bin:/bin",
+        "PHX_SERVER": "true",
+        "MIX_ENV": "prod",
+    },
+    workdir = "/app",
+    user = "1000",
+    exposed_ports = ["4000/tcp"],
+    labels = {
+        "org.opencontainers.image.title": "developer-portal",
+        "org.opencontainers.image.source": "ssh://git@git.carverauto.dev/carverauto/developer.git",
+    },
+)
+
+oci_load(
+    name = "developer_portal_image_tar",
+    image = ":developer_portal_image",
+    repo_tags = ["registry.carverauto.dev/serviceradar/developer-portal:local"],
+)
+
+oci_push(
+    name = "developer_portal_image_push",
+    image = ":developer_portal_image",
+    repository = "registry.carverauto.dev/serviceradar/developer-portal",
+    remote_tags = ":developer_portal_push_tags",
+)

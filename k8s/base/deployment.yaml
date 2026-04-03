@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: developer-portal
+  namespace: serviceradar-developer
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  labels:
+    app: developer-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: developer-portal
+  template:
+    metadata:
+      labels:
+        app: developer-portal
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: developer-portal
+          image: registry.carverauto.dev/serviceradar/developer-portal:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - containerPort: 4000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: developer-portal-config
+          env:
+            - name: PHX_SERVER
+              value: "true"
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: developer-portal-secrets
+                  key: secret_key_base
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: developer-portal-db-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: developer-portal-db-credentials
+                  key: password
+            - name: AUTHENTIK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: developer-portal-secrets
+                  key: authentik_client_id
+            - name: AUTHENTIK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: developer-portal-secrets
+                  key: authentik_client_secret
+            - name: ECTO_IPV6
+              value: "true"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10

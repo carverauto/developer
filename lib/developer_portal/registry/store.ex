@@ -6,6 +6,7 @@ defmodule DeveloperPortal.Registry.Store do
   require Logger
 
   alias DeveloperPortal.Registry
+  alias DeveloperPortal.Registry.Validator
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -55,6 +56,8 @@ defmodule DeveloperPortal.Registry.Store do
 
   @impl true
   def handle_info({:refresh_result, {:ok, plugins}}, state) do
+    plugins = Validator.validate!(plugins)
+
     if plugins != state.plugins do
       Registry.broadcast_refresh(plugins)
     end
@@ -71,7 +74,7 @@ defmodule DeveloperPortal.Registry.Store do
   defp load_plugins(state) do
     case state.source.fetch_plugins(state.source_opts) do
       {:ok, plugins} ->
-        %{state | plugins: plugins, refreshing?: false}
+        %{state | plugins: Validator.validate!(plugins), refreshing?: false}
 
       {:error, reason} ->
         Logger.warning("plugin registry refresh failed: #{inspect(reason)}")

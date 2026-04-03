@@ -4,6 +4,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   @behaviour DeveloperPortal.Registry.Source
 
   alias DeveloperPortal.Registry.Plugin
+  alias DeveloperPortal.Registry.Validator
 
   @manifest_files [
     %{name: "plugin.yaml", kind: "check"},
@@ -30,6 +31,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
         |> Enum.filter(&(&1["type"] == "dir"))
         |> Enum.flat_map(&fetch_directory_plugins(config, &1))
         |> Enum.sort_by(&{if(&1.official, do: 0, else: 1), &1.name})
+        |> Validator.validate!()
 
       {:ok, plugins}
     end

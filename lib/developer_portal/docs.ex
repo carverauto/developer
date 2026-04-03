@@ -4,6 +4,7 @@ defmodule DeveloperPortal.Docs do
   """
 
   alias DeveloperPortal.Docs.Section
+  alias DeveloperPortal.Docs.Validator
   alias DeveloperPortal.Docs.Version
 
   @content_root Path.expand("../../priv/content/docs", __DIR__)
@@ -25,13 +26,13 @@ defmodule DeveloperPortal.Docs do
   def all do
     content_root = Path.join(:code.priv_dir(:developer_portal), "content/docs")
 
-    build_versions(
+    load(
       Path.join(content_root, "versions.yaml"),
       Path.wildcard(Path.join(content_root, "*/*.md"))
     )
   end
 
-  defp build_versions(versions_path, section_paths) do
+  def load(versions_path, section_paths) do
     versions =
       versions_path
       |> YamlElixir.read_from_file!()
@@ -60,6 +61,7 @@ defmodule DeveloperPortal.Docs do
         | sections: Map.get(sections_by_version, version.id, []) |> Enum.sort_by(& &1.order)
       }
     end)
+    |> Validator.validate!()
   end
 
   defp build_section(path) do

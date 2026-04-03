@@ -102,6 +102,30 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: developer-portal-app-egress-forgejo
+  namespace: serviceradar-developer
+spec:
+  podSelector:
+    matchLabels:
+      app: developer-portal
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 3000
+          protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: forgejo
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: forgejo
+              app.kubernetes.io/name: forgejo
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: developer-portal-db-ingress-app
   namespace: serviceradar-developer
 spec:

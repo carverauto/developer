@@ -7,6 +7,11 @@ config :developer_portal, DeveloperPortal.Registry,
   sync_init?: true,
   source_opts: []
 
+config :developer_portal, DeveloperPortal.ApiDocs,
+  source: DeveloperPortal.ApiDocs.TestSource,
+  sync_init?: true,
+  source_opts: []
+
 config :developer_portal, Oban,
   repo: DeveloperPortal.Repo,
   testing: :manual,

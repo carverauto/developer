@@ -27,6 +27,12 @@
           </p>
           <h1 class="text-4xl font-semibold tracking-tight">{@docs_version.title}</h1>
           <p class="max-w-3xl text-lg leading-8 text-base-content/72">{@docs_version.summary}</p>
+          <div class="flex flex-wrap gap-3">
+            <a href={~p"/docs/#{@docs_version.id}/api"} class="btn btn-primary">
+              API Reference
+            </a>
+            <a href={~p"/contribute"} class="btn btn-outline">Contribution Guide</a>
+          </div>
         </div>
 
         <div class="grid gap-4 lg:grid-cols-2">

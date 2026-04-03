@@ -40,6 +40,33 @@ if config_env() != :test do
 
   config :developer_portal, DeveloperPortal.Registry, source_opts: registry_source_opts
 
+  api_docs_source_opts =
+    Application.get_env(:developer_portal, DeveloperPortal.ApiDocs, [])
+    |> Keyword.get(:source_opts, [])
+    |> then(fn source_opts ->
+      versions = Keyword.get(source_opts, :versions, %{})
+      v1 = Map.get(versions, "v1", %{})
+
+      updated_v1 =
+        v1
+        |> Map.put(
+          "open_api_url",
+          System.get_env("SERVICERADAR_API_DOCS_V1_OPENAPI_URL") || Map.get(v1, "open_api_url")
+        )
+        |> Map.put(
+          "swagger_ui_url",
+          System.get_env("SERVICERADAR_API_DOCS_V1_SWAGGER_URL") || Map.get(v1, "swagger_ui_url")
+        )
+        |> Map.put(
+          "redoc_url",
+          System.get_env("SERVICERADAR_API_DOCS_V1_REDOC_URL") || Map.get(v1, "redoc_url")
+        )
+
+      Keyword.put(source_opts, :versions, Map.put(versions, "v1", updated_v1))
+    end)
+
+  config :developer_portal, DeveloperPortal.ApiDocs, source_opts: api_docs_source_opts
+
   auth_provider_opts =
     [
       issuer: System.get_env("AUTHENTIK_ISSUER"),

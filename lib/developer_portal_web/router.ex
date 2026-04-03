@@ -28,10 +28,17 @@ defmodule DeveloperPortalWeb.Router do
     get "/", PageController, :home
     get "/docs", PageController, :docs_index
     get "/docs/:version", PageController, :docs
+    get "/docs/:version/api", PageController, :api_docs
     get "/contribute", PageController, :contribute
     get "/auth/login", AuthController, :login
     get "/auth/callback", AuthController, :callback
     post "/auth/logout", AuthController, :logout
+  end
+
+  scope "/", DeveloperPortalWeb do
+    pipe_through :api
+
+    get "/docs/:version/api/openapi.json", PageController, :api_openapi
   end
 
   scope "/", DeveloperPortalWeb do

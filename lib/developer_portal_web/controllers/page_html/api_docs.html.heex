@@ -1,0 +1,290 @@
+<Layouts.app flash={@flash} current_user={@current_user} auth_enabled={@auth_enabled}>
+  <section class="px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_1fr]">
+      <aside class="card h-fit border border-base-300 bg-base-100 shadow-lg">
+        <div class="card-body space-y-6">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+              Versions
+            </p>
+            <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
+              <%= for version <- @versions do %>
+                <a
+                  href={~p"/docs/#{version.id}/api"}
+                  class={[
+                    "rounded-btn px-3 py-2 text-sm",
+                    version.id == @docs_version.id && "bg-primary text-primary-content"
+                  ]}
+                >
+                  {version.label}
+                </a>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">Browse</p>
+            <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
+              <a href={~p"/docs/#{@docs_version.id}"} class="rounded-btn px-3 py-2 text-sm">
+                Guides
+              </a>
+              <a
+                href={~p"/docs/#{@docs_version.id}/api"}
+                class="rounded-btn bg-primary px-3 py-2 text-sm text-primary-content"
+              >
+                API Reference
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="space-y-8">
+        <div class="space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            {@docs_version.label}
+          </p>
+          <h1 class="text-4xl font-semibold tracking-tight">ServiceRadar API Reference</h1>
+          <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+            {(@api_document && @api_document.summary) ||
+              "Source-of-truth API reference imported from ServiceRadar."}
+          </p>
+        </div>
+
+        <%= if @api_source do %>
+          <div class="grid gap-4 md:grid-cols-4">
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  Source
+                </p>
+                <p class="text-lg font-semibold">
+                  {Map.get(@api_source, "source_name", "ServiceRadar")}
+                </p>
+                <p class="text-sm text-base-content/70">
+                  {Map.get(@api_source, "surface", "API")}
+                </p>
+              </div>
+            </article>
+
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  OpenAPI
+                </p>
+                <p class="text-lg font-semibold">
+                  {if @api_document, do: @api_document.openapi_version, else: "Pending"}
+                </p>
+                <p class="text-sm text-base-content/70">
+                  API version {if @api_document, do: @api_document.api_version, else: "unknown"}
+                </p>
+              </div>
+            </article>
+
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  Operations
+                </p>
+                <p class="text-lg font-semibold">
+                  {if @api_document, do: @api_document.operation_count, else: 0}
+                </p>
+                <p class="text-sm text-base-content/70">
+                  {if @api_document, do: @api_document.tag_count, else: 0} tags
+                </p>
+              </div>
+            </article>
+
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  Schemas
+                </p>
+                <p class="text-lg font-semibold">
+                  {if @api_document, do: @api_document.schema_count, else: 0}
+                </p>
+                <p class="text-sm text-base-content/70">
+                  Cached {if @api_document,
+                    do: Calendar.strftime(@api_document.fetched_at, "%Y-%m-%d %H:%M UTC"),
+                    else: "not yet"}
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <div class="card border border-base-300 bg-base-100 shadow-lg">
+            <div class="card-body">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                    Source of truth
+                  </p>
+                  <h2 class="text-2xl font-semibold tracking-tight">
+                    ServiceRadar-generated OpenAPI
+                  </h2>
+                  <p class="mt-2 max-w-3xl text-sm text-base-content/70">
+                    The developer portal presents the API contract published by ServiceRadar. The raw artifact stays owned by the platform, while this page adds navigation and a browsable reference view.
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                  <a href={~p"/docs/#{@docs_version.id}/api/openapi.json"} class="btn btn-primary">
+                    Portal Raw JSON
+                  </a>
+                  <a
+                    href={Map.fetch!(@api_source, "open_api_url")}
+                    class="btn btn-outline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Upstream OpenAPI
+                  </a>
+                  <%= if Map.get(@api_source, "swagger_ui_url") do %>
+                    <a
+                      href={Map.get(@api_source, "swagger_ui_url")}
+                      class="btn btn-outline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      SwaggerUI
+                    </a>
+                  <% end %>
+                  <%= if Map.get(@api_source, "redoc_url") do %>
+                    <a
+                      href={Map.get(@api_source, "redoc_url")}
+                      class="btn btn-outline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Redoc
+                    </a>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <%= if @api_document do %>
+          <div class="grid gap-4 md:grid-cols-2">
+            <%= for group <- @api_document.operation_groups do %>
+              <section class="card border border-base-300 bg-base-100 shadow-lg">
+                <div class="card-body">
+                  <div class="flex items-center justify-between gap-3">
+                    <h2 class="card-title">{group.name}</h2>
+                    <span class="badge badge-outline">{length(group.operations)} operations</span>
+                  </div>
+
+                  <div class="space-y-3">
+                    <%= for operation <- group.operations do %>
+                      <details class="collapse collapse-arrow border border-base-300 bg-base-200/30">
+                        <summary class="collapse-title">
+                          <div class="flex flex-wrap items-center gap-3">
+                            <span class={[
+                              "badge font-semibold",
+                              method_badge_class(operation.method)
+                            ]}>
+                              {operation.method}
+                            </span>
+                            <code class="text-sm font-medium">{operation.path}</code>
+                          </div>
+                          <p class="mt-2 text-sm text-base-content/70">{operation.summary}</p>
+                        </summary>
+                        <div class="collapse-content space-y-4 text-sm text-base-content/75">
+                          <%= if operation.description do %>
+                            <p>{operation.description}</p>
+                          <% end %>
+
+                          <div class="flex flex-wrap gap-2">
+                            <%= if operation.deprecated? do %>
+                              <span class="badge badge-warning badge-outline">Deprecated</span>
+                            <% end %>
+                            <%= for scheme <- operation.security do %>
+                              <span class="badge badge-outline">{scheme}</span>
+                            <% end %>
+                            <%= for content_type <- operation.request_body_types do %>
+                              <span class="badge badge-secondary badge-outline">
+                                {content_type}
+                              </span>
+                            <% end %>
+                          </div>
+
+                          <%= if operation.parameters != [] do %>
+                            <div>
+                              <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                                Parameters
+                              </p>
+                              <div class="space-y-2">
+                                <%= for parameter <- operation.parameters do %>
+                                  <div class="rounded-box border border-base-300 bg-base-100 px-3 py-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                      <code class="font-semibold">{parameter.name}</code>
+                                      <span class="badge badge-outline badge-sm">
+                                        {parameter.location}
+                                      </span>
+                                      <%= if parameter.required? do %>
+                                        <span class="badge badge-primary badge-sm">required</span>
+                                      <% end %>
+                                      <%= if parameter.schema do %>
+                                        <span class="badge badge-ghost badge-sm">
+                                          {parameter.schema}
+                                        </span>
+                                      <% end %>
+                                    </div>
+                                    <%= if parameter.description do %>
+                                      <p class="mt-1 text-xs text-base-content/65">
+                                        {parameter.description}
+                                      </p>
+                                    <% end %>
+                                  </div>
+                                <% end %>
+                              </div>
+                            </div>
+                          <% end %>
+
+                          <div>
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                              Responses
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                              <%= for response <- operation.response_codes do %>
+                                <span class="badge badge-outline">
+                                  {response.status}: {response.description}
+                                </span>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                    <% end %>
+                  </div>
+                </div>
+              </section>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="card border border-warning/50 bg-warning/10 shadow-lg">
+            <div class="card-body">
+              <h2 class="card-title">API reference is warming up</h2>
+              <p class="text-sm text-base-content/75">
+                The portal has not cached the ServiceRadar OpenAPI document yet. Refresh shortly, or open the upstream artifact directly while the cache catches up.
+              </p>
+              <%= if @api_source do %>
+                <div class="card-actions justify-start">
+                  <a
+                    href={Map.fetch!(@api_source, "open_api_url")}
+                    class="btn btn-outline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open upstream OpenAPI
+                  </a>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</Layouts.app>

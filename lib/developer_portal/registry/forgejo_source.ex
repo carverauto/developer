@@ -83,7 +83,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
          dist,
          language
        ) do
-    manifest = fetch_manifest!(manifest_entry)
+    manifest = fetch_manifest!(config, manifest_entry)
     signature_url = find_download_url(dist, @signature_candidates)
     checksum_url = find_download_url(dist, @checksum_candidates)
     wasm_url = find_download_url(dist, @wasm_candidates)
@@ -169,8 +169,8 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     end
   end
 
-  defp fetch_manifest!(entry) do
-    body = fetch_raw_body!(download_url(entry))
+  defp fetch_manifest!(config, entry) do
+    body = fetch_raw_body!(config, download_url(entry))
 
     case Path.extname(entry["name"]) do
       ".json" -> Jason.decode!(body)
@@ -179,8 +179,8 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     end
   end
 
-  defp fetch_raw_body!(url) do
-    case Req.get(url) do
+  defp fetch_raw_body!(config, url) do
+    case Req.get(url, config.req_options) do
       {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
         body
 

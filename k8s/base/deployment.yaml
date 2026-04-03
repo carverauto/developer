@@ -27,7 +27,7 @@ spec:
       containers:
         - name: developer-portal
           image: registry.carverauto.dev/serviceradar/developer-portal:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

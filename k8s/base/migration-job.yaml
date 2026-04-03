@@ -27,7 +27,7 @@ spec:
       containers:
         - name: migrate
           image: registry.carverauto.dev/serviceradar/developer-portal:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["/app/bin/migrate"]
           securityContext:
             allowPrivilegeEscalation: false

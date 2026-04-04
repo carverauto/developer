@@ -1,7 +1,6 @@
-- id: v1
-  label: V1
-  title: ServiceRadar V1 developer documentation
+- id: v2
+  label: V2
+  title: ServiceRadar V2 documentation
   summary: >
-    Version 1 focuses on the WebAssembly plugin contract, SDK quickstarts,
-    trusted plugin distribution, and the metadata required to publish entries
-    into the public registry.
+    API references, SDK guides, plugin packages, and the files needed to build
+    and install ServiceRadar extensions.

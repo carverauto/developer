@@ -21,11 +21,11 @@ defmodule DeveloperPortal.ApiDocs.StoreTest do
          sync_init?: true}
       )
 
-    before_refresh = GenServer.call(pid, {:document, "v1"})
+    before_refresh = GenServer.call(pid, {:document, "v2"})
 
     GenServer.cast(pid, :refresh)
     Process.sleep(50)
 
-    assert GenServer.call(pid, {:document, "v1"}) == before_refresh
+    assert GenServer.call(pid, {:document, "v2"}) == before_refresh
   end
 end

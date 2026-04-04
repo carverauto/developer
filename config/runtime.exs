@@ -45,24 +45,30 @@ if config_env() != :test do
     |> Keyword.get(:source_opts, [])
     |> then(fn source_opts ->
       versions = Keyword.get(source_opts, :versions, %{})
-      v1 = Map.get(versions, "v1", %{})
+      v2 = Map.get(versions, "v2", Map.get(versions, "v1", %{}))
 
-      updated_v1 =
-        v1
+      updated_v2 =
+        v2
         |> Map.put(
           "open_api_url",
-          System.get_env("SERVICERADAR_API_DOCS_V1_OPENAPI_URL") || Map.get(v1, "open_api_url")
+          System.get_env("SERVICERADAR_API_DOCS_V2_OPENAPI_URL") ||
+            System.get_env("SERVICERADAR_API_DOCS_V1_OPENAPI_URL") ||
+            Map.get(v2, "open_api_url")
         )
         |> Map.put(
           "swagger_ui_url",
-          System.get_env("SERVICERADAR_API_DOCS_V1_SWAGGER_URL") || Map.get(v1, "swagger_ui_url")
+          System.get_env("SERVICERADAR_API_DOCS_V2_SWAGGER_URL") ||
+            System.get_env("SERVICERADAR_API_DOCS_V1_SWAGGER_URL") ||
+            Map.get(v2, "swagger_ui_url")
         )
         |> Map.put(
           "redoc_url",
-          System.get_env("SERVICERADAR_API_DOCS_V1_REDOC_URL") || Map.get(v1, "redoc_url")
+          System.get_env("SERVICERADAR_API_DOCS_V2_REDOC_URL") ||
+            System.get_env("SERVICERADAR_API_DOCS_V1_REDOC_URL") ||
+            Map.get(v2, "redoc_url")
         )
 
-      Keyword.put(source_opts, :versions, Map.put(versions, "v1", updated_v1))
+      Keyword.put(source_opts, :versions, versions |> Map.delete("v1") |> Map.put("v2", updated_v2))
     end)
 
   config :developer_portal, DeveloperPortal.ApiDocs, source_opts: api_docs_source_opts

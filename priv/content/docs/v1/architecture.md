@@ -1,12 +1,13 @@
 ---
-title: Architecture
+title: Plugin packages
 audience: Operators
-description: Cross-cutting documentation about the system model behind the developer portal.
+description: What users can expect to find on plugin pages and download before installation.
 order: 40
 ---
 
-The developer portal is more than a docs site.
+Each plugin page should give you the files and details needed to evaluate and install the package.
 
-- Plugin metadata, signatures, and release links are surfaced directly in the UI.
-- The portal is deployed through Kubernetes with GitOps-managed overlays.
-- Authentication boundaries are designed around Authentik and GitHub-backed identity.
+- Installation steps should be easy to copy into your own workflow.
+- Package files should include the manifest, schema, and artifact downloads when available.
+- Signature status should be visible so you can quickly tell whether a package is signed.
+- Official and community plugins should be clearly labeled.

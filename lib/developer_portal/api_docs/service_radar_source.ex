@@ -135,9 +135,9 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
         Map.get(
           attrs,
           "summary",
-          "Source-of-truth API reference imported from ServiceRadar OpenAPI artifacts."
+          "Browse the current ServiceRadar API reference and download the OpenAPI document."
         ),
-      surface: Map.get(attrs, "surface", "Ash JSON:API"),
+      surface: Map.get(attrs, "surface", "ServiceRadar API"),
       openapi_version: Map.get(spec, "openapi", "3.0.3"),
       api_version: get_in(spec, ["info", "version"]) || Map.get(attrs, "api_version", "unknown"),
       source_name: Map.get(attrs, "source_name", "ServiceRadar"),

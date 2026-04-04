@@ -5,20 +5,12 @@
         <div class="card-body space-y-6">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
-              Versions
+              API version
             </p>
             <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
-              <%= for version <- @versions do %>
-                <a
-                  href={~p"/docs/#{version.id}/api"}
-                  class={[
-                    "rounded-btn px-3 py-2 text-sm",
-                    version.id == @docs_version.id && "bg-primary text-primary-content"
-                  ]}
-                >
-                  {version.label}
-                </a>
-              <% end %>
+              <span class="rounded-btn bg-primary px-3 py-2 text-sm text-primary-content">
+                {if @api_document, do: @api_document.api_version, else: "Pending"}
+              </span>
             </div>
           </div>
 
@@ -42,7 +34,7 @@
       <div class="space-y-8">
         <div class="space-y-4">
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            {@docs_version.label}
+            {if @api_document, do: "API " <> @api_document.api_version, else: "API"}
           </p>
           <h1 class="text-4xl font-semibold tracking-tight">ServiceRadar API Reference</h1>
           <p class="max-w-3xl text-lg leading-8 text-base-content/72">

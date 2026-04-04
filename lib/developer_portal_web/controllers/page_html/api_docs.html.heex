@@ -34,7 +34,7 @@
       <div class="space-y-8">
         <div class="space-y-4">
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            {if @api_document, do: "API " <> api_display_version(@api_document.api_version), else: "API"}
+            {if @api_document, do: "API V" <> api_display_version(@api_document.api_version), else: "API"}
           </p>
           <h1 class="text-4xl font-semibold tracking-tight">ServiceRadar API Reference</h1>
           <p class="max-w-3xl text-lg leading-8 text-base-content/72">

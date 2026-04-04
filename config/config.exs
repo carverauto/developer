@@ -31,9 +31,8 @@ config :developer_portal, DeveloperPortal.ApiDocs,
       "v1" => %{
         "label" => "V1 API",
         "title" => "ServiceRadar API",
-        "summary" =>
-          "Source-of-truth API reference imported from the Ash JSON:API OpenAPI document published by ServiceRadar.",
-        "surface" => "Ash JSON:API",
+        "summary" => "Browse the current ServiceRadar API reference and download the OpenAPI document.",
+        "surface" => "ServiceRadar API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",
         "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api",

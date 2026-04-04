@@ -13,7 +13,7 @@ defmodule DeveloperPortal.ApiDocs.TestSource do
          version: "v1",
          label: "V1 API",
          title: "ServiceRadar API",
-         summary: "Source-of-truth API reference imported from ServiceRadar OpenAPI artifacts.",
+         summary: "Browse the current ServiceRadar API reference and download the OpenAPI document.",
          surface: "Ash JSON:API",
          openapi_version: "3.0.3",
          api_version: "2.0.0",
@@ -118,7 +118,7 @@ defmodule DeveloperPortal.ApiDocs.TestSource do
         "label" => "V1 API",
         "title" => "ServiceRadar API",
         "summary" =>
-          "Source-of-truth API reference imported from ServiceRadar OpenAPI artifacts.",
+          "Browse the current ServiceRadar API reference and download the OpenAPI document.",
         "surface" => "Ash JSON:API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",

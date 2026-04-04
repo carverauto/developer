@@ -28,8 +28,8 @@ config :developer_portal, DeveloperPortal.ApiDocs,
   source: DeveloperPortal.ApiDocs.ServiceRadarSource,
   source_opts: [
     versions: %{
-      "v1" => %{
-        "label" => "V1 API",
+      "v2" => %{
+        "label" => "V2 API",
         "title" => "ServiceRadar API",
         "summary" => "Browse the current ServiceRadar API reference and download the OpenAPI document.",
         "surface" => "ServiceRadar API",

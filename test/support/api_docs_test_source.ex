@@ -9,12 +9,12 @@ defmodule DeveloperPortal.ApiDocs.TestSource do
   def fetch_documents(_opts) do
     {:ok,
      %{
-       "v1" => %Document{
-         version: "v1",
-         label: "V1 API",
+       "v2" => %Document{
+         version: "v2",
+         label: "V2 API",
          title: "ServiceRadar API",
          summary: "Browse the current ServiceRadar API reference and download the OpenAPI document.",
-         surface: "Ash JSON:API",
+         surface: "ServiceRadar API",
          openapi_version: "3.0.3",
          api_version: "2.0.0",
          source_name: "ServiceRadar",
@@ -114,12 +114,12 @@ defmodule DeveloperPortal.ApiDocs.TestSource do
 
   def version_sources(_opts) do
     %{
-      "v1" => %{
-        "label" => "V1 API",
+      "v2" => %{
+        "label" => "V2 API",
         "title" => "ServiceRadar API",
         "summary" =>
           "Browse the current ServiceRadar API reference and download the OpenAPI document.",
-        "surface" => "Ash JSON:API",
+        "surface" => "ServiceRadar API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",
         "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api",

@@ -14,4 +14,13 @@ defmodule DeveloperPortalWeb.PageHTML do
   def method_badge_class("PATCH"), do: "badge-warning"
   def method_badge_class("DELETE"), do: "badge-error"
   def method_badge_class(_method), do: "badge-outline"
+
+  def api_display_version(nil), do: "unknown"
+
+  def api_display_version(version) do
+    version
+    |> to_string()
+    |> String.split(".", parts: 2)
+    |> List.first()
+  end
 end

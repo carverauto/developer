@@ -9,7 +9,7 @@
             </p>
             <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
               <span class="rounded-btn bg-primary px-3 py-2 text-sm text-primary-content">
-                {if @api_document, do: @api_document.api_version, else: "Pending"}
+                {if @api_document, do: api_display_version(@api_document.api_version), else: "Pending"}
               </span>
             </div>
           </div>
@@ -34,7 +34,7 @@
       <div class="space-y-8">
         <div class="space-y-4">
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            {if @api_document, do: "API " <> @api_document.api_version, else: "API"}
+            {if @api_document, do: "API " <> api_display_version(@api_document.api_version), else: "API"}
           </p>
           <h1 class="text-4xl font-semibold tracking-tight">ServiceRadar API Reference</h1>
           <p class="max-w-3xl text-lg leading-8 text-base-content/72">
@@ -68,7 +68,7 @@
                   {if @api_document, do: @api_document.openapi_version, else: "Pending"}
                 </p>
                 <p class="text-sm text-base-content/70">
-                  API version {if @api_document, do: @api_document.api_version, else: "unknown"}
+                  API version {if @api_document, do: api_display_version(@api_document.api_version), else: "unknown"}
                 </p>
               </div>
             </article>

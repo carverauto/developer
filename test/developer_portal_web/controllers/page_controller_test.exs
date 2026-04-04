@@ -9,17 +9,29 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ "Build, publish, and discover ServiceRadar extensions"
   end
 
-  test "GET /docs/v1 renders the v1 docs page", %{conn: conn} do
+  test "GET /docs/v1 redirects to the v2 docs page", %{conn: conn} do
     conn = get(conn, ~p"/docs/v1")
+
+    assert redirected_to(conn) == "/docs/v2"
+  end
+
+  test "GET /docs/v2 renders the v2 docs page", %{conn: conn} do
+    conn = get(conn, ~p"/docs/v2")
     html = html_response(conn, 200)
 
-    assert html =~ "ServiceRadar V1 developer documentation"
+    assert html =~ "ServiceRadar V2 documentation"
     assert html =~ "Go SDK"
     assert html =~ "Rust SDK"
   end
 
-  test "GET /docs/v1/api renders the cached API reference", %{conn: conn} do
+  test "GET /docs/v1/api redirects to the v2 api reference", %{conn: conn} do
     conn = get(conn, ~p"/docs/v1/api")
+
+    assert redirected_to(conn) == "/docs/v2/api"
+  end
+
+  test "GET /docs/v2/api renders the cached API reference", %{conn: conn} do
+    conn = get(conn, ~p"/docs/v2/api")
     html = html_response(conn, 200)
 
     assert html =~ "ServiceRadar API Reference"
@@ -27,11 +39,20 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ "/api/v2/devices"
   end
 
-  test "GET /docs/v1/api/openapi.json returns the cached OpenAPI artifact", %{conn: conn} do
+  test "GET /docs/v1/api/openapi.json redirects to the v2 openapi artifact", %{conn: conn} do
     conn =
       conn
       |> put_req_header("accept", "application/json")
       |> get(~p"/docs/v1/api/openapi.json")
+
+    assert redirected_to(conn) == "/docs/v2/api/openapi.json"
+  end
+
+  test "GET /docs/v2/api/openapi.json returns the cached OpenAPI artifact", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> get(~p"/docs/v2/api/openapi.json")
 
     body = json_response(conn, 200)
 

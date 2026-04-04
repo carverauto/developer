@@ -7,13 +7,13 @@ defmodule DeveloperPortal.DocsValidatorTest do
     temp_dir =
       Path.join(System.tmp_dir!(), "developer-portal-docs-#{System.unique_integer([:positive])}")
 
-    version_dir = Path.join(temp_dir, "v1")
+    version_dir = Path.join(temp_dir, "v2")
     on_exit(fn -> File.rm_rf(temp_dir) end)
     File.mkdir_p!(version_dir)
 
     File.write!(Path.join(temp_dir, "versions.yaml"), """
-    - id: v1
-      label: V1
+    - id: v2
+      label: V2
       title: Test Docs
       summary: Test docs summary
     """)
@@ -26,7 +26,7 @@ defmodule DeveloperPortal.DocsValidatorTest do
     order: 10
     ---
 
-    Read the [missing guide](/docs/v1/does-not-exist).
+    Read the [missing guide](/docs/v2/does-not-exist).
     """)
 
     assert_raise ArgumentError, ~r/broken docs link/, fn ->
@@ -41,13 +41,13 @@ defmodule DeveloperPortal.DocsValidatorTest do
     temp_dir =
       Path.join(System.tmp_dir!(), "developer-portal-docs-#{System.unique_integer([:positive])}")
 
-    version_dir = Path.join(temp_dir, "v1")
+    version_dir = Path.join(temp_dir, "v2")
     on_exit(fn -> File.rm_rf(temp_dir) end)
     File.mkdir_p!(version_dir)
 
     File.write!(Path.join(temp_dir, "versions.yaml"), """
-    - id: v1
-      label: V1
+    - id: v2
+      label: V2
       title: Test Docs
       summary: Test docs summary
     """)
@@ -71,7 +71,7 @@ defmodule DeveloperPortal.DocsValidatorTest do
     order: 20
     ---
 
-    Back to [getting started](/docs/v1/getting-started).
+    Back to [getting started](/docs/v2/getting-started).
     """)
 
     versions =
@@ -80,6 +80,6 @@ defmodule DeveloperPortal.DocsValidatorTest do
         Path.wildcard(Path.join(version_dir, "*.md"))
       )
 
-    assert [%{id: "v1", sections: [%{id: "getting-started"}, %{id: "go-sdk"}]}] = versions
+    assert [%{id: "v2", sections: [%{id: "getting-started"}, %{id: "go-sdk"}]}] = versions
   end
 end

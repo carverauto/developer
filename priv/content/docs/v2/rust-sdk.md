@@ -5,10 +5,10 @@ description: Rust-focused implementation guidance for plugin developers who want
 order: 30
 ---
 
-Use `serviceradar-sdk-rust` when you want a Rust-native path to the same V1 plugin contract.
+Use `serviceradar-sdk-rust` when you want a Rust-native path to the same V2 plugin contract.
 
 Repository: <https://code.carverauto.dev/carverauto/serviceradar-sdk-rust>
 
 - Build the plugin against the official Rust SDK.
-- Target the same V1 interface while using Rust-native tooling.
+- Target the same V2 interface while using Rust-native tooling.
 - Publish source, release artifacts, and trust metadata together.

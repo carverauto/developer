@@ -4,6 +4,7 @@ metadata:
   name: developer-portal-edge
   namespace: serviceradar-developer
 spec:
+  ipFamily: DualStack
   logging:
     level:
       default: warn

@@ -7,7 +7,7 @@ order: 20
 
 Use `serviceradar-sdk-go` when you want the shortest path from plugin idea to a compiled WASM artifact.
 
-Repository: <https://github.com/carverauto/serviceradar-sdk-go>
+Repository: <https://code.carverauto.dev/carverauto/serviceradar-sdk-go>
 
 - Scaffold the plugin with the official Go SDK.
 - Compile to WASM and package release artifacts for distribution.

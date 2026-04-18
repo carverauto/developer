@@ -20,7 +20,7 @@ patches:
     patch: |-
       - op: add
         path: /spec/provider/kubernetes/envoyService/annotations/metallb.io~1loadBalancerIPs
-        value: 23.138.124.11,2602:f678:0:104::2
+        value: 23.138.124.11,2602:f678:0:105::2
 
 replicas:
   - name: developer-portal

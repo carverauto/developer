@@ -11,6 +11,16 @@ patches:
   - path: certificate.patch.yaml
   - path: gateway.patch.yaml
   - path: httproute.patch.yaml
+  - target:
+      group: gateway.envoyproxy.io
+      version: v1alpha1
+      kind: EnvoyProxy
+      name: developer-portal-edge
+      namespace: serviceradar-developer
+    patch: |-
+      - op: add
+        path: /spec/provider/kubernetes/envoyService/annotations/metallb.io~1loadBalancerIPs
+        value: 23.138.124.11,2602:f678:0:104::2
 
 replicas:
   - name: developer-portal

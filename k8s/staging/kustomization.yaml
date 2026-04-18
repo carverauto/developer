@@ -69,6 +69,9 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: serviceradar-developer-staging
+      - op: add
+        path: /spec/provider/kubernetes/envoyService/annotations/metallb.io~1loadBalancerIPs
+        value: 23.138.124.10,2602:f678:0:104::1
   - target:
       group: gateway.networking.k8s.io
       version: v1

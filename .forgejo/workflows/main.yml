@@ -39,10 +39,10 @@ jobs:
         run: ./scripts/write_buildbuddy_bazelrc.sh --require-key
 
       - name: Bazel build
-        run: bazel build --config=remote --verbose_failures //:compile //:release_tar //docker:developer_portal_image
+        run: bazel build --config=no_remote --verbose_failures //:compile //:release_tar //docker:developer_portal_image
 
       - name: Bazel test
-        run: bazel test --config=remote --verbose_failures //:mix_test
+        run: bazel test --config=no_remote --verbose_failures //:mix_test
 
       - name: OpenSpec validation
         run: |

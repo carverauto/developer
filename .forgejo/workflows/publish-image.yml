@@ -68,7 +68,7 @@ jobs:
         run: ./buildbuddy_setup_docker_auth.sh
 
       - name: Bazel test
-        run: bazel test --config=remote --verbose_failures //:mix_test
+        run: bazel test --config=no_remote --verbose_failures //:mix_test
 
       - name: Build and publish image
-        run: bazel run --config=remote_push --verbose_failures //docker:developer_portal_image_push
+        run: bazel run --config=no_remote --verbose_failures //docker:developer_portal_image_push

@@ -106,9 +106,92 @@ defmodule DeveloperPortal.Docs do
   defp markdown_to_html(markdown, toc) do
     markdown
     |> Earmark.as_html!()
+    |> render_code_windows()
     |> add_heading_ids(toc)
     |> Phoenix.HTML.raw()
   end
+
+  defp render_code_windows(html) do
+    ensure_code_highlighters_started()
+
+    Regex.replace(
+      ~r/<pre><code(?: class="([^"]*)")?>(.*?)<\/code><\/pre>/s,
+      html,
+      fn _full_block, class, escaped_code ->
+        language = normalize_code_language(class)
+        highlighted_code = highlight_code(escaped_code, language)
+        label = code_language_label(language)
+
+        ~s(<div class="not-prose docs-code-window mockup-code" data-language="#{label}"><pre><code class="makeup language-#{language}">#{highlighted_code}</code></pre></div>)
+      end
+    )
+  end
+
+  defp highlight_code(escaped_code, language) do
+    with {:ok, {lexer, lexer_opts}} <-
+           Makeup.Registry.fetch_lexer_by_name(makeup_language(language)) do
+      escaped_code
+      |> unescape_html()
+      |> IO.iodata_to_binary()
+      |> Makeup.highlight_inner_html(
+        lexer: lexer,
+        lexer_options: lexer_opts,
+        formatter_options: [highlight_tag: "span"]
+      )
+    else
+      :error -> escaped_code
+    end
+  end
+
+  defp ensure_code_highlighters_started do
+    Application.ensure_all_started(:makeup_elixir)
+    Application.ensure_all_started(:makeup_json)
+    Application.ensure_all_started(:makeup_ts)
+  end
+
+  defp normalize_code_language(class) when class in [nil, ""], do: "text"
+
+  defp normalize_code_language(class) do
+    class
+    |> String.split()
+    |> List.first()
+    |> String.replace_prefix("language-", "")
+    |> String.downcase()
+    |> then(fn
+      language when language in ["jsx", "javascript"] -> "js"
+      language when language in ["tsx", "typescript"] -> "ts"
+      language when language in ["json"] -> "json"
+      language when language in ["iex", "elixir"] -> "elixir"
+      language when language in ["sh", "shell", "zsh"] -> "bash"
+      language when language in ["txt", "plaintext", "plain"] -> "text"
+      language -> String.replace(language, ~r/[^a-z0-9_-]/, "")
+    end)
+    |> case do
+      "" -> "text"
+      language -> language
+    end
+  end
+
+  defp makeup_language(language) when language in ["js", "ts"], do: language
+  defp makeup_language(language), do: language
+
+  defp code_language_label("js"), do: "JSX"
+  defp code_language_label("ts"), do: "TypeScript"
+  defp code_language_label("json"), do: "JSON"
+  defp code_language_label("elixir"), do: "Elixir"
+  defp code_language_label("bash"), do: "Shell"
+  defp code_language_label("go"), do: "Go"
+  defp code_language_label("text"), do: "Text"
+  defp code_language_label(language), do: String.upcase(language)
+
+  entities = [{"&amp;", ?&}, {"&lt;", ?<}, {"&gt;", ?>}, {"&quot;", ?"}, {"&#39;", ?'}]
+
+  for {encoded, decoded} <- entities do
+    defp unescape_html(unquote(encoded) <> rest), do: [unquote(decoded) | unescape_html(rest)]
+  end
+
+  defp unescape_html(<<c, rest::binary>>), do: [c | unescape_html(rest)]
+  defp unescape_html(<<>>), do: []
 
   defp markdown_toc(markdown) do
     markdown

@@ -35,6 +35,26 @@ defmodule DeveloperPortalWeb.PageController do
     end
   end
 
+  def docs_section(conn, %{"version" => version, "section" => section}) do
+    case normalize_docs_version(version) do
+      {:redirect, target} ->
+        redirect(conn, to: ~p"/docs/#{target}/#{section}")
+
+      normalized_version ->
+        with docs_version when not is_nil(docs_version) <- Docs.version(normalized_version),
+             docs_section when not is_nil(docs_section) <-
+               Docs.section(normalized_version, section) do
+          render(conn, :docs_section,
+            docs_version: docs_version,
+            docs_section: docs_section,
+            versions: Docs.versions()
+          )
+        else
+          _ -> send_resp(conn, :not_found, "Documentation section not found")
+        end
+    end
+  end
+
   def api_docs(conn, %{"version" => version}) do
     case normalize_docs_version(version) do
       {:redirect, target} ->

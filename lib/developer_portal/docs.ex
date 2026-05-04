@@ -77,6 +77,8 @@ defmodule DeveloperPortal.Docs do
     {frontmatter, body} = parse_markdown_file!(path)
     attrs = normalize_map_keys(frontmatter)
 
+    toc = markdown_toc(body)
+
     %Section{
       id: id,
       version: version,
@@ -85,7 +87,8 @@ defmodule DeveloperPortal.Docs do
       description: fetch_string!(attrs, "description"),
       order: fetch_integer!(attrs, "order"),
       body: body,
-      html: markdown_to_html(body)
+      html: markdown_to_html(body, toc),
+      toc: toc
     }
   end
 
@@ -100,10 +103,76 @@ defmodule DeveloperPortal.Docs do
     end
   end
 
-  defp markdown_to_html(markdown) do
+  defp markdown_to_html(markdown, toc) do
     markdown
     |> Earmark.as_html!()
+    |> add_heading_ids(toc)
     |> Phoenix.HTML.raw()
+  end
+
+  defp markdown_toc(markdown) do
+    markdown
+    |> String.split("\n")
+    |> Enum.reduce({[], false}, fn line, {entries, in_code_block?} ->
+      cond do
+        String.starts_with?(line, "```") ->
+          {entries, not in_code_block?}
+
+        in_code_block? ->
+          {entries, in_code_block?}
+
+        match = Regex.run(~r/^([#]{2,3})\s+(.+)$/, line) ->
+          [_, marks, title] = match
+          title = clean_heading(title)
+          id = heading_id(title, entries)
+
+          {
+            entries ++ [%{id: id, level: String.length(marks), title: title}],
+            in_code_block?
+          }
+
+        true ->
+          {entries, in_code_block?}
+      end
+    end)
+    |> elem(0)
+  end
+
+  defp add_heading_ids(html, toc) do
+    Enum.reduce(toc, html, fn %{id: id, level: level}, acc ->
+      Regex.replace(
+        ~r/<h#{level}>/,
+        acc,
+        ~s(<h#{level} id="#{id}" class="scroll-mt-24">),
+        global: false
+      )
+    end)
+  end
+
+  defp clean_heading(title) do
+    title
+    |> String.trim()
+    |> String.replace(~r/`([^`]+)`/, "\\1")
+    |> String.replace(~r/\[([^\]]+)\]\([^)]+\)/, "\\1")
+  end
+
+  defp heading_id(title, existing_entries) do
+    base =
+      title
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]+/, "-")
+      |> String.trim("-")
+
+    same_base_count =
+      Enum.count(existing_entries, fn %{id: id} ->
+        id == base or String.starts_with?(id, "#{base}-")
+      end)
+
+    if same_base_count == 0 do
+      base
+    else
+      "#{base}-#{same_base_count + 1}"
+    end
   end
 
   defp normalize_map_keys(map) when is_map(map) do

@@ -66,7 +66,10 @@ defmodule DeveloperPortalWeb.PageController do
           nil ->
             conn
             |> put_status(:service_unavailable)
-            |> json(%{error: "api_docs_unavailable", message: "OpenAPI document is not cached yet"})
+            |> json(%{
+              error: "api_docs_unavailable",
+              message: "OpenAPI document is not cached yet"
+            })
 
           spec ->
             json(conn, spec)

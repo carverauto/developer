@@ -23,6 +23,12 @@ defmodule DeveloperPortal.Docs do
     Enum.find(all(), &(&1.id == id))
   end
 
+  def section(version_id, section_id) do
+    with %{sections: sections} <- version(version_id) do
+      Enum.find(sections, &(&1.id == section_id))
+    end
+  end
+
   def all do
     content_root = Path.join(:code.priv_dir(:developer_portal), "content/docs")
 

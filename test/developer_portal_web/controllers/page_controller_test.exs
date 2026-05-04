@@ -32,7 +32,9 @@ defmodule DeveloperPortalWeb.PageControllerTest do
 
     assert html =~ "Dashboard SDK"
     assert html =~ "@serviceradar/dashboard-sdk"
-    assert html =~ "export const mountDashboard = mountReactDashboard"
+    assert html =~ ~s(class="not-prose docs-code-window mockup-code" data-language="JSX")
+    assert html =~ "mountDashboard"
+    assert html =~ "mountReactDashboard"
   end
 
   test "GET /docs/v1/dashboard-sdk redirects to the v2 dashboard SDK guide", %{conn: conn} do

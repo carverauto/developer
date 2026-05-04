@@ -27,6 +27,12 @@ defmodule DeveloperPortal.DocsTest do
     assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
              ~s(id="quick-start")
 
+    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
+             ~s(data-language="JSX")
+
+    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
+             ~s(<span class="kr">export</span>)
+
     assert Enum.any?(version.sections, &String.contains?(&1.body, "WebAssembly"))
   end
 end

@@ -55,18 +55,28 @@
           </div>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <%= for section <- @docs_version.sections do %>
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <div class="flex items-center justify-between gap-3">
-                  <h2 class="card-title">{section.title}</h2>
-                  <span class="badge badge-outline">{section.audience}</span>
+            <article
+              id={"docs-section-#{section.id}"}
+              class="group flex min-h-52 flex-col rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+            >
+              <div class="flex flex-1 flex-col gap-4">
+                <div class="space-y-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <h2 class="text-xl font-semibold tracking-tight">{section.title}</h2>
+                    <span class="shrink-0 rounded-full border border-base-300 px-2.5 py-1 text-xs font-medium text-base-content/70">
+                      {section.audience}
+                    </span>
+                  </div>
+                  <p class="text-sm leading-6 text-base-content/70">{section.description}</p>
                 </div>
-                <p class="text-sm text-base-content/70">{section.description}</p>
-                <div class="prose prose-sm max-w-none text-base-content/80">
-                  {section.html}
-                </div>
+                <a
+                  href={~p"/docs/#{@docs_version.id}/#{section.id}"}
+                  class="mt-auto inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary transition group-hover:translate-x-0.5"
+                >
+                  Open guide <.icon name="hero-arrow-right" class="h-4 w-4" />
+                </a>
               </div>
             </article>
           <% end %>

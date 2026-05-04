@@ -22,6 +22,23 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ "ServiceRadar V2 documentation"
     assert html =~ "Go SDK"
     assert html =~ "Rust SDK"
+    assert html =~ "Dashboard SDK"
+    refute html =~ "export const mountDashboard = mountReactDashboard"
+  end
+
+  test "GET /docs/v2/dashboard-sdk renders the dashboard SDK guide", %{conn: conn} do
+    conn = get(conn, ~p"/docs/v2/dashboard-sdk")
+    html = html_response(conn, 200)
+
+    assert html =~ "Dashboard SDK"
+    assert html =~ "@serviceradar/dashboard-sdk"
+    assert html =~ "export const mountDashboard = mountReactDashboard"
+  end
+
+  test "GET /docs/v1/dashboard-sdk redirects to the v2 dashboard SDK guide", %{conn: conn} do
+    conn = get(conn, ~p"/docs/v1/dashboard-sdk")
+
+    assert redirected_to(conn) == "/docs/v2/dashboard-sdk"
   end
 
   test "GET /docs/v1/api redirects to the v2 api reference", %{conn: conn} do

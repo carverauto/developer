@@ -1,6 +1,6 @@
 <Layouts.app flash={@flash}>
-  <section class="px-4 py-12 sm:px-6 lg:px-8">
-    <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_1fr]">
+  <section class="px-4 py-10 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-[88rem] gap-8 xl:grid-cols-[250px_minmax(0,1fr)_220px]">
       <aside class="h-fit space-y-4 lg:sticky lg:top-6">
         <a
           href={~p"/docs/#{@docs_version.id}"}
@@ -43,10 +43,32 @@
           </p>
         </header>
 
-        <div class="prose prose-base max-w-none text-base-content/82">
+        <div class="prose prose-base max-w-none text-base-content/82 [&_h2]:mt-12 [&_h2]:border-t [&_h2]:border-base-300 [&_h2]:pt-8 [&_h3]:mt-8 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-base-300 [&_pre]:bg-base-200 [&_table]:text-sm">
           {@docs_section.html}
         </div>
       </article>
+
+      <aside class="hidden h-fit xl:sticky xl:top-6 xl:block">
+        <nav class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
+          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            On this page
+          </p>
+          <div class="space-y-0.5">
+            <%= for item <- @docs_section.toc do %>
+              <a
+                href={"##{item.id}"}
+                class={[
+                  "block rounded-md py-1.5 text-sm text-base-content/70 transition hover:bg-base-200 hover:text-base-content",
+                  item.level == 2 && "px-2 font-medium",
+                  item.level == 3 && "pr-2 pl-5"
+                ]}
+              >
+                {item.title}
+              </a>
+            <% end %>
+          </div>
+        </nav>
+      </aside>
     </div>
   </section>
 </Layouts.app>

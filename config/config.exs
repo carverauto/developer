@@ -31,7 +31,8 @@ config :developer_portal, DeveloperPortal.ApiDocs,
       "v2" => %{
         "label" => "V2 API",
         "title" => "ServiceRadar API",
-        "summary" => "Browse the current ServiceRadar API reference and download the OpenAPI document.",
+        "summary" =>
+          "Browse the current ServiceRadar API reference and download the OpenAPI document.",
         "surface" => "ServiceRadar API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",

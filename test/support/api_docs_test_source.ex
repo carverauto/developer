@@ -13,7 +13,8 @@ defmodule DeveloperPortal.ApiDocs.TestSource do
          version: "v2",
          label: "V2 API",
          title: "ServiceRadar API",
-         summary: "Browse the current ServiceRadar API reference and download the OpenAPI document.",
+         summary:
+           "Browse the current ServiceRadar API reference and download the OpenAPI document.",
          surface: "ServiceRadar API",
          openapi_version: "3.0.3",
          api_version: "2.0.0",

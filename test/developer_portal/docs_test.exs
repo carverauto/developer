@@ -20,6 +20,13 @@ defmodule DeveloperPortal.DocsTest do
              "architecture"
            ]
 
+    dashboard_sdk = Enum.find(version.sections, &(&1.id == "dashboard-sdk"))
+
+    assert Enum.any?(dashboard_sdk.toc, &(&1.id == "quick-start"))
+
+    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
+             ~s(id="quick-start")
+
     assert Enum.any?(version.sections, &String.contains?(&1.body, "WebAssembly"))
   end
 end

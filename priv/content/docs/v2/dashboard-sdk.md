@@ -64,6 +64,55 @@ before the host marks the renderer as mounted:
 export const mountDashboard = mountReactDashboard(SitesDashboard, {waitForReady: true})
 ```
 
+## CLI Scaffolding
+
+The dashboard CLI is the recommended way to start a new dashboard package. It
+creates the project shape, wires npm scripts to the SDK harness, and includes
+sample frames and settings so the dashboard can be exercised before it is
+imported into ServiceRadar.
+
+```bash
+npm create @carverauto/dashboard@latest my-dashboard -- --template react-map
+cd my-dashboard
+npm run dev
+npm run validate
+npm run build
+```
+
+`npm create @carverauto/dashboard` forwards to the canonical CLI command:
+
+```bash
+serviceradar-cli dashboard init my-dashboard --template react-map
+```
+
+Choose the template that matches the first screen you need to build:
+
+| Template | Starting point |
+| --- | --- |
+| `react-map` | Mapbox / deck.gl dashboard using `useDeckMap`, `useDeckLayers`, and map fixtures |
+| `react-table` | Frame-driven inventory table with search, status filtering, and pagination |
+| `react-blank` | Minimum React dashboard that renders rows from one primary data frame |
+
+Generated projects include these scripts:
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Starts the ServiceRadar dashboard harness with Vite HMR and remounts the renderer as source files change |
+| `npm run validate` | Checks `dashboard.config.mjs`, manifest fields, sample frames, and sample settings without building or calling the network |
+| `npm run build` | Runs validation, bundles `dist/renderer.js`, writes `dist/manifest.json`, stamps the renderer SHA256, and copies samples |
+
+The CLI also exposes direct subcommands for CI and release automation:
+
+```bash
+serviceradar-cli doctor
+serviceradar-cli dashboard manifest
+serviceradar-cli dashboard publish --instance https://serviceradar.example.com --route my-dashboard
+```
+
+`doctor` reports Node, npm, CLI, SDK, Vite, config, renderer entry, and auth
+state. `dashboard publish` verifies that the manifest digest still matches the
+renderer artifact before uploading.
+
 ## Package Shape
 
 A typical repository keeps dashboard code, build output, and test fixtures
@@ -95,6 +144,7 @@ exports:
 | `/filtering` | Framework-agnostic indexed local filtering |
 | `/frames`, `/arrow` | Raw frame and Arrow IPC helpers |
 | `/srql` | SRQL client and query builder helpers |
+| `/config` | `dashboard.config.mjs` helpers used by the CLI |
 
 ## Host Contract
 
@@ -308,6 +358,43 @@ Common React hooks:
 | `useDashboardLibraries()` | Host-injected map and deck.gl libraries |
 | `useDashboardPreferences()` | User preference read/write helpers |
 | `useDashboardSavedQueries()` | Saved query list and apply helpers |
+
+Declare required capabilities in `dashboard.config.mjs` so ServiceRadar can
+review the package before it is enabled. The CLI preserves these fields when it
+writes the published manifest:
+
+```js
+import {defineDashboardConfig} from "@serviceradar/dashboard-sdk/config"
+
+export default defineDashboardConfig({
+  manifest: {
+    id: "com.example.network-map",
+    name: "Network Map",
+    version: "0.1.0",
+    capabilities: ["srql.execute", "map.basemap.read"],
+    data_frames: [
+      {
+        id: "sites",
+        query: "in:sites limit:500",
+        encoding: "json_rows",
+        required: true,
+      },
+    ],
+    settings_schema: {
+      required: ["mapbox"],
+    },
+  },
+  renderer: {entry: "src/main.jsx"},
+  samples: {
+    frames: "fixtures/sample-frames.json",
+    settings: "fixtures/sample-settings.json",
+  },
+})
+```
+
+Use `srql.execute` for dashboards that ask ServiceRadar to run SRQL. Add
+`map.basemap.read` only when the dashboard needs host-provided Mapbox settings.
+Keep capabilities narrow; they are part of the import and enablement review.
 
 ## Lower-Level APIs
 

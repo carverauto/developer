@@ -23,6 +23,7 @@ defmodule DeveloperPortal.DocsTest do
     dashboard_sdk = Enum.find(version.sections, &(&1.id == "dashboard-sdk"))
 
     assert Enum.any?(dashboard_sdk.toc, &(&1.id == "quick-start"))
+    assert Enum.any?(dashboard_sdk.toc, &(&1.id == "cli-scaffolding"))
 
     assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
              ~s(id="quick-start")
@@ -32,6 +33,9 @@ defmodule DeveloperPortal.DocsTest do
 
     assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
              ~s(<span class="kr">export</span>)
+
+    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
+             "serviceradar-cli dashboard init"
 
     assert Enum.any?(version.sections, &String.contains?(&1.body, "WebAssembly"))
   end

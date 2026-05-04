@@ -5,7 +5,7 @@ description: React-first dashboard package SDK for browser-module dashboards loa
 order: 35
 ---
 
-`@serviceradar/dashboard-sdk` is the customer-facing surface for building
+`@carverauto/serviceradar-dashboard-sdk` is the customer-facing surface for building
 browser-module dashboards that ServiceRadar imports, verifies, and renders.
 The dashboard you write ships from your own repository as a signed `renderer.js`
 artifact plus a manifest; ServiceRadar handles the host shell, SRQL execution,
@@ -14,9 +14,9 @@ frame transport, theme, navigation, and Mapbox/deck.gl injection.
 The reference implementation is the UAL Network Map at
 `~/src/wifi-dashboard`. Every pattern below is exercised there.
 
-The companion CLI is `@serviceradar/cli`, distributed alongside the SDK.
-`@serviceradar/dashboard-sdk` declares it as a `dependencies` entry, so
-`npm install @serviceradar/dashboard-sdk` lands the `serviceradar-cli` bin in
+The companion CLI is `@carverauto/serviceradar-cli`, distributed alongside the SDK.
+`@carverauto/serviceradar-dashboard-sdk` declares it as a `dependencies` entry, so
+`npm install @carverauto/serviceradar-dashboard-sdk` lands the `serviceradar-cli` bin in
 your project's `node_modules/.bin/` automatically — one install for both
 runtime and tooling.
 
@@ -24,7 +24,7 @@ runtime and tooling.
 
 ```bash
 # Scaffold a new dashboard from the SDK's reference templates.
-npm create @serviceradar/dashboard my-map
+npm create @carverauto/dashboard my-map
 cd my-map
 
 # Run the dev harness with HMR (Vite middleware mode under the hood).
@@ -68,7 +68,7 @@ for one minor version: it prints a deprecation notice and routes to
    frames, settings, theme, navigation helpers, Mapbox settings, and shared
    map / deck libraries through the dashboard host API.
 
-The SDK is published as `@serviceradar/dashboard-sdk` with subpath exports
+The SDK is published as `@carverauto/serviceradar-dashboard-sdk` with subpath exports
 (`/react`, `/map`, `/popup`, `/query-state`, `/filtering`, `/frames`, `/srql`,
 `/arrow`). Customer dashboards depend on it via npm or via a `file:` link
 during local development.
@@ -79,7 +79,7 @@ Trusted browser modules export a single `mountDashboard` function. With React
 the SDK supplies the boilerplate:
 
 ```jsx
-import {mountReactDashboard} from "@serviceradar/dashboard-sdk/react"
+import {mountReactDashboard} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 function NetworkMap({host, api}) {
   return <div>hello dashboard</div>
@@ -122,7 +122,7 @@ applied through the host's SRQL update API. `useDashboardQueryState` owns all
 of that:
 
 ```jsx
-import {useDashboardQueryState} from "@serviceradar/dashboard-sdk/react"
+import {useDashboardQueryState} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const INITIAL = {region: null, search: ""}
 
@@ -160,7 +160,7 @@ The hook returns `{state, query, frameQueries, dirty, apply, reset, flush, hydra
 Identical apply or reset calls are deduped by the query plus frame-overrides
 fingerprint — `useDashboardQueryState` only invokes `api.srql.update` when the
 fingerprint actually changes. The framework-agnostic core is exposed as
-`createDashboardQueryState` at `@serviceradar/dashboard-sdk/query-state` for
+`createDashboardQueryState` at `@carverauto/serviceradar-dashboard-sdk/query-state` for
 non-React consumers.
 
 `buildQuery` and `buildFrameQueries` receive the current state and return
@@ -178,7 +178,7 @@ cached by the SDK so repeated calls with the same shape on the same frame
 return the same reference:
 
 ```jsx
-import {useFrameRows} from "@serviceradar/dashboard-sdk/react"
+import {useFrameRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const SITE_SHAPE = Object.freeze({
   site_code: (row) => String(row.site_code || row.iata || "").toUpperCase(),
@@ -199,7 +199,7 @@ only when an Arrow path actually decodes — JSON-only dashboards do not pay the
 bundle cost. For column-oriented advanced consumers there is also
 `useArrowTable(frame)` which returns the decoded `apache-arrow` `Table` once
 the lazy decoder loads. Tests can inject a custom decoder via
-`setArrowDecoder(fn)` from `@serviceradar/dashboard-sdk/arrow`.
+`setArrowDecoder(fn)` from `@carverauto/serviceradar-dashboard-sdk/arrow`.
 
 Shape selectors are either string column names (`"region"`) or selector
 functions (`(row) => Number(row.latitude ?? row.lat)`). The shape object's
@@ -213,7 +213,7 @@ Sets and a single lowercase haystack at data load. `useIndexedRows` provides
 that primitive:
 
 ```jsx
-import {useFilterState, useIndexedRows} from "@serviceradar/dashboard-sdk/react"
+import {useFilterState, useIndexedRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const INDEX_BY = {
   region: "region",
@@ -269,7 +269,7 @@ the map and overlay once, throttles `moveend` and `zoomend`, and swaps basemap
 style on theme change without tearing down the deck overlay:
 
 ```jsx
-import {useDeckMap, useDeckLayers, scatter, text} from "@serviceradar/dashboard-sdk/map"
+import {useDeckMap, useDeckLayers, scatter, text} from "@carverauto/serviceradar-dashboard-sdk/map"
 
 function MapStage({sites, dark}) {
   const handle = useDeckMap({
@@ -328,7 +328,7 @@ Mapbox popups are imperative — `new mapboxgl.Popup().setHTML(...)`. To render
 React content inside them with managed lifecycle, use `useMapPopup`:
 
 ```jsx
-import {useMapPopup} from "@serviceradar/dashboard-sdk/popup"
+import {useMapPopup} from "@carverauto/serviceradar-dashboard-sdk/popup"
 
 function MapWithPopup({handle, focusedSite, onClose}) {
   const popup = useMapPopup(handle.map, {
@@ -372,9 +372,9 @@ import {
   useFilterState,
   useFrameRows,
   useIndexedRows,
-} from "@serviceradar/dashboard-sdk/react"
-import {scatter, useDeckLayers, useDeckMap} from "@serviceradar/dashboard-sdk/map"
-import {useMapPopup} from "@serviceradar/dashboard-sdk/popup"
+} from "@carverauto/serviceradar-dashboard-sdk/react"
+import {scatter, useDeckLayers, useDeckMap} from "@carverauto/serviceradar-dashboard-sdk/map"
+import {useMapPopup} from "@carverauto/serviceradar-dashboard-sdk/popup"
 
 const SITE_SHAPE = Object.freeze({
   site_code: (row) => String(row.site_code || row.iata).toUpperCase(),
@@ -522,10 +522,10 @@ allocating a second rendering context and is the expected path for
 high-volume map dashboards.
 
 For Arrow IPC frames, the SDK exports raw helpers at
-`@serviceradar/dashboard-sdk/frames`:
+`@carverauto/serviceradar-dashboard-sdk/frames`:
 
 ```js
-import {frameRows, isArrowFrame, requireArrowFrameBytes} from "@serviceradar/dashboard-sdk/frames"
+import {frameRows, isArrowFrame, requireArrowFrameBytes} from "@carverauto/serviceradar-dashboard-sdk/frames"
 
 const frame = api.frame("sites")
 if (isArrowFrame(frame)) {
@@ -537,7 +537,7 @@ if (isArrowFrame(frame)) {
 For SRQL helpers without React:
 
 ```js
-import {createSrqlClient, buildSrqlQuery} from "@serviceradar/dashboard-sdk/srql"
+import {createSrqlClient, buildSrqlQuery} from "@carverauto/serviceradar-dashboard-sdk/srql"
 
 const srql = createSrqlClient(api)
 const query = buildSrqlQuery({
@@ -579,7 +579,7 @@ WASM renderers emit constrained ServiceRadar render models.
 
 ### Editor integration
 
-`@serviceradar/cli` ships
+`@carverauto/serviceradar-cli` ships
 [`schemas/dashboard-config.schema.json`](https://schemas.serviceradar.dev/dashboard-config-v1.json)
 in its npm tarball. Most editors with JSON Schema integration can attach
 the schema to your config file for inline autocomplete + validation.
@@ -590,14 +590,14 @@ For VSCode, add to `.vscode/settings.json`:
   "json.schemas": [
     {
       "fileMatch": ["dashboard.config.json"],
-      "url": "./node_modules/@serviceradar/cli/schemas/dashboard-config.schema.json"
+      "url": "./node_modules/@carverauto/serviceradar-cli/schemas/dashboard-config.schema.json"
     }
   ]
 }
 ```
 
 For `dashboard.config.mjs` files, the equivalent is
-`defineDashboardConfig()` from `@serviceradar/dashboard-sdk/config`,
+`defineDashboardConfig()` from `@carverauto/serviceradar-dashboard-sdk/config`,
 which gives editor type-checking via the SDK's TypeScript declarations.
 
 ## Authenticating

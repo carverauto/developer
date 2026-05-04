@@ -35,6 +35,10 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     assert html =~ ~s(class="not-prose docs-code-window mockup-code" data-language="JSX")
     assert html =~ "mountDashboard"
     assert html =~ "mountReactDashboard"
+    assert html =~ "CLI Scaffolding"
+    assert html =~ "npm create @carverauto/dashboard"
+    assert html =~ "srql.execute"
+    refute html =~ "ual-dashboard"
   end
 
   test "GET /docs/v1/dashboard-sdk redirects to the v2 dashboard SDK guide", %{conn: conn} do

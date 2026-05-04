@@ -11,9 +11,6 @@ The dashboard you write ships from your own repository as a signed `renderer.js`
 artifact plus a manifest; ServiceRadar handles the host shell, SRQL execution,
 frame transport, theme, navigation, and Mapbox/deck.gl injection.
 
-The reference implementation is the UAL Network Map at
-`~/src/ual-dashboard`. Every pattern below is exercised there.
-
 ## Deployment Model
 
 1. A dashboard author builds a package in an external repository.
@@ -30,7 +27,7 @@ The reference implementation is the UAL Network Map at
 
 The SDK is published as `@serviceradar/dashboard-sdk` with subpath exports
 (`/react`, `/map`, `/popup`, `/query-state`, `/filtering`, `/frames`, `/srql`,
-`/arrow`). Customer dashboards depend on it via npm or via a `file:` link
+`/arrow`). Dashboard packages depend on it via npm or via a `file:` link
 during local development.
 
 ## Mounting
@@ -545,7 +542,9 @@ your manifest plus sample frames, and iterate locally without a ServiceRadar
 deployment:
 
 ```bash
-cd ~/src/ual-dashboard
+npm create vite@latest my-dashboard -- --template react-ts
+cd my-dashboard
+npm install @serviceradar/dashboard-sdk
 ./build.sh
 
 cd ~/src/serviceradar-sdk-dashboard
@@ -553,7 +552,7 @@ python3 -m http.server 4177
 ```
 
 ```text
-http://localhost:4177/tools/dashboard-wasm-harness/?manifest=/ual-dashboard/dist/manifest.json&wasm=/ual-dashboard/dist/renderer.js&frames=/ual-dashboard/dist/sample-frames.json&settings=/ual-dashboard/dist/sample-settings.json
+http://localhost:4177/tools/dashboard-wasm-harness/?manifest=/my-dashboard/dist/manifest.json&wasm=/my-dashboard/dist/renderer.js&frames=/my-dashboard/dist/sample-frames.json&settings=/my-dashboard/dist/sample-settings.json
 ```
 
 The harness validates the manifest digest, mounts the renderer, supplies
@@ -564,9 +563,6 @@ a dashboard can be enabled.
 
 ## See Also
 
-- Source: `~/src/serviceradar-sdk-dashboard`
-- Reference dashboard: `~/src/ual-dashboard`
-- OpenSpec change tracking the SDK surface:
-  `openspec/changes/add-dashboard-sdk-query-state` plus
-  `openspec/changes/update-ual-dashboard-react-shell` in
-  `~/src/serviceradar`.
+- Dashboard SDK package: `@serviceradar/dashboard-sdk`
+- Dashboard host interface: `dashboard-browser-module-v1`
+- Local harness path: `tools/dashboard-wasm-harness/`

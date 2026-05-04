@@ -650,11 +650,10 @@ path issued the token.
 
 ### Device-code endpoint contract
 
-The CLI targets the following two endpoints. They follow RFC 8628 (OAuth 2.0
-Device Authorization Grant) closely so that any RFC-compliant server is a
-drop-in. ServiceRadar API authors implementing the server side should
-treat this section as the source of truth — the CLI will run unchanged
-against any server matching it.
+ServiceRadar implements the following two endpoints (web-ng,
+`ServiceRadarWebNGWeb.CliAuthController`). They follow RFC 8628 (OAuth
+2.0 Device Authorization Grant) closely so any RFC-compliant client is
+a drop-in.
 
 **`POST /api/v1/cli/auth/device`** — initiate the flow.
 
@@ -727,16 +726,43 @@ absolute `expires_at` ISO timestamp) and the `user` block to
 URL. The token is **never** printed to stdout, including in
 `auth status` output.
 
-**Endpoint shape, but different paths.** If the ServiceRadar API team
-specs different URL paths than the ones above, only the URL constants in
-`bin/serviceradar-cli.js` need updating; the request/response shapes
-described here are the contract.
+**Manual-token fallback.** If either endpoint returns 404 (older
+ServiceRadar versions that haven't shipped the device-code flow yet),
+the CLI falls back to interactive paste-the-token mode, persisting the
+entered token into the same credential store.
 
-**Manual-token fallback.** If either endpoint returns 404, the CLI falls
-back to interactive paste-the-token mode, persisting the entered token
-into the same credential store. This means a partially-implemented server
-(e.g. only `auth/device` shipped, but not `auth/token`) is also fine —
-the CLI handles the 404 gracefully.
+**Admin policy.** Three settings on
+`ServiceRadar.Identity.AuthorizationSettings` (editable at
+**Settings → CLI authentication**) gate the flow per-instance:
+
+- `cli_auth_enabled` (default `true`) — kill switch. When off, both
+  endpoints respond `503 Service Unavailable` with
+  `error: cli_auth_disabled` and the manual-token fallback takes over.
+- `cli_session_ttl_days` (default `30`, range `1`..`365`) — TTL the
+  Guardian JWT inherits.
+- `cli_allowed_scopes` (default `["dashboard.publish"]`) — request
+  scopes outside the list return `400` with `error: invalid_scope`.
+
+### Manage CLI sessions
+
+After approving a device authorization, the issued JWT shows up at
+**Settings → CLI sessions**. Each row lists the issuing client, scope,
+issued-at, last-used-at, expires-at, and status (active / revoked /
+expired). The Revoke button flips the metadata row to `:revoked` and
+writes a `RevokedToken` entry, so the holder of the JWT 401s on its
+next API call (Guardian's verify hook consults the same denylist on
+every request).
+
+RBAC permissions:
+
+| Permission                  | Default roles      | Surface                                                                |
+| --------------------------- | ------------------ | ---------------------------------------------------------------------- |
+| `cli.session.create`        | operators + admins | Approve a pending device code in the `/cli/auth/device` LiveView.      |
+| `cli.session.read_own`      | all roles          | List own sessions on Settings → CLI sessions.                          |
+| `cli.session.revoke_own`    | all roles          | Revoke an own session.                                                 |
+| `cli.session.read_any`      | admins             | See every user's sessions; surfaces a "User" column.                   |
+| `cli.session.revoke_any`    | admins             | Revoke any user's session.                                             |
+| `cli.policy.manage`         | admins             | Edit Settings → CLI authentication (the kill switch + TTL + scopes).   |
 
 ### PKCE (`--web`) endpoint contract
 

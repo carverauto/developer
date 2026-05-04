@@ -1,12 +1,12 @@
 ---
 title: Dashboard Templates
 audience: TypeScript / React
-description: Reference for the project templates shipped by `@serviceradar/cli`. Each template is a runnable starting point — pick the one closest to what you're building, scaffold, then iterate.
+description: Reference for the project templates shipped by `@carverauto/serviceradar-cli`. Each template is a runnable starting point — pick the one closest to what you're building, scaffold, then iterate.
 order: 36
 ---
 
 `serviceradar-cli dashboard init <name> --template <id>` and
-`npm create @serviceradar/dashboard <name> -- --template <id>` both
+`npm create @carverauto/dashboard <name> -- --template <id>` both
 scaffold from the same template set. Three templates ship today, each
 optimized for a different shape of dashboard.
 

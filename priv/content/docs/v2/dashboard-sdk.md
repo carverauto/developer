@@ -14,6 +14,46 @@ frame transport, theme, navigation, and Mapbox/deck.gl injection.
 The reference implementation is the UAL Network Map at
 `~/src/ual-dashboard`. Every pattern below is exercised there.
 
+The companion CLI is `@serviceradar/cli`, distributed alongside the SDK.
+`@serviceradar/dashboard-sdk` declares it as a `dependencies` entry, so
+`npm install @serviceradar/dashboard-sdk` lands the `serviceradar-cli` bin in
+your project's `node_modules/.bin/` automatically — one install for both
+runtime and tooling.
+
+## Quickstart
+
+```bash
+# Scaffold a new dashboard from the SDK's reference templates.
+npm create @serviceradar/dashboard my-map
+cd my-map
+
+# Run the dev harness with HMR (Vite middleware mode under the hood).
+npm run dev          # → serviceradar-cli dashboard dev
+
+# Static check before building.
+npm run validate     # → serviceradar-cli dashboard validate
+
+# Write dist/{renderer.js, manifest.json, sample-frames.json, sample-settings.json}.
+npm run build        # → serviceradar-cli dashboard build
+
+# Authenticate against a ServiceRadar instance once per machine.
+npx serviceradar-cli auth login --instance https://serviceradar.example.com
+
+# Push the build to the instance and (optionally) flip it live.
+npx serviceradar-cli dashboard publish \
+    --instance https://serviceradar.example.com \
+    --route my-map \
+    --enable
+```
+
+Templates: `react-blank` (minimum viable), `react-table` (frame-driven
+table), `react-map` (default — `useDeckMap` + `useDeckLayers` + `useMapPopup`).
+
+The legacy `serviceradar-dashboard` bin keeps working as a transitional alias
+for one minor version: it prints a deprecation notice and routes to
+`serviceradar-cli dashboard *`. New projects should use the canonical
+`serviceradar-cli` form everywhere.
+
 ## Deployment Model
 
 1. A dashboard author builds a package in an external repository.
@@ -537,30 +577,322 @@ func framesUpdated() {
 ServiceRadar owns the deck.gl, Mapbox, popup, and event wiring. Customer
 WASM renderers emit constrained ServiceRadar render models.
 
-## Local Harness
+### Editor integration
 
-The SDK repo ships a development harness at
-`tools/dashboard-wasm-harness/`. Build the dashboard, point the harness at
-your manifest plus sample frames, and iterate locally without a ServiceRadar
-deployment:
+`@serviceradar/cli` ships
+[`schemas/dashboard-config.schema.json`](https://schemas.serviceradar.dev/dashboard-config-v1.json)
+in its npm tarball. Most editors with JSON Schema integration can attach
+the schema to your config file for inline autocomplete + validation.
+For VSCode, add to `.vscode/settings.json`:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["dashboard.config.json"],
+      "url": "./node_modules/@serviceradar/cli/schemas/dashboard-config.schema.json"
+    }
+  ]
+}
+```
+
+For `dashboard.config.mjs` files, the equivalent is
+`defineDashboardConfig()` from `@serviceradar/dashboard-sdk/config`,
+which gives editor type-checking via the SDK's TypeScript declarations.
+
+## Authenticating
+
+`serviceradar-cli auth login --instance <url>` issues a long-lived CLI
+token by running one of two browser-driven OAuth 2.0 flows against the
+configured ServiceRadar instance:
+
+- **Default — device-code (RFC 8628).** The CLI requests a device + user
+  code from `/api/v1/cli/auth/device`, prints the verification URL,
+  optionally opens a browser, and polls `/api/v1/cli/auth/token` until
+  the user finishes login. Best for headless environments (containers,
+  CI runners, SSH sessions).
+- **`--web` — Authorization Code with PKCE (RFC 7636 / RFC 8252).** The
+  CLI starts a single-shot localhost callback server, opens the
+  instance's `/api/v1/cli/auth/authorize` endpoint in a browser, and
+  exchanges the returned authorization code for a token at
+  `/api/v1/cli/auth/token`. Best for interactive workstations where the
+  developer can complete the login inline rather than copy-pasting a
+  user code.
+
+Either flow persists the issued token to
+`~/.config/serviceradar/credentials.json` (mode `0600`), keyed by
+instance URL. Subsequent CLI invocations resolve credentials in this
+order:
+
+1. `--token <bearer>` flag
+2. `SERVICERADAR_TOKEN` environment variable
+3. Stored credential matching the requested `--instance`
 
 ```bash
-cd ~/src/ual-dashboard
-./build.sh
+# Device-code login (default)
+serviceradar-cli auth login --instance https://serviceradar.example.com
 
-cd ~/src/serviceradar-sdk-dashboard
-python3 -m http.server 4177
+# PKCE / browser-callback login (RFC 7636 + RFC 8252)
+serviceradar-cli auth login --instance https://serviceradar.example.com --web
+
+# Inspect what's authenticated (token never printed)
+serviceradar-cli auth status
+
+# Remove a stored credential
+serviceradar-cli auth logout --instance https://serviceradar.example.com
 ```
 
-```text
-http://localhost:4177/tools/dashboard-wasm-harness/?manifest=/ual-dashboard/dist/manifest.json&wasm=/ual-dashboard/dist/renderer.js&frames=/ual-dashboard/dist/sample-frames.json&settings=/ual-dashboard/dist/sample-settings.json
+If the ServiceRadar instance has not yet shipped the matching endpoints
+for the chosen flow, the CLI falls back to a manual token paste —
+generate a long-lived CLI token in the ServiceRadar UI and paste it when
+prompted. The credential file shape stays identical regardless of which
+path issued the token.
+
+### Device-code endpoint contract
+
+The CLI targets the following two endpoints. They follow RFC 8628 (OAuth 2.0
+Device Authorization Grant) closely so that any RFC-compliant server is a
+drop-in. ServiceRadar API authors implementing the server side should
+treat this section as the source of truth — the CLI will run unchanged
+against any server matching it.
+
+**`POST /api/v1/cli/auth/device`** — initiate the flow.
+
+Request body (JSON):
+
+```json
+{
+  "client_id": "serviceradar-cli",
+  "scope": "dashboard:publish"
+}
 ```
 
-The harness validates the manifest digest, mounts the renderer, supplies
-sample frames, and exposes `api.libraries` so Mapbox/deck.gl work end-to-end.
-It is not a substitute for ServiceRadar's production import — operators still
-verify manifest shape, artifact digest, trust policy, and capabilities before
-a dashboard can be enabled.
+Response (200 OK, JSON):
+
+```json
+{
+  "device_code": "abc123…",
+  "user_code": "WDJB-MJHT",
+  "verification_uri": "https://serviceradar.example.com/cli/auth/device",
+  "verification_uri_complete": "https://serviceradar.example.com/cli/auth/device?user_code=WDJB-MJHT",
+  "expires_in": 900,
+  "interval": 5
+}
+```
+
+The CLI prints `verification_uri` + `user_code`, optionally opens
+`verification_uri_complete` in the user's default browser (unless
+`--no-browser` is passed), and starts polling at the cadence advertised
+by `interval` (defaults to 5 s if omitted).
+
+**`POST /api/v1/cli/auth/token`** — poll for the issued token.
+
+Request body (JSON):
+
+```json
+{
+  "client_id": "serviceradar-cli",
+  "device_code": "abc123…",
+  "grant_type": "urn:ietf:params:oauth:grant-type:device_code"
+}
+```
+
+While the user has not yet completed the verification step, respond with
+`400 Bad Request` and one of the standard error codes:
+
+| `error`                 | Meaning                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `authorization_pending` | The user has not yet completed verification. Keep polling.                         |
+| `slow_down`             | Increase the poll interval by 5 s and keep polling.                                |
+| `access_denied`         | The user explicitly rejected the request. The CLI exits with a clear message.      |
+| `expired_token`         | The `device_code` expired before the user completed verification. The CLI retries. |
+
+On success, respond `200 OK` with:
+
+```json
+{
+  "access_token": "long-lived-bearer-…",
+  "token_type": "Bearer",
+  "expires_in": 2592000,
+  "user": {
+    "id": "user-uuid",
+    "email": "alice@example.com"
+  }
+}
+```
+
+The CLI persists `access_token` along with `expires_in` (converted to an
+absolute `expires_at` ISO timestamp) and the `user` block to
+`~/.config/serviceradar/credentials.json`, keyed by the resolved instance
+URL. The token is **never** printed to stdout, including in
+`auth status` output.
+
+**Endpoint shape, but different paths.** If the ServiceRadar API team
+specs different URL paths than the ones above, only the URL constants in
+`bin/serviceradar-cli.js` need updating; the request/response shapes
+described here are the contract.
+
+**Manual-token fallback.** If either endpoint returns 404, the CLI falls
+back to interactive paste-the-token mode, persisting the entered token
+into the same credential store. This means a partially-implemented server
+(e.g. only `auth/device` shipped, but not `auth/token`) is also fine —
+the CLI handles the 404 gracefully.
+
+### PKCE (`--web`) endpoint contract
+
+When the developer passes `--web` to `auth login`, the CLI runs an
+OAuth 2.0 Authorization Code flow with PKCE (RFC 7636) layered onto a
+short-lived localhost callback server (RFC 8252 §7.3). The two endpoints
+the server side must implement are described below — the CLI runs
+unchanged against any RFC-compliant server matching this contract.
+
+**`GET /api/v1/cli/auth/authorize`** — start the flow.
+
+The CLI builds a URL of the form:
+
+```
+https://serviceradar.example.com/api/v1/cli/auth/authorize?
+  response_type=code
+  &client_id=serviceradar-cli
+  &redirect_uri=http%3A%2F%2F127.0.0.1%3A<random-port>%2Fcli%2Fauth%2Fcallback
+  &code_challenge=<base64url(sha256(verifier))>
+  &code_challenge_method=S256
+  &state=<random>
+  &scope=dashboard.publish
+```
+
+The server should:
+
+1. Validate `client_id`, `redirect_uri` (must be `http://127.0.0.1:<port>/cli/auth/callback`),
+   and `code_challenge_method` (must be `S256`).
+2. Render a login page (or a "consent" page if the user is already
+   logged in). After the user authenticates, mint a short-lived
+   authorization code (≤10 min lifetime) bound to the `code_challenge`
+   and the `client_id`.
+3. Redirect the user agent (`HTTP 302`) back to the supplied
+   `redirect_uri` with `?code=<auth-code>&state=<state>` appended.
+
+If the user denies the request (or the request is otherwise invalid),
+redirect with `?error=access_denied&error_description=…&state=<state>`
+instead. The CLI surfaces the `error_description` to the user before
+exiting with a non-zero status.
+
+**`POST /api/v1/cli/auth/token`** — exchange the code for a token.
+
+The CLI POSTs:
+
+```json
+{
+  "grant_type": "authorization_code",
+  "client_id": "serviceradar-cli",
+  "code": "<auth-code-from-callback>",
+  "redirect_uri": "http://127.0.0.1:<random-port>/cli/auth/callback",
+  "code_verifier": "<43-128 char base64url string>"
+}
+```
+
+The server validates that `sha256(code_verifier)` (base64url-encoded)
+matches the `code_challenge` it stored when the auth code was minted,
+then responds `200 OK` with the same shape used by the device-code
+flow:
+
+```json
+{
+  "access_token": "long-lived-bearer-…",
+  "token_type": "Bearer",
+  "expires_in": 2592000,
+  "user": {
+    "id": "user-uuid",
+    "email": "alice@example.com"
+  }
+}
+```
+
+**Why two flows.** Device-code is best for headless contexts (no local
+browser available — CI runners, SSH-only sessions, containers). PKCE
+with localhost callback is best for interactive workstations: the user
+clicks through the browser-based login and the CLI receives the code
+without the user having to copy a `user_code` back to the terminal.
+Both produce the same long-lived token in the same credential store, so
+ServiceRadar implementations can ship one or both depending on their
+deployment surface.
+
+## Publishing
+
+`serviceradar-cli dashboard publish --instance <url> --route <slug>` uploads
+the built manifest and renderer to the configured ServiceRadar instance.
+The CLI:
+
+1. Re-verifies the renderer SHA-256 matches the digest stamped into the
+   manifest. Mismatches are rejected with a "rebuild via
+   `serviceradar-cli dashboard build`" hint.
+2. Resolves a bearer token (flag → env → stored).
+3. Prints a publish summary (instance / route / package@version / digest
+   prefix / auth source / enable flag) and prompts for confirmation on
+   interactive terminals. Pass `--yes` for non-interactive runs.
+4. POSTs the manifest + renderer + route slug as multipart form data to
+   `${instance}/api/v1/dashboard-packages` with `Authorization: Bearer …`.
+5. With `--enable`, follows up with
+   `POST /api/v1/dashboard-packages/<id>/enable` so the dashboard is live
+   at the configured route without an admin step.
+
+```bash
+serviceradar-cli dashboard publish \
+    --instance https://serviceradar.example.com \
+    --route ual-network-map \
+    --enable \
+    --yes
+```
+
+Tokens are never persisted to project source. Use a CI-provisioned token
+via `SERVICERADAR_TOKEN` or `--token` for automated publishes, and
+`auth login` for interactive developer machines.
+
+## Local Harness
+
+`serviceradar-cli dashboard dev` boots a Vite middleware-mode dev server
+that serves the SDK harness against your project's renderer entry. Edits to
+`src/*` propagate via HMR — the renderer remounts in place against the same
+root with a fresh host API. There is no manual rebuild step and no page
+reload between edits.
+
+```bash
+cd my-map
+npm run dev                      # → serviceradar-cli dashboard dev
+
+# Or, ad hoc:
+npx serviceradar-cli dashboard dev --port 4177 --open
+```
+
+The harness side panel exposes a theme toggle, Mapbox token input
+(persists to `localStorage`, applies to `host.mapbox()` without remount),
+fixture picker (lists `Object.keys(config.fixtures)`), and a "reload
+renderer" button. A status bar shows the renderer mount state, last frame
+timestamp, and the most recent host-API call (SRQL update, navigation
+request, popup open). When the renderer throws on mount, an error overlay
+covers the renderer surface with the stack trace inline; Vite's default
+overlay continues to handle syntax errors.
+
+For testing against a manually-built `dist/` (the legacy form-field
+harness), navigate to `?advanced` on the same dev URL.
+
+The harness is not a substitute for ServiceRadar's production import:
+operators still verify manifest shape, artifact digest, trust policy, and
+capabilities before a dashboard can be enabled.
+
+## CLI Diagnostics
+
+```bash
+# Print the installed CLI version
+serviceradar-cli --version
+
+# Print runtime + project diagnostics (Node, npm, Vite, SDK, config path,
+# renderer entry, stored credentials)
+serviceradar-cli doctor
+```
+
+Use `doctor` when filing bug reports — its output captures the full set
+of versions and paths the SDK + CLI resolved at the time.
 
 ## See Also
 

@@ -5,10 +5,10 @@ description: Build signed browser-module dashboards that ServiceRadar imports, v
 order: 35
 ---
 
-`@serviceradar/dashboard-sdk` is the supported surface for customer-owned
-dashboards. A dashboard package is built outside ServiceRadar, published as a
-signed artifact, imported by an administrator, and rendered inside the
-ServiceRadar web host.
+`@carverauto/serviceradar-dashboard-sdk` is the supported surface for
+customer-owned dashboards. A dashboard package is built outside ServiceRadar,
+published as a signed artifact, imported by an administrator, and rendered
+inside the ServiceRadar web host.
 
 Most teams should start with the React helpers. They hide the host lifecycle,
 keep SRQL updates debounced, decode data frames, and manage Mapbox / deck.gl
@@ -34,7 +34,7 @@ Mapbox, deck.gl, and lifecycle cleanup.
 Install the SDK and export one `mountDashboard` entrypoint:
 
 ```jsx
-import {mountReactDashboard, useFrameRows} from "@serviceradar/dashboard-sdk/react"
+import {mountReactDashboard, useFrameRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 function SitesDashboard() {
   const sites = useFrameRows("sites")
@@ -72,14 +72,14 @@ sample frames and settings so the dashboard can be exercised before it is
 imported into ServiceRadar.
 
 ```bash
-npm create @carverauto/dashboard@latest my-dashboard -- --template react-map
+npm create @carverauto/create-dashboard@latest my-dashboard -- --template react-map
 cd my-dashboard
 npm run dev
 npm run validate
 npm run build
 ```
 
-`npm create @carverauto/dashboard` forwards to the canonical CLI command:
+`npm create @carverauto/create-dashboard` forwards to the canonical CLI command:
 
 ```bash
 serviceradar-cli dashboard init my-dashboard --template react-map
@@ -89,7 +89,7 @@ Choose the template that matches the first screen you need to build:
 
 | Template | Starting point |
 | --- | --- |
-| `react-map` | Mapbox / deck.gl dashboard using `useDeckMap`, `useDeckLayers`, and map fixtures |
+| `react-map` | Mapbox dashboard using `useMapboxMap`, with deck.gl helpers available for high-volume layers |
 | `react-table` | Frame-driven inventory table with search, status filtering, and pagination |
 | `react-blank` | Minimum React dashboard that renders rows from one primary data frame |
 
@@ -226,13 +226,13 @@ my-dashboard/
     renderer.js
 ```
 
-The SDK is published as `@serviceradar/dashboard-sdk` with these subpath
-exports:
+The SDK is published as `@carverauto/serviceradar-dashboard-sdk` with these
+subpath exports:
 
 | Export | Use it for |
 | --- | --- |
 | `/react` | React mount lifecycle, host hooks, frame hooks, filter hooks |
-| `/map` | Mapbox / deck.gl setup and layer factories |
+| `/map` | Mapbox setup, optional deck.gl setup, and layer factories |
 | `/popup` | React content rendered into Mapbox popups |
 | `/query-state` | Framework-agnostic SRQL query state |
 | `/filtering` | Framework-agnostic indexed local filtering |
@@ -270,7 +270,7 @@ entry point: it decodes JSON or Arrow IPC frames, caches by frame digest, and
 optionally projects each row into a stable shape.
 
 ```jsx
-import {useFrameRows} from "@serviceradar/dashboard-sdk/react"
+import {useFrameRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const SITE_SHAPE = Object.freeze({
   id: "site_id",
@@ -297,7 +297,7 @@ roundtrips.
 `useFilterState` owns chip groups, search inputs, and debounced fields:
 
 ```jsx
-import {useFilterState, useIndexedRows} from "@serviceradar/dashboard-sdk/react"
+import {useFilterState, useIndexedRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const INDEX_BY = {region: "region", vendor: "vendor"}
 
@@ -327,7 +327,7 @@ function FilteredSites({sites}) {
 `api.srql.update` when the query fingerprint changes:
 
 ```jsx
-import {useDashboardQueryState} from "@serviceradar/dashboard-sdk/react"
+import {useDashboardQueryState} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const queryState = useDashboardQueryState({
   initialState: {regions: []},
@@ -347,11 +347,29 @@ debounced server refresh.
 ## Map Dashboards
 
 ServiceRadar injects Mapbox GL JS, `MapboxOverlay`, and deck.gl constructors
-through `api.libraries`. `useDeckMap` owns the map lifecycle; `useDeckLayers`
-owns layer reconciliation.
+through `api.libraries`. Use `useMapboxMap` when the dashboard only needs the
+map lifecycle, DOM markers, or Mapbox sources/layers:
 
 ```jsx
-import {scatter, useDeckLayers, useDeckMap} from "@serviceradar/dashboard-sdk/map"
+import {useMapboxMap} from "@carverauto/serviceradar-dashboard-sdk/map"
+
+function SitesMap() {
+  const handle = useMapboxMap({
+    initialViewState: {center: [-98.5, 39.8], zoom: 3.7},
+    viewportThrottleMs: 120,
+  })
+
+  return <div ref={handle.containerRef} className="absolute inset-0" />
+}
+```
+
+Mapbox GL JS itself is WebGL-backed. This path removes deck.gl/luma from the
+dashboard renderer, but it still uses the browser GPU through Mapbox. Use
+deck.gl only when you need GPU-backed data layers. `useDeckMap` composes
+`useMapboxMap`; `useDeckLayers` owns layer reconciliation:
+
+```jsx
+import {scatter, useDeckLayers, useDeckMap} from "@carverauto/serviceradar-dashboard-sdk/map"
 
 function SitesMap({sites}) {
   const handle = useDeckMap({
@@ -393,7 +411,7 @@ on first open, re-renders the React subtree on updates, and unmounts the root
 when the popup closes.
 
 ```jsx
-import {useMapPopup} from "@serviceradar/dashboard-sdk/popup"
+import {useMapPopup} from "@carverauto/serviceradar-dashboard-sdk/popup"
 
 function SitePopup({handle, focusedSite, onClose}) {
   const popup = useMapPopup(handle.map, {closeOnClick: false, offset: 18, onClose})
@@ -432,7 +450,7 @@ import {
   useDashboardMapbox,
   useDashboardSettings,
   useDashboardTheme,
-} from "@serviceradar/dashboard-sdk/react"
+} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const settings = useDashboardSettings()
 const mapbox = useDashboardMapbox()
@@ -458,7 +476,7 @@ review the package before it is enabled. The CLI preserves these fields when it
 writes the published manifest:
 
 ```js
-import {defineDashboardConfig} from "@serviceradar/dashboard-sdk/config"
+import {defineDashboardConfig} from "@carverauto/serviceradar-dashboard-sdk/config"
 
 export default defineDashboardConfig({
   manifest: {
@@ -497,7 +515,7 @@ Non-React dashboards can use the framework-agnostic exports directly.
 For SRQL:
 
 ```js
-import {buildSrqlQuery, createSrqlClient} from "@serviceradar/dashboard-sdk/srql"
+import {buildSrqlQuery, createSrqlClient} from "@carverauto/serviceradar-dashboard-sdk/srql"
 
 const srql = createSrqlClient(api)
 const query = buildSrqlQuery({
@@ -514,7 +532,7 @@ srql.update(query)
 For raw frame helpers:
 
 ```js
-import {isArrowFrame, requireArrowFrameBytes} from "@serviceradar/dashboard-sdk/frames"
+import {isArrowFrame, requireArrowFrameBytes} from "@carverauto/serviceradar-dashboard-sdk/frames"
 
 const frame = api.frame("sites")
 if (isArrowFrame(frame)) {
@@ -558,7 +576,7 @@ the package into ServiceRadar.
 ```bash
 npm create vite@latest my-dashboard -- --template react-ts
 cd my-dashboard
-npm install @serviceradar/dashboard-sdk
+npm install @carverauto/serviceradar-dashboard-sdk
 ./build.sh
 
 cd ~/src/serviceradar-sdk-dashboard
@@ -584,6 +602,6 @@ can be enabled.
 
 ## See Also
 
-- Dashboard SDK package: `@serviceradar/dashboard-sdk`
+- Dashboard SDK package: `@carverauto/serviceradar-dashboard-sdk`
 - Dashboard host interface: `dashboard-browser-module-v1`
 - Local harness path: `tools/dashboard-wasm-harness/`

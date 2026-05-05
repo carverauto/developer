@@ -31,12 +31,13 @@ defmodule DeveloperPortalWeb.PageControllerTest do
     html = html_response(conn, 200)
 
     assert html =~ "Dashboard SDK"
-    assert html =~ "@serviceradar/dashboard-sdk"
+    assert html =~ "@carverauto/serviceradar-dashboard-sdk"
     assert html =~ ~s(class="not-prose docs-code-window mockup-code" data-language="JSX")
     assert html =~ "mountDashboard"
     assert html =~ "mountReactDashboard"
     assert html =~ "CLI Scaffolding"
-    assert html =~ "npm create @carverauto/dashboard"
+    assert html =~ "npm create @carverauto/create-dashboard"
+    assert html =~ "useMapboxMap"
     assert html =~ "srql.execute"
     refute html =~ "wifi-dashboard"
   end

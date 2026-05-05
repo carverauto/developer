@@ -906,6 +906,97 @@ The harness is not a substitute for ServiceRadar's production import:
 operators still verify manifest shape, artifact digest, trust policy, and
 capabilities before a dashboard can be enabled.
 
+## Publishing
+
+`serviceradar-cli dashboard publish --instance <url> [--route <slug>]
+[--enable] [--yes]` posts the built `dist/manifest.json` and renderer
+artifact to `/api/v1/dashboard-packages` as a multipart upload. The
+ServiceRadar instance must implement the publish API (proposal
+`add-cli-dashboard-publish-api`).
+
+### Endpoint contract
+
+**`POST /api/v1/dashboard-packages`** — upload a manifest + renderer.
+
+The request is `multipart/form-data` with three parts:
+
+| Part       | Required | Type                                                                               | Cap                                |
+| ---------- | -------- | ---------------------------------------------------------------------------------- | ---------------------------------- |
+| `manifest` | yes      | `application/json`                                                                 | 256 KB                             |
+| `renderer` | yes      | `application/javascript`, `text/javascript`, or `application/wasm`                 | `Storage.max_upload_bytes` (50 MB) |
+| `route`    | no       | text slug matching `^[a-z0-9][a-z0-9-]{1,62}$`                                     | n/a                                |
+
+The bearer JWT must carry the `dashboard.publish` scope (minted by
+`auth login`); the user must hold the `cli.dashboard.publish` RBAC
+permission.
+
+Successful response (`200 OK`):
+
+```json
+{
+  "id": "package-uuid",
+  "dashboard_id": "com.example.foo",
+  "version": "0.1.0",
+  "route_slug": "example-foo",
+  "status": "staged",
+  "content_hash": "sha256-of-renderer-bytes",
+  "result": "written"
+}
+```
+
+`result` is `"idempotent_noop"` when the same `id@version` already exists
+with a matching `content_hash` — re-publishes are safe to retry without
+churning the persisted bytes.
+
+**`POST /api/v1/dashboard-packages/:id/enable`** — flip a package live and
+optionally bind/rebind a route slug. Body (JSON, optional):
+`{"route": "<slug>"}`. Requires `cli.dashboard.enable`.
+
+**`POST /api/v1/dashboard-packages/:id/disable`** — take a package out of
+service without deleting it. The renderer asset endpoint stops serving
+once the package is disabled. Requires `cli.dashboard.disable`.
+
+### Error envelopes
+
+| HTTP | `error`                       | When                                                                       |
+| ---- | ----------------------------- | -------------------------------------------------------------------------- |
+| 400  | `missing_part`                | Missing `manifest` or `renderer` part.                                     |
+| 400  | `invalid_route`               | `route` slug fails the regex.                                              |
+| 400  | `invalid_manifest`            | Manifest fails server-side schema validation.                              |
+| 401  | `unauthorized`                | No bearer / revoked / unknown JWT (handled by `ApiAuth`).                  |
+| 403  | `insufficient_scope`          | Bearer JWT lacks the `dashboard.publish` scope claim.                      |
+| 403  | `forbidden`                   | User does not hold the matching RBAC permission.                           |
+| 409  | `slug_in_use`                 | `route` already enabled-bound to a different `dashboard_id`.               |
+| 409  | `version_already_published`   | Same `id@version` exists with different bytes against an enabled package.  |
+| 413  | `payload_too_large`           | A part exceeded its size cap. `part` field names which one.                |
+| 415  | `unsupported_media_type`      | A part declared a content type outside the allow-list.                     |
+| 422  | `unprocessable_renderer`      | `manifest.renderer.sha256` does not match the uploaded bytes.              |
+| 429  | `rate_limited`                | 11+ publishes in 60 s on the same JWT. `Retry-After` header is included.   |
+
+### Invariants
+
+- **Slug ownership.** A `route_slug` row in `dashboard_instances` belongs
+  to exactly one `dashboard_id` while `enabled = true`. Concurrent
+  publishes to a fresh slug serialize through the unique index; the loser
+  receives 409 `slug_in_use`.
+- **Version overwrite.** Same `id@version` re-push with the same bytes is
+  an idempotent no-op. Same `id@version` with different bytes against an
+  enabled or verified package is rejected. Same `id@version` with
+  different bytes against a `:disabled` package overwrites and resets
+  `verification_status: "pending"`.
+- **Audit logging.** Every publish/enable/disable hop emits one
+  `dashboard_package` audit row with `{actor_user_id, jti, action,
+  dashboard_id, version, route_slug, content_hash, result}` via the
+  existing audit sink. Audit failures never fail the request.
+
+### RBAC permissions
+
+| Permission                  | Default roles | Surface                                                                                |
+| --------------------------- | ------------- | -------------------------------------------------------------------------------------- |
+| `cli.dashboard.publish`     | admins        | Upload via `POST /api/v1/dashboard-packages`.                                          |
+| `cli.dashboard.enable`      | admins        | Flip a package live + bind a route via `POST /api/v1/dashboard-packages/:id/enable`.   |
+| `cli.dashboard.disable`     | admins        | Take a package out of service via `POST /api/v1/dashboard-packages/:id/disable`.       |
+
 ## CLI Diagnostics
 
 ```bash

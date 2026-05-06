@@ -5,10 +5,10 @@ description: Build signed browser-module dashboards that ServiceRadar imports, v
 order: 35
 ---
 
-`@serviceradar/dashboard-sdk` is the supported surface for customer-owned
-dashboards. A dashboard package is built outside ServiceRadar, published as a
-signed artifact, imported by an administrator, and rendered inside the
-ServiceRadar web host.
+`@carverauto/serviceradar-dashboard-sdk` is the supported surface for
+customer-owned dashboards. A dashboard package is built outside ServiceRadar,
+published as a signed artifact, imported by an administrator, and rendered
+inside the ServiceRadar web host.
 
 Most teams should start with the React helpers. They hide the host lifecycle,
 keep SRQL updates debounced, decode data frames, and manage Mapbox / deck.gl
@@ -31,10 +31,32 @@ Mapbox, deck.gl, and lifecycle cleanup.
 
 ## Quick Start
 
-Install the SDK and export one `mountDashboard` entrypoint:
+For a new dashboard, scaffold from a template and use the generated npm
+scripts:
+
+```bash
+npm create @carverauto/create-dashboard@latest my-dashboard -- --template react-map
+cd my-dashboard
+npm run dev
+npm run validate
+npm run build
+```
+
+For an existing dashboard repository, install from the committed lockfile:
+
+```bash
+npm ci
+npm run dev
+```
+
+Project scripts resolve `serviceradar-cli` from `./node_modules/.bin`, so a
+global install is not required. For ad-hoc commands, run `npx
+serviceradar-cli ...` from the dashboard repository.
+
+Every React dashboard exports one `mountDashboard` entrypoint:
 
 ```jsx
-import {mountReactDashboard, useFrameRows} from "@serviceradar/dashboard-sdk/react"
+import {mountReactDashboard, useFrameRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 function SitesDashboard() {
   const sites = useFrameRows("sites")
@@ -64,6 +86,10 @@ before the host marks the renderer as mounted:
 export const mountDashboard = mountReactDashboard(SitesDashboard, {waitForReady: true})
 ```
 
+The local dev harness prints a URL such as `http://127.0.0.1:4177/`. Open it
+in a browser to exercise the renderer with hot module replacement, sample data
+frames, theme switching, Mapbox settings, and the host API activity footer.
+
 ## CLI Scaffolding
 
 The dashboard CLI is the recommended way to start a new dashboard package. It
@@ -72,24 +98,24 @@ sample frames and settings so the dashboard can be exercised before it is
 imported into ServiceRadar.
 
 ```bash
-npm create @carverauto/dashboard@latest my-dashboard -- --template react-map
+npm create @carverauto/create-dashboard@latest my-dashboard -- --template react-map
 cd my-dashboard
 npm run dev
 npm run validate
 npm run build
 ```
 
-`npm create @carverauto/dashboard` forwards to the canonical CLI command:
+`npm create @carverauto/create-dashboard` forwards to the canonical CLI command:
 
 ```bash
-serviceradar-cli dashboard init my-dashboard --template react-map
+npx serviceradar-cli dashboard init my-dashboard --template react-map
 ```
 
 Choose the template that matches the first screen you need to build:
 
 | Template | Starting point |
 | --- | --- |
-| `react-map` | Mapbox / deck.gl dashboard using `useDeckMap`, `useDeckLayers`, and map fixtures |
+| `react-map` | Mapbox dashboard using `useMapboxMap`, with deck.gl helpers available for high-volume layers |
 | `react-table` | Frame-driven inventory table with search, status filtering, and pagination |
 | `react-blank` | Minimum React dashboard that renders rows from one primary data frame |
 
@@ -104,18 +130,122 @@ Generated projects include these scripts:
 The CLI also exposes direct subcommands for CI and release automation:
 
 ```bash
-serviceradar-cli doctor
-serviceradar-cli dashboard manifest
-serviceradar-cli dashboard publish --instance https://serviceradar.example.com --route my-dashboard
+npx serviceradar-cli doctor
+npx serviceradar-cli dashboard manifest
+npx serviceradar-cli dashboard publish --instance https://serviceradar.example.com --route my-dashboard
 ```
 
 `doctor` reports Node, npm, CLI, SDK, Vite, config, renderer entry, and auth
 state. `dashboard publish` verifies that the manifest digest still matches the
 renderer artifact before uploading.
 
+## Installing Published Packages
+
+Dashboard projects should depend on published npm packages:
+
+```bash
+npm install @carverauto/serviceradar-dashboard-sdk react react-dom
+npm install -D @vitejs/plugin-react vite @playwright/test
+```
+
+`@carverauto/serviceradar-dashboard-sdk` depends on
+`@carverauto/serviceradar-cli`, so `serviceradar-cli` is available to npm
+scripts through `./node_modules/.bin`. If you want to pin the CLI explicitly,
+add it as a direct dependency:
+
+```bash
+npm install @carverauto/serviceradar-cli
+```
+
+A typical customer dashboard keeps these scripts in `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "serviceradar-cli dashboard dev",
+    "build": "serviceradar-cli dashboard build",
+    "validate": "serviceradar-cli dashboard validate",
+    "test:unit": "node --test tests/*.test.mjs"
+  }
+}
+```
+
+Use `npm ci` for repeatable installs in a checked-out customer repo. If this
+command reports invalid versions, remove `node_modules` and rerun `npm ci` so
+the installed packages match `package-lock.json`:
+
+```bash
+npm ls @carverauto/serviceradar-cli @carverauto/serviceradar-dashboard-sdk
+```
+
+## Local Harness
+
+`npm run dev` starts the ServiceRadar dashboard harness with Vite HMR. The
+harness loads `dashboard.config.mjs`, mounts the renderer entry directly, and
+supplies the same host API shape that web-ng supplies at runtime.
+
+Common local commands:
+
+```bash
+npm run dev
+npm run dev -- --open
+npm run dev -- --port 4191
+npm run dev -- --mapbox-token pk...
+```
+
+The right-side harness panel controls host theme, Mapbox token, fixture
+selection, and renderer reload. The footer activity log shows host calls such
+as `mounted com.example.network-map` and `srql.update in:sites limit:500`.
+When a dashboard interaction changes the query state, the footer should show
+the SRQL update that the host would receive.
+
+Sample frames and settings come from `dashboard.config.mjs`:
+
+```js
+export default defineDashboardConfig({
+  samples: {
+    frames: "fixtures/sample-frames.json",
+    settings: "fixtures/sample-settings.json",
+  },
+})
+```
+
+Commit sample fixtures that are required for another developer to clone the
+repository and reproduce the dashboard locally.
+
+## Updating Package Versions
+
+Update the SDK and CLI when ServiceRadar publishes fixes needed by the local
+harness or renderer:
+
+```bash
+npm outdated @carverauto/serviceradar-dashboard-sdk @carverauto/serviceradar-cli
+npm update @carverauto/serviceradar-dashboard-sdk @carverauto/serviceradar-cli
+```
+
+To move to a specific published version:
+
+```bash
+npm install @carverauto/serviceradar-dashboard-sdk@0.1.4 @carverauto/serviceradar-cli@0.1.4
+```
+
+Commit `package-lock.json` whenever resolved package versions change, and
+commit `package.json` when dependency ranges change. After any package update,
+run:
+
+```bash
+npm run validate
+npm run test:unit
+npm run build
+```
+
+Customer repositories should validate against published npm packages. If a
+needed SDK or CLI fix exists in ServiceRadar source but has not been published,
+publish the upstream package first, then update the customer dashboard repo.
+
 ## Publishing
 
-`serviceradar-cli dashboard publish --instance <url> [--route <slug>]
+`npx serviceradar-cli dashboard publish --instance <url> [--route <slug>]
 [--enable] [--yes]` posts the built `dist/manifest.json` and renderer
 artifact to `/api/v1/dashboard-packages` as a multipart upload. The
 ServiceRadar instance must implement the publish API.
@@ -226,13 +356,13 @@ my-dashboard/
     renderer.js
 ```
 
-The SDK is published as `@serviceradar/dashboard-sdk` with these subpath
-exports:
+The SDK is published as `@carverauto/serviceradar-dashboard-sdk` with these
+subpath exports:
 
 | Export | Use it for |
 | --- | --- |
 | `/react` | React mount lifecycle, host hooks, frame hooks, filter hooks |
-| `/map` | Mapbox / deck.gl setup and layer factories |
+| `/map` | Mapbox setup, optional deck.gl setup, and layer factories |
 | `/popup` | React content rendered into Mapbox popups |
 | `/query-state` | Framework-agnostic SRQL query state |
 | `/filtering` | Framework-agnostic indexed local filtering |
@@ -270,7 +400,7 @@ entry point: it decodes JSON or Arrow IPC frames, caches by frame digest, and
 optionally projects each row into a stable shape.
 
 ```jsx
-import {useFrameRows} from "@serviceradar/dashboard-sdk/react"
+import {useFrameRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const SITE_SHAPE = Object.freeze({
   id: "site_id",
@@ -297,7 +427,7 @@ roundtrips.
 `useFilterState` owns chip groups, search inputs, and debounced fields:
 
 ```jsx
-import {useFilterState, useIndexedRows} from "@serviceradar/dashboard-sdk/react"
+import {useFilterState, useIndexedRows} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const INDEX_BY = {region: "region", vendor: "vendor"}
 
@@ -327,7 +457,7 @@ function FilteredSites({sites}) {
 `api.srql.update` when the query fingerprint changes:
 
 ```jsx
-import {useDashboardQueryState} from "@serviceradar/dashboard-sdk/react"
+import {useDashboardQueryState} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const queryState = useDashboardQueryState({
   initialState: {regions: []},
@@ -347,11 +477,29 @@ debounced server refresh.
 ## Map Dashboards
 
 ServiceRadar injects Mapbox GL JS, `MapboxOverlay`, and deck.gl constructors
-through `api.libraries`. `useDeckMap` owns the map lifecycle; `useDeckLayers`
-owns layer reconciliation.
+through `api.libraries`. Use `useMapboxMap` when the dashboard only needs the
+map lifecycle, DOM markers, or Mapbox sources/layers:
 
 ```jsx
-import {scatter, useDeckLayers, useDeckMap} from "@serviceradar/dashboard-sdk/map"
+import {useMapboxMap} from "@carverauto/serviceradar-dashboard-sdk/map"
+
+function SitesMap() {
+  const handle = useMapboxMap({
+    initialViewState: {center: [-98.5, 39.8], zoom: 3.7},
+    viewportThrottleMs: 120,
+  })
+
+  return <div ref={handle.containerRef} className="absolute inset-0" />
+}
+```
+
+Mapbox GL JS itself is WebGL-backed. This path removes deck.gl/luma from the
+dashboard renderer, but it still uses the browser GPU through Mapbox. Use
+deck.gl only when you need GPU-backed data layers. `useDeckMap` composes
+`useMapboxMap`; `useDeckLayers` owns layer reconciliation:
+
+```jsx
+import {scatter, useDeckLayers, useDeckMap} from "@carverauto/serviceradar-dashboard-sdk/map"
 
 function SitesMap({sites}) {
   const handle = useDeckMap({
@@ -393,7 +541,7 @@ on first open, re-renders the React subtree on updates, and unmounts the root
 when the popup closes.
 
 ```jsx
-import {useMapPopup} from "@serviceradar/dashboard-sdk/popup"
+import {useMapPopup} from "@carverauto/serviceradar-dashboard-sdk/popup"
 
 function SitePopup({handle, focusedSite, onClose}) {
   const popup = useMapPopup(handle.map, {closeOnClick: false, offset: 18, onClose})
@@ -432,7 +580,7 @@ import {
   useDashboardMapbox,
   useDashboardSettings,
   useDashboardTheme,
-} from "@serviceradar/dashboard-sdk/react"
+} from "@carverauto/serviceradar-dashboard-sdk/react"
 
 const settings = useDashboardSettings()
 const mapbox = useDashboardMapbox()
@@ -458,7 +606,7 @@ review the package before it is enabled. The CLI preserves these fields when it
 writes the published manifest:
 
 ```js
-import {defineDashboardConfig} from "@serviceradar/dashboard-sdk/config"
+import {defineDashboardConfig} from "@carverauto/serviceradar-dashboard-sdk/config"
 
 export default defineDashboardConfig({
   manifest: {
@@ -497,7 +645,7 @@ Non-React dashboards can use the framework-agnostic exports directly.
 For SRQL:
 
 ```js
-import {buildSrqlQuery, createSrqlClient} from "@serviceradar/dashboard-sdk/srql"
+import {buildSrqlQuery, createSrqlClient} from "@carverauto/serviceradar-dashboard-sdk/srql"
 
 const srql = createSrqlClient(api)
 const query = buildSrqlQuery({
@@ -514,7 +662,7 @@ srql.update(query)
 For raw frame helpers:
 
 ```js
-import {isArrowFrame, requireArrowFrameBytes} from "@serviceradar/dashboard-sdk/frames"
+import {isArrowFrame, requireArrowFrameBytes} from "@carverauto/serviceradar-dashboard-sdk/frames"
 
 const frame = api.frame("sites")
 if (isArrowFrame(frame)) {
@@ -548,42 +696,19 @@ func framesUpdated() {
 In this model ServiceRadar owns deck.gl, Mapbox, popup behavior, and event
 wiring. The WebAssembly module emits constrained render models.
 
-## Local Harness
-
-The SDK repository includes a local harness at
-`tools/dashboard-wasm-harness/`. Use it to validate the manifest, mount the
-renderer, load sample frames, and exercise Mapbox / deck.gl before importing
-the package into ServiceRadar.
-
-```bash
-npm create vite@latest my-dashboard -- --template react-ts
-cd my-dashboard
-npm install @serviceradar/dashboard-sdk
-./build.sh
-
-cd ~/src/serviceradar-sdk-dashboard
-python3 -m http.server 4177
-```
-
-```text
-http://localhost:4177/tools/dashboard-wasm-harness/?manifest=/my-dashboard/dist/manifest.json&wasm=/my-dashboard/dist/renderer.js&frames=/my-dashboard/dist/sample-frames.json&settings=/my-dashboard/dist/sample-settings.json
-```
-
-The harness is a development tool. Production import still validates manifest
-shape, artifact digest, trust policy, and capability grants before a dashboard
-can be enabled.
-
 ## Implementation Checklist
 
 - Export exactly one `mountDashboard` entrypoint.
 - Keep row shapes, filter indexes, deck accessors, and visual props stable.
 - Debounce SRQL updates that follow text input.
 - Read settings and capabilities from the host.
+- Validate against the published SDK/CLI packages that customers will install.
 - Release maps, overlays, timers, listeners, and React roots in cleanup paths.
 - Test with sample frames before publishing the signed artifact.
 
 ## See Also
 
-- Dashboard SDK package: `@serviceradar/dashboard-sdk`
+- Dashboard SDK package: `@carverauto/serviceradar-dashboard-sdk`
+- Dashboard CLI package: `@carverauto/serviceradar-cli`
 - Dashboard host interface: `dashboard-browser-module-v1`
-- Local harness path: `tools/dashboard-wasm-harness/`
+- Local harness command: `npm run dev`

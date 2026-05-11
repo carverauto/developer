@@ -4,7 +4,7 @@ defmodule DeveloperPortal.Registry.Validator do
   alias DeveloperPortal.Registry.Plugin
 
   @valid_types MapSet.new(["official", "community"])
-  @valid_kinds MapSet.new(["check", "stream"])
+  @valid_kinds MapSet.new(["check", "console", "inventory_sync", "stream"])
 
   def validate!(plugins) when is_list(plugins) do
     slugs = Enum.map(plugins, & &1.slug)

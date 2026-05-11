@@ -8,8 +8,12 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
   @manifest_files [
     %{name: "plugin.yaml", kind: "check"},
+    %{name: "plugin.console.yaml", kind: "console"},
+    %{name: "plugin.inventory_sync.yaml", kind: "inventory_sync"},
     %{name: "plugin.stream.yaml", kind: "stream"},
     %{name: "manifest.json", kind: "check"},
+    %{name: "manifest.console.json", kind: "console"},
+    %{name: "manifest.inventory_sync.json", kind: "inventory_sync"},
     %{name: "manifest.stream.json", kind: "stream"}
   ]
 
@@ -217,6 +221,11 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   end
 
   defp schema_candidates("stream"), do: ["config.stream.schema.json"]
+  defp schema_candidates("console"), do: ["config.console.schema.json", "config.schema.json"]
+
+  defp schema_candidates("inventory_sync"),
+    do: ["config.inventory_sync.schema.json", "config.schema.json"]
+
   defp schema_candidates(_kind), do: ["config.schema.json"]
 
   defp categorize_plugin(manifest, "stream") do
@@ -225,10 +234,14 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     if String.contains?(outputs, "camera_stream"), do: "streaming", else: "streaming"
   end
 
+  defp categorize_plugin(_manifest, "console"), do: "remote access"
+  defp categorize_plugin(_manifest, "inventory_sync"), do: "automation"
+
   defp categorize_plugin(manifest, _kind) do
     outputs = fetch_optional_string(manifest, "outputs") || ""
 
     cond do
+      String.contains?(outputs, "proxmox_console") -> "remote access"
       String.contains?(outputs, "camera_stream") -> "streaming"
       String.contains?(outputs, "plugin_result") -> "monitoring"
       true -> "integration"

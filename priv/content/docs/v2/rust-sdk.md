@@ -234,6 +234,47 @@ Parse and validate the `serviceradar.plugin_inputs.v1` payload with
 The `TargetContext`, `PluginInput`, and `PluginInputItem` types describe the
 resolved devices, interfaces, and credential grants for a policy assignment.
 
+## Northbound actions
+
+Rust plugins use the same northbound action contract as the [Go SDK](go-sdk):
+
+- `plugin.yaml` declares each action under `actions`.
+- ServiceRadar passes an `action_invocation` payload to the plugin at launch.
+- The plugin returns `serviceradar.northbound_action_result.v1`.
+
+Use action descriptors for external integrations that operate on selected
+ServiceRadar inventory. Device actions receive device snapshots; interface
+actions receive both the parent device context and the selected interface
+context; event actions are reserved for event-handler workflows that call an
+external system after a ServiceRadar event is created.
+
+Declare enough `required_context` for the external API call to be unambiguous.
+For example, an interface remediation plugin should require `device.ip` and
+`interface.name` if the target NMS identifies ports by device address and
+interface name.
+
+```yaml
+actions:
+  - action_id: sample.interface.audit
+    version: 1.0.0
+    label: Sample Interface Audit
+    scopes: [interface]
+    required_context:
+      - device.ip
+      - interface.name
+    safety_classification: standard
+    requires_confirmation: true
+    result_schema_version: serviceradar.northbound_action_result.v1
+```
+
+The SDK exposes typed action status, descriptor, invocation, target, and result
+structures (`ActionDescriptor`, `ActionInvocation`, `ActionResult`,
+`submit_action_result`) so plugins implement the contract without hand-rolled
+JSON maps. Return one target result per selected device or interface, and
+include external correlation IDs, URLs, ticket IDs, and operation names where
+they help operators audit what happened — but never credentials or secrets, as
+ServiceRadar treats action output as operator-visible audit data.
+
 ## Advanced modules
 
 The crate also exposes higher-level helpers that mirror the Go SDK for camera and
@@ -243,6 +284,4 @@ streaming plugins:
   `CameraPluginConfig` / `CameraStreamingConfig` loaders.
 - **RTSP**: `StreamClient`, `H264Depacketizer`, `InterleavedFrame`, and
   `VideoTrack` for RTSP parsing and depacketization.
-- **Actions**: `ActionDescriptor`, `ActionInvocation`, `ActionResult`, and
-  `submit_action_result` for the action invocation/result schemas.
 - **Check descriptors**: `CheckDescriptor` for descriptor-aware target results.

@@ -19,7 +19,17 @@ defmodule DeveloperPortal.DocsTest do
              "dashboard-sdk",
              "dashboard-templates",
              "signal-display-contracts",
-             "architecture"
+             "architecture",
+             "addons",
+             "addon-sample",
+             "addon-rust-sample",
+             "addon-powerdns",
+             "addon-netprobe",
+             "addon-workload-identity",
+             "addon-endpoint-inventory",
+             "addon-bumblebee-scan",
+             "addon-rdp-adapter",
+             "addon-remote-access"
            ]
 
     assert Enum.any?(version.sections, &String.contains?(&1.body, "WebAssembly"))

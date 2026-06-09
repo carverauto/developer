@@ -17,6 +17,7 @@ defmodule DeveloperPortal.DocsTest do
              "go-sdk",
              "rust-sdk",
              "dashboard-sdk",
+             "dashboard-templates",
              "signal-display-contracts",
              "architecture"
            ]

@@ -150,3 +150,157 @@ body {
 .glow-accent {
   box-shadow: 0 0 14px var(--glow-accent);
 }
+
+.docs-article {
+  --code-bg: #0b1220;
+  --code-border: color-mix(in oklab, var(--color-primary) 28%, transparent);
+  --code-text: #dbeafe;
+}
+
+.docs-article h2 {
+  margin-top: 3.75rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--color-base-300);
+  font-size: 1.55rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.docs-article h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.docs-article h3 {
+  margin-top: 2.5rem;
+  font-size: 1.12rem;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.docs-article h2 + p,
+.docs-article h3 + p {
+  margin-top: 0.85rem;
+}
+
+.docs-article p,
+.docs-article li {
+  line-height: 1.75;
+}
+
+.docs-article table {
+  font-size: 0.93rem;
+}
+
+.docs-article :where(code):not(pre code) {
+  border-color: color-mix(in oklab, var(--color-primary) 22%, var(--color-base-300));
+}
+
+.docs-code-window {
+  position: relative;
+  display: block;
+  margin: 1.5rem 0 2.25rem;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--code-border);
+  background: var(--code-bg);
+  color: var(--code-text);
+  box-shadow:
+    0 18px 45px color-mix(in oklab, #000 24%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 8%, transparent);
+}
+
+.docs-code-window::before {
+  margin-left: 1.25rem;
+}
+
+.docs-code-window::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 38%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-primary) 16%, transparent);
+  padding: 0.15rem 0.55rem;
+  color: color-mix(in oklab, var(--code-text) 88%, var(--color-primary));
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.docs-code-window pre {
+  margin: 0;
+  padding: 0.2rem 4.5rem 0.1rem 1.25rem;
+  min-width: max-content;
+  background: transparent;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.docs-code-window pre::before {
+  margin-right: 0;
+  width: 0;
+}
+
+.docs-code-window code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 500;
+  white-space: pre;
+}
+
+.docs-code-window .c,
+.docs-code-window .c1,
+.docs-code-window .cm {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.docs-code-window .k,
+.docs-code-window .kd,
+.docs-code-window .kn,
+.docs-code-window .kr,
+.docs-code-window .kt {
+  color: #93c5fd;
+}
+
+.docs-code-window .s,
+.docs-code-window .s1,
+.docs-code-window .s2,
+.docs-code-window .sb,
+.docs-code-window .dl {
+  color: #86efac;
+}
+
+.docs-code-window .m,
+.docs-code-window .mi,
+.docs-code-window .mf {
+  color: #fbbf24;
+}
+
+.docs-code-window .nf,
+.docs-code-window .na,
+.docs-code-window .nt,
+.docs-code-window .nc {
+  color: #67e8f9;
+}
+
+.docs-code-window .o,
+.docs-code-window .p {
+  color: #c4b5fd;
+}
+
+.docs-code-window .err {
+  color: #fecaca;
+  background: color-mix(in oklab, var(--color-error) 24%, transparent);
+}

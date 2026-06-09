@@ -26,6 +26,7 @@ defmodule DeveloperPortalWeb.Router do
     get "/docs", PageController, :docs_index
     get "/docs/:version", PageController, :docs
     get "/docs/:version/api", PageController, :api_docs
+    get "/docs/:version/:section", PageController, :docs_section
     get "/contribute", PageController, :contribute
   end
 

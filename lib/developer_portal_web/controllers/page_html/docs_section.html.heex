@@ -1,0 +1,74 @@
+<Layouts.app flash={@flash}>
+  <section class="px-4 py-10 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-[88rem] gap-8 xl:grid-cols-[250px_minmax(0,1fr)_220px]">
+      <aside class="h-fit space-y-4 lg:sticky lg:top-6">
+        <a
+          href={~p"/docs/#{@docs_version.id}"}
+          class="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:-translate-x-0.5"
+        >
+          <.icon name="hero-arrow-left" class="h-4 w-4" /> Back to docs
+        </a>
+
+        <nav class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
+          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            Guides
+          </p>
+          <div class="space-y-1">
+            <%= for section <- @docs_version.sections do %>
+              <a
+                href={~p"/docs/#{@docs_version.id}/#{section.id}"}
+                class={[
+                  "block rounded-md px-2.5 py-2 text-sm transition",
+                  section.id == @docs_section.id &&
+                    "bg-primary text-primary-content",
+                  section.id != @docs_section.id &&
+                    "text-base-content/72 hover:bg-base-200 hover:text-base-content"
+                ]}
+              >
+                {section.title}
+              </a>
+            <% end %>
+          </div>
+        </nav>
+      </aside>
+
+      <article class="min-w-0 rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
+        <header class="mb-8 border-b border-base-300 pb-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            {@docs_section.audience}
+          </p>
+          <h1 class="mt-3 text-4xl font-semibold tracking-tight">{@docs_section.title}</h1>
+          <p class="mt-4 max-w-3xl text-lg leading-8 text-base-content/72">
+            {@docs_section.description}
+          </p>
+        </header>
+
+        <div class="docs-article prose prose-base max-w-none text-base-content/82">
+          {@docs_section.html}
+        </div>
+      </article>
+
+      <aside class="hidden h-fit xl:sticky xl:top-6 xl:block">
+        <nav class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
+          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            On this page
+          </p>
+          <div class="space-y-0.5">
+            <%= for item <- @docs_section.toc do %>
+              <a
+                href={"##{item.id}"}
+                class={[
+                  "block rounded-md py-1.5 text-sm text-base-content/70 transition hover:bg-base-200 hover:text-base-content",
+                  item.level == 2 && "px-2 font-medium",
+                  item.level == 3 && "pr-2 pl-5"
+                ]}
+              >
+                {item.title}
+              </a>
+            <% end %>
+          </div>
+        </nav>
+      </aside>
+    </div>
+  </section>
+</Layouts.app>

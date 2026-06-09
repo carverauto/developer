@@ -68,7 +68,11 @@ if config_env() != :test do
             Map.get(v2, "redoc_url")
         )
 
-      Keyword.put(source_opts, :versions, versions |> Map.delete("v1") |> Map.put("v2", updated_v2))
+      Keyword.put(
+        source_opts,
+        :versions,
+        versions |> Map.delete("v1") |> Map.put("v2", updated_v2)
+      )
     end)
 
   config :developer_portal, DeveloperPortal.ApiDocs, source_opts: api_docs_source_opts

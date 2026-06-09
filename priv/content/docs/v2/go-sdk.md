@@ -11,4 +11,5 @@ Repository: <https://code.carverauto.dev/carverauto/serviceradar-sdk-go>
 
 - Scaffold the plugin with the official Go SDK.
 - Compile to WASM and package release artifacts for distribution.
+- Attach signal schema references when emitting package-backed logs or events.
 - Document installation and runtime requirements for operators.

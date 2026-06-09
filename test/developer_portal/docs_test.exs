@@ -16,6 +16,8 @@ defmodule DeveloperPortal.DocsTest do
              "getting-started",
              "go-sdk",
              "rust-sdk",
+             "dashboard-sdk",
+             "signal-display-contracts",
              "architecture"
            ]
 

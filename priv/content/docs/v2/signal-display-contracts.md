@@ -106,7 +106,9 @@ log carries only a bounded reference:
 
 Native Go add-ons can use `go/pkg/addon.AttachSignalSchemaRef`. Native Rust add-ons
 can use `attach_signal_schema_ref` from the Rust add-on SDK. Wasm plugins should
-attach the equivalent schema-reference object in their emitted observability payload.
+use the `emit_telemetry` host capability and SDK telemetry helpers for standalone
+package-backed logs/events; result-attached `events` are still appropriate for
+check-scoped annotations.
 
 The ingestion pipeline treats this metadata as rendering/provenance data only.
 Tenant routing, RBAC, write destination, source identity, and severity decisions

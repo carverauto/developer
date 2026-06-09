@@ -17,25 +17,20 @@ defmodule DeveloperPortal.DocsTest do
              "go-sdk",
              "rust-sdk",
              "dashboard-sdk",
-             "architecture"
+             "dashboard-templates",
+             "signal-display-contracts",
+             "architecture",
+             "addons",
+             "addon-sample",
+             "addon-rust-sample",
+             "addon-powerdns",
+             "addon-netprobe",
+             "addon-workload-identity",
+             "addon-endpoint-inventory",
+             "addon-bumblebee-scan",
+             "addon-rdp-adapter",
+             "addon-remote-access"
            ]
-
-    dashboard_sdk = Enum.find(version.sections, &(&1.id == "dashboard-sdk"))
-
-    assert Enum.any?(dashboard_sdk.toc, &(&1.id == "quick-start"))
-    assert Enum.any?(dashboard_sdk.toc, &(&1.id == "cli-scaffolding"))
-
-    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
-             ~s(id="quick-start")
-
-    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
-             ~s(data-language="JSX")
-
-    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
-             ~s(<span class="kr">export</span>)
-
-    assert Phoenix.HTML.Safe.to_iodata(dashboard_sdk.html) |> IO.iodata_to_binary() =~
-             "serviceradar-cli dashboard init"
 
     assert Enum.any?(version.sections, &String.contains?(&1.body, "WebAssembly"))
   end

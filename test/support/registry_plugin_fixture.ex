@@ -27,14 +27,17 @@ defmodule DeveloperPortal.RegistryPluginFixture do
             "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/plugin.yaml",
           config_schema_url:
             "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/config.schema.json",
-          wasm_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/dist/plugin.wasm",
-          artifact_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/dist/plugin.wasm.sha256",
-          signature_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/dist/plugin.wasm.sig",
+          wasm_url: nil,
+          artifact_url: nil,
+          signature_url: nil,
+          oci_ref: "registry.carverauto.dev/serviceradar/wasm-plugin-axis-camera:v1.2.99",
+          oci_digest: "sha256:8523298909ff90fc1e51c93b760e39280d98c0a22289f758b3f870eace1de975",
+          signature_digest:
+            "sha256:2a8c0cf1335ec9079aa3f43c96a719400ab32a8bbad05fdb360ef9c908977f16",
+          bundle_digest:
+            "sha256:84d9a05edb1c0800894d84df0329965be17dd1de34aeec5e85a0875445059ca4",
           installation:
-            "Download the standard manifest, config schema, and signed WASM artifact from Forgejo, then import them into ServiceRadar.",
+            "Pull the signed `registry.carverauto.dev/serviceradar/wasm-plugin-axis-camera:v1.2.99` bundle from the ServiceRadar registry, then assign it to an agent from the control plane.",
           runtime: "wasi-preview1",
           entrypoint: "run_check",
           outputs: "serviceradar.plugin_result.v1",

@@ -1,0 +1,93 @@
+<Layouts.app flash={@flash}>
+  <section class="px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl space-y-8">
+      <div class="space-y-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          Add-on catalog
+        </p>
+        <h1 class="text-4xl font-semibold tracking-tight">
+          Published, signed native add-ons for the ServiceRadar agent.
+        </h1>
+        <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+          Native add-ons are compiled Go or Rust binaries the agent supervises out-of-process. Every add-on below ships as a signed OCI artifact verified against the agent release trust root.
+        </p>
+      </div>
+
+      <.form
+        for={@form}
+        id="addon-filters"
+        phx-change="filter"
+        class="card border border-base-300 bg-base-100 shadow-lg"
+      >
+        <div class="card-body grid gap-4 md:grid-cols-3">
+          <.input
+            field={@form[:q]}
+            type="text"
+            label="Search"
+            placeholder="name, capability, supervision..."
+          />
+          <.input
+            field={@form[:language]}
+            type="select"
+            label="Language"
+            options={["" | @languages]}
+          />
+          <.input
+            field={@form[:supervision]}
+            type="select"
+            label="Supervision"
+            options={["" | @supervisions]}
+          />
+        </div>
+      </.form>
+
+      <%= if Enum.empty?(@addons) do %>
+        <article class="card border border-dashed border-base-300 bg-base-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="card-title">No add-ons available yet</h2>
+            <p class="text-sm text-base-content/70">
+              The catalog cache is still warming or no add-ons matched the current filters.
+            </p>
+          </div>
+        </article>
+      <% else %>
+        <div class="grid gap-4 lg:grid-cols-3">
+          <%= for addon <- @addons do %>
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <div class="flex flex-wrap gap-2">
+                  <span class="badge badge-outline">{addon.language}</span>
+                  <%= if addon.supervision do %>
+                    <span class="badge badge-outline">{addon.supervision}</span>
+                  <% end %>
+                  <span class={[
+                    "badge",
+                    addon.signed && "badge-success",
+                    !addon.signed && "badge-warning"
+                  ]}>
+                    {if addon.signed, do: "Signed", else: "Unsigned"}
+                  </span>
+                </div>
+
+                <div class="space-y-2">
+                  <h2 class="card-title">{addon.name}</h2>
+                  <p class="text-sm text-base-content/70">{addon.summary}</p>
+                  <%= if Enum.any?(addon.architectures || []) do %>
+                    <p class="text-xs uppercase tracking-[0.18em] text-base-content/50">
+                      {Enum.join(addon.architectures, " · ")}
+                    </p>
+                  <% end %>
+                </div>
+
+                <div class="card-actions justify-between">
+                  <span class="text-sm text-base-content/60">Version {addon.version}</span>
+                  <a href={~p"/addons/#{addon.slug}"} class="btn btn-sm btn-outline">Details</a>
+                </div>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</Layouts.app>

@@ -75,7 +75,8 @@ defmodule DeveloperPortal.Registry.ReleaseIndex do
 
   defp load_index(config, release, asset_name, collection_key, id_key) do
     with %{"browser_download_url" => url} <- find_asset(release, asset_name),
-         {:ok, %Req.Response{status: 200, body: body}} <- Req.get(url, config.req_options),
+         {:ok, %Req.Response{status: 200, body: body}} <-
+           Req.get(content_url(config, url), config.req_options),
          {:ok, decoded} <- decode_body(body) do
       decoded
       |> Map.get(collection_key, [])
@@ -114,6 +115,31 @@ defmodule DeveloperPortal.Registry.ReleaseIndex do
     |> Map.get("assets", [])
     |> Enum.find(&(&1["name"] == asset_name))
   end
+
+  @doc """
+  Rewrites a release-asset URL onto the configured `content_base_url`.
+
+  Forgejo emits `browser_download_url` using its public ROOT_URL, but in the
+  cluster the portal can only reach Forgejo via the internal content host. This
+  mirrors how `ForgejoSource` fetches raw manifest content, so the signing index
+  is reachable in every environment. With no `content_base_url` the URL is used
+  as-is.
+  """
+  def content_url(%{content_base_url: nil}, url), do: url
+  def content_url(%{content_base_url: ""}, url), do: url
+
+  def content_url(%{content_base_url: content_base_url}, url) do
+    content_uri = URI.parse(content_base_url)
+    request_uri = URI.parse(url)
+
+    request_uri
+    |> Map.put(:scheme, content_uri.scheme)
+    |> Map.put(:host, content_uri.host)
+    |> Map.put(:port, content_uri.port)
+    |> URI.to_string()
+  end
+
+  def content_url(_config, url), do: url
 
   defp decode_body(body) when is_map(body), do: {:ok, body}
   defp decode_body(body) when is_binary(body), do: Jason.decode(body)

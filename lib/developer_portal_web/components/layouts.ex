@@ -59,6 +59,7 @@ defmodule DeveloperPortalWeb.Layouts do
           <nav class="hidden items-center gap-2 md:flex">
             <a href={~p"/docs/v2"} class="btn btn-ghost">Docs</a>
             <a href={~p"/plugins"} class="btn btn-ghost">Plugins</a>
+            <a href={~p"/addons"} class="btn btn-ghost">Add-ons</a>
             <a href={~p"/contribute"} class="btn btn-ghost">Contribute</a>
             <.theme_toggle />
           </nav>

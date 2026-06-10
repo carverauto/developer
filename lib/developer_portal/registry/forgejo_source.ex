@@ -3,7 +3,11 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
   @behaviour DeveloperPortal.Registry.Source
 
+  require Logger
+
+  alias DeveloperPortal.Registry.Addon
   alias DeveloperPortal.Registry.Plugin
+  alias DeveloperPortal.Registry.ReleaseIndex
   alias DeveloperPortal.Registry.Validator
 
   @manifest_files [
@@ -30,10 +34,12 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   def fetch_plugins(opts) do
     with {:ok, config} <- build_config(opts),
          {:ok, entries} <- list_directory(config, config.plugin_root) do
+      index = ReleaseIndex.fetch(config).wasm
+
       plugins =
         entries
         |> Enum.filter(&(&1["type"] == "dir"))
-        |> Enum.flat_map(&fetch_directory_plugins(config, &1))
+        |> Enum.flat_map(&fetch_directory_plugins(config, &1, index))
         |> Enum.sort_by(&{if(&1.official, do: 0, else: 1), &1.name})
         |> Validator.validate!()
 
@@ -41,7 +47,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     end
   end
 
-  defp fetch_directory_plugins(config, entry) do
+  defp fetch_directory_plugins(config, entry, index) do
     case list_directory(config, entry["path"]) do
       {:ok, root_entries} ->
         directory = index_entries(root_entries)
@@ -65,7 +71,8 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
                   readme_url,
                   directory,
                   dist,
-                  language
+                  language,
+                  index
                 )
               ]
           end
@@ -75,7 +82,8 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
         raise "failed to fetch plugin directory #{entry["path"]}: #{inspect(reason)}"
     end
   rescue
-    _error ->
+    error ->
+      Logger.warning("skipping plugin directory #{entry["path"]}: #{inspect(error)}")
       []
   end
 
@@ -87,15 +95,21 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
          readme_url,
          directory,
          dist,
-         language
+         language,
+         index
        ) do
     manifest = fetch_manifest!(config, manifest_entry)
-    signature_url = find_download_url(dist, @signature_candidates)
-    checksum_url = find_download_url(dist, @checksum_candidates)
-    wasm_url = find_download_url(dist, @wasm_candidates)
+    slug = fetch_id!(manifest)
+    release = Map.get(index, slug)
+    signed = release_signed?(release)
+    # OCI metadata is only meaningful for a signed, published artifact. Gating it
+    # on `signed` keeps the "oci_ref implies signed" invariant the Validator
+    # enforces, so a future index entry that lists an OCI ref without a signature
+    # can never crash the whole refresh.
+    published = if signed, do: release, else: nil
 
     %Plugin{
-      slug: fetch_id!(manifest),
+      slug: slug,
       name: fetch_string!(manifest, "name"),
       author: config.default_author,
       version: fetch_string!(manifest, "version"),
@@ -105,15 +119,19 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       official: config.default_type == "official",
       language: language,
       category: categorize_plugin(manifest, kind),
-      signed: not is_nil(signature_url),
+      signed: signed,
       source_url: source_url,
       readme_url: readme_url,
       manifest_url: download_url(manifest_entry),
       config_schema_url: config_schema_url(kind, directory, dist),
-      wasm_url: wasm_url,
-      artifact_url: checksum_url,
-      signature_url: signature_url,
-      installation: installation_text(kind, wasm_url),
+      wasm_url: find_download_url(dist, @wasm_candidates),
+      artifact_url: find_download_url(dist, @checksum_candidates),
+      signature_url: find_download_url(dist, @signature_candidates),
+      oci_ref: published && published["oci_ref"],
+      oci_digest: published && published["oci_digest"],
+      signature_digest: published && published["upload_signature_digest"],
+      bundle_digest: published && published["bundle_digest"],
+      installation: installation_text(kind, published),
       runtime: fetch_optional_string(manifest, "runtime"),
       entrypoint: fetch_optional_string(manifest, "entrypoint"),
       outputs: fetch_optional_string(manifest, "outputs"),
@@ -123,6 +141,114 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       sample_kind: kind
     }
   end
+
+  @impl true
+  def fetch_addons(opts) do
+    with {:ok, config} <- build_config(opts),
+         {:ok, entries} <- list_directory(config, config.addon_root) do
+      index = ReleaseIndex.fetch(config).addons
+
+      addons =
+        entries
+        |> Enum.filter(&(&1["type"] == "dir"))
+        |> Enum.flat_map(&fetch_directory_addon(config, &1, index))
+        |> Enum.sort_by(& &1.name)
+        |> Validator.validate_addons!()
+
+      {:ok, addons}
+    end
+  end
+
+  # Maps an add-on id to its developer-portal reference doc slug.
+  @addon_docs %{
+    "sample" => "addon-sample",
+    "rust-sample" => "addon-rust-sample",
+    "powerdns" => "addon-powerdns",
+    "netprobe" => "addon-netprobe",
+    "workload-identity" => "addon-workload-identity",
+    "endpoint-inventory" => "addon-endpoint-inventory",
+    "bumblebee" => "addon-bumblebee-scan",
+    "rdp" => "addon-rdp-adapter"
+  }
+
+  defp fetch_directory_addon(config, entry, index) do
+    case list_directory(config, entry["path"]) do
+      {:ok, files} ->
+        directory = index_entries(files)
+
+        with manifest_entry when not is_nil(manifest_entry) <-
+               directory["addon.yaml"] || directory["addon.yml"],
+             manifest <- fetch_manifest!(config, manifest_entry),
+             id when is_binary(id) <- fetch_optional_string(manifest, "id"),
+             release when not is_nil(release) <- Map.get(index, id) do
+          [build_addon(entry, directory, manifest, id, release)]
+        else
+          _ -> []
+        end
+
+      {:error, reason} ->
+        raise "failed to fetch addon directory #{entry["path"]}: #{inspect(reason)}"
+    end
+  rescue
+    error ->
+      Logger.warning("skipping addon directory #{entry["path"]}: #{inspect(error)}")
+      []
+  end
+
+  defp build_addon(entry, directory, manifest, id, release) do
+    artifacts = release |> Map.get("artifacts", []) |> Enum.map(&normalize_artifact/1)
+    signed = addon_signed?(artifacts)
+    # OCI metadata is only exposed for a fully-signed add-on, keeping the
+    # "oci_ref implies signed" invariant the Validator enforces.
+    published = if signed, do: release, else: nil
+    description = fetch_optional_string(manifest, "description") || release["name"]
+
+    %Addon{
+      slug: id,
+      name: fetch_optional_string(manifest, "name") || release["name"],
+      summary: description,
+      description: description,
+      version: to_string(release["version"] || fetch_optional_string(manifest, "version")),
+      language: humanize_language(fetch_optional_string(manifest, "language")),
+      kind: fetch_optional_string(manifest, "kind") || "native",
+      delivery: fetch_optional_string(manifest, "delivery"),
+      supervision: fetch_optional_string(manifest, "supervision"),
+      capabilities: fetch_string_list(manifest, "capabilities"),
+      platforms: get_in(manifest, ["requires", "platforms"]) |> string_list(),
+      architectures: Enum.map(artifacts, &"#{&1.os}/#{&1.arch}"),
+      artifacts: artifacts,
+      signed: signed,
+      oci_ref: published && published["oci_ref"],
+      oci_digest: published && published["oci_digest"],
+      bundle_digest: published && published["bundle_digest"],
+      source_url: entry["html_url"],
+      readme_url: html_or_download_url(directory["README.md"]),
+      docs_path: "/docs/v2/" <> Map.get(@addon_docs, id, "addons"),
+      official: true
+    }
+  end
+
+  defp normalize_artifact(artifact) do
+    %{
+      os: to_string(artifact["os"]),
+      arch: to_string(artifact["arch"]),
+      signature_digest: artifact["signature_digest"],
+      sha256: artifact["sha256"]
+    }
+  end
+
+  defp addon_signed?([]), do: false
+
+  defp addon_signed?(artifacts) do
+    Enum.all?(artifacts, fn artifact ->
+      is_binary(artifact.signature_digest) and artifact.signature_digest != ""
+    end)
+  end
+
+  defp humanize_language("go"), do: "Go"
+  defp humanize_language("rust"), do: "Rust"
+  defp humanize_language(language) when is_binary(language) and language != "", do: language
+  defp humanize_language(_language), do: "Unknown"
 
   defp build_config(opts) do
     merged =
@@ -138,8 +264,12 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
        repo: Keyword.fetch!(merged, :repo),
        ref: Keyword.fetch!(merged, :ref),
        plugin_root: Keyword.fetch!(merged, :plugin_root),
+       addon_root: Keyword.get(merged, :addon_root, "addons"),
        default_author: Keyword.get(merged, :default_author, "ServiceRadar"),
        default_type: Keyword.get(merged, :default_type, "official"),
+       wasm_index_asset: Keyword.get(merged, :wasm_index_asset),
+       addon_index_asset: Keyword.get(merged, :addon_index_asset),
+       releases_limit: Keyword.get(merged, :releases_limit),
        req_options: Keyword.get(merged, :req_options, [])
      }}
   rescue
@@ -256,16 +386,29 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     end
   end
 
+  defp release_signed?(nil), do: false
+
+  defp release_signed?(release) when is_map(release) do
+    case release["upload_signature_digest"] do
+      digest when is_binary(digest) and digest != "" -> true
+      _ -> false
+    end
+  end
+
   defp installation_text(kind, nil) do
     package = if kind == "stream", do: "streaming", else: "standard"
 
-    "Review the #{package} manifest in Forgejo and import the published package once the signed WASM artifact is available."
+    "Review the #{package} manifest in Forgejo; the signed bundle will be published to the ServiceRadar registry on the next release."
   end
 
-  defp installation_text(kind, _wasm_url) do
-    package = if kind == "stream", do: "streaming", else: "standard"
+  defp installation_text(_kind, release) when is_map(release) do
+    case release["oci_ref"] do
+      ref when is_binary(ref) and ref != "" ->
+        "Pull the signed `#{ref}` bundle from the ServiceRadar registry, then assign it to an agent from the control plane."
 
-    "Download the #{package} manifest, config schema, and signed WASM artifact from Forgejo, then import them into ServiceRadar."
+      _ ->
+        "Pull the signed bundle from the ServiceRadar registry, then assign it to an agent from the control plane."
+    end
   end
 
   defp index_entries(entries) do

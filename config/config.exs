@@ -19,8 +19,12 @@ config :developer_portal, DeveloperPortal.Registry,
     repo: "serviceradar",
     ref: "staging",
     plugin_root: "go/cmd/wasm-plugins",
+    addon_root: "addons",
     default_author: "ServiceRadar",
     default_type: "official",
+    wasm_index_asset: "serviceradar-wasm-plugin-index.json",
+    addon_index_asset: "serviceradar-native-addon-index.json",
+    releases_limit: 20,
     req_options: [receive_timeout: 15_000]
   ]
 

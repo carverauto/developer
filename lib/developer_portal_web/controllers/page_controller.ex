@@ -7,7 +7,8 @@ defmodule DeveloperPortalWeb.PageController do
   def home(conn, _params) do
     render(conn, :home,
       versions: Docs.versions(),
-      featured_plugins: DeveloperPortal.Registry.featured_plugins()
+      featured_plugins: DeveloperPortal.Registry.featured_plugins(),
+      featured_addons: DeveloperPortal.Registry.featured_addons()
     )
   end
 

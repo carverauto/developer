@@ -41,6 +41,8 @@ defmodule DeveloperPortalWeb.Router do
 
     live "/plugins", PluginLive.Index, :index
     live "/plugins/:slug", PluginLive.Show, :show
+    live "/addons", AddonLive.Index, :index
+    live "/addons/:slug", AddonLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

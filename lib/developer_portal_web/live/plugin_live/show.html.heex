@@ -166,8 +166,9 @@
                 >
                   WASM package
                 </a>
-              <% else %>
-                <button class="btn btn-primary" disabled>WASM package coming soon</button>
+              <% end %>
+              <%= if is_nil(@plugin.wasm_url) and is_nil(@plugin.oci_ref) do %>
+                <button class="btn btn-primary" disabled>Package coming soon</button>
               <% end %>
               <%= if @plugin.artifact_url do %>
                 <a

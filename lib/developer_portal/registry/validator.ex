@@ -1,6 +1,7 @@
 defmodule DeveloperPortal.Registry.Validator do
   @moduledoc false
 
+  alias DeveloperPortal.Registry.Addon
   alias DeveloperPortal.Registry.Plugin
 
   @valid_types MapSet.new(["official", "community"])
@@ -37,6 +38,48 @@ defmodule DeveloperPortal.Registry.Validator do
     plugin
   end
 
+  def validate_addons!(addons) when is_list(addons) do
+    slugs = Enum.map(addons, & &1.slug)
+
+    if MapSet.size(MapSet.new(slugs)) != length(slugs) do
+      raise ArgumentError, "duplicate addon slugs detected"
+    end
+
+    Enum.each(addons, &validate_addon!/1)
+    addons
+  end
+
+  def validate_addon!(%Addon{} = addon) do
+    ensure_non_empty!(addon.slug, :slug)
+    ensure_non_empty!(addon.name, :name)
+    ensure_non_empty!(addon.summary, :summary)
+    ensure_non_empty!(addon.description, :description)
+    ensure_non_empty!(addon.version, :version)
+    ensure_non_empty!(addon.language, :language)
+    ensure_non_empty!(addon.kind, :kind)
+    ensure_non_empty!(addon.docs_path, :docs_path)
+    ensure_addon_signed_has_oci_ref!(addon)
+    ensure_addon_oci_ref_marked_signed!(addon)
+    ensure_optional_url!(addon.source_url, :source_url)
+    ensure_optional_url!(addon.readme_url, :readme_url)
+    addon
+  end
+
+  defp ensure_addon_signed_has_oci_ref!(%Addon{signed: true, oci_ref: oci_ref, slug: slug}) do
+    unless is_binary(oci_ref) and String.trim(oci_ref) != "" do
+      raise ArgumentError, "addon #{slug} is signed but is missing its OCI reference"
+    end
+  end
+
+  defp ensure_addon_signed_has_oci_ref!(_addon), do: :ok
+
+  defp ensure_addon_oci_ref_marked_signed!(%Addon{signed: false, oci_ref: oci_ref, slug: slug})
+       when not is_nil(oci_ref) do
+    raise ArgumentError, "addon #{slug} exposes an OCI reference but is not marked signed"
+  end
+
+  defp ensure_addon_oci_ref_marked_signed!(_addon), do: :ok
+
   defp ensure_boolean_consistency!(plugin) do
     official_type? = plugin.type == "official"
 
@@ -50,30 +93,28 @@ defmodule DeveloperPortal.Registry.Validator do
     ensure_optional_url!(plugin.wasm_url, :wasm_url)
     ensure_optional_url!(plugin.artifact_url, :artifact_url)
     ensure_optional_url!(plugin.signature_url, :signature_url)
-    ensure_signed_field!(plugin, :wasm_url)
-    ensure_signed_field!(plugin, :signature_url)
-    ensure_signed_field!(plugin, :artifact_url)
-    ensure_unsigned_has_no_signature!(plugin)
+    ensure_signed_has_oci_ref!(plugin)
+    ensure_oci_ref_marked_signed!(plugin)
     ensure_signature_has_wasm!(plugin)
   end
 
-  defp ensure_signed_field!(%Plugin{signed: true} = plugin, field) do
-    if is_nil(Map.fetch!(plugin, field)) do
-      raise ArgumentError, "plugin #{plugin.slug} is signed but is missing #{field}"
+  # A plugin is "signed" when the release pipeline has published a signed OCI
+  # artifact for it, so the OCI reference is the proof of signing.
+  defp ensure_signed_has_oci_ref!(%Plugin{signed: true, oci_ref: oci_ref, slug: slug}) do
+    unless is_binary(oci_ref) and String.trim(oci_ref) != "" do
+      raise ArgumentError, "plugin #{slug} is signed but is missing its OCI reference"
     end
   end
 
-  defp ensure_signed_field!(_plugin, _field), do: :ok
+  defp ensure_signed_has_oci_ref!(_plugin), do: :ok
 
-  defp ensure_unsigned_has_no_signature!(
-         %Plugin{signed: false, signature_url: signature_url} = plugin
-       )
-       when not is_nil(signature_url) do
+  defp ensure_oci_ref_marked_signed!(%Plugin{signed: false, oci_ref: oci_ref, slug: slug})
+       when not is_nil(oci_ref) do
     raise ArgumentError,
-          "plugin #{plugin.slug} exposes signature_url but is not marked signed"
+          "plugin #{slug} exposes an OCI reference but is not marked signed"
   end
 
-  defp ensure_unsigned_has_no_signature!(_plugin), do: :ok
+  defp ensure_oci_ref_marked_signed!(_plugin), do: :ok
 
   defp ensure_signature_has_wasm!(%Plugin{signature_url: signature_url, wasm_url: nil} = plugin)
        when not is_nil(signature_url) do
@@ -85,19 +126,19 @@ defmodule DeveloperPortal.Registry.Validator do
 
   defp ensure_non_empty!(value, field) when is_binary(value) do
     if String.trim(value) == "" do
-      raise ArgumentError, "plugin field #{field} must not be empty"
+      raise ArgumentError, "field #{field} must not be empty"
     end
   end
 
   defp ensure_non_empty!(value, field) do
     raise ArgumentError,
-          "plugin field #{field} must be a non-empty string, got: #{inspect(value)}"
+          "field #{field} must be a non-empty string, got: #{inspect(value)}"
   end
 
   defp ensure_membership!(value, field, allowed) do
     unless is_binary(value) and MapSet.member?(allowed, value) do
       raise ArgumentError,
-            "plugin field #{field} must be one of #{Enum.join(MapSet.to_list(allowed), ", ")}"
+            "field #{field} must be one of #{Enum.join(MapSet.to_list(allowed), ", ")}"
     end
   end
 
@@ -105,7 +146,7 @@ defmodule DeveloperPortal.Registry.Validator do
     ensure_optional_url!(value, field)
 
     if is_nil(value) do
-      raise ArgumentError, "plugin field #{field} must be present"
+      raise ArgumentError, "field #{field} must be present"
     end
   end
 
@@ -115,11 +156,11 @@ defmodule DeveloperPortal.Registry.Validator do
     uri = URI.parse(value)
 
     unless uri.scheme in ["http", "https"] and is_binary(uri.host) do
-      raise ArgumentError, "plugin field #{field} must be an absolute http(s) URL"
+      raise ArgumentError, "field #{field} must be an absolute http(s) URL"
     end
   end
 
   defp ensure_optional_url!(value, field) do
-    raise ArgumentError, "plugin field #{field} must be a URL string, got: #{inspect(value)}"
+    raise ArgumentError, "field #{field} must be a URL string, got: #{inspect(value)}"
   end
 end

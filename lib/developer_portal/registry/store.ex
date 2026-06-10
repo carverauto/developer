@@ -16,6 +16,10 @@ defmodule DeveloperPortal.Registry.Store do
     GenServer.call(__MODULE__, :list_plugins)
   end
 
+  def list_addons do
+    GenServer.call(__MODULE__, :list_addons)
+  end
+
   def refresh! do
     GenServer.cast(__MODULE__, :refresh)
   end
@@ -26,13 +30,14 @@ defmodule DeveloperPortal.Registry.Store do
 
     state = %{
       plugins: [],
+      addons: [],
       source: Keyword.get(config, :source, DeveloperPortal.Registry.ForgejoSource),
       source_opts: Keyword.get(config, :source_opts, []),
       refreshing?: false
     }
 
     if Keyword.get(config, :sync_init?, false) do
-      {:ok, load_plugins(state)}
+      {:ok, load_catalog(state)}
     else
       send(self(), :refresh)
       {:ok, state}
@@ -42,6 +47,11 @@ defmodule DeveloperPortal.Registry.Store do
   @impl true
   def handle_call(:list_plugins, _from, state) do
     {:reply, state.plugins, state}
+  end
+
+  @impl true
+  def handle_call(:list_addons, _from, state) do
+    {:reply, state.addons, state}
   end
 
   @impl true
@@ -55,31 +65,20 @@ defmodule DeveloperPortal.Registry.Store do
   end
 
   @impl true
-  def handle_info({:refresh_result, {:ok, plugins}}, state) do
-    plugins = Validator.validate!(plugins)
+  def handle_info({:refresh_result, results}, state) do
+    state =
+      state
+      |> apply_plugins(results.plugins)
+      |> apply_addons(results.addons)
 
-    if plugins != state.plugins do
-      Registry.broadcast_refresh(plugins)
-    end
-
-    {:noreply, %{state | plugins: plugins, refreshing?: false}}
-  end
-
-  @impl true
-  def handle_info({:refresh_result, {:error, reason}}, state) do
-    Logger.warning("plugin registry refresh failed: #{inspect(reason)}")
     {:noreply, %{state | refreshing?: false}}
   end
 
-  defp load_plugins(state) do
-    case state.source.fetch_plugins(state.source_opts) do
-      {:ok, plugins} ->
-        %{state | plugins: Validator.validate!(plugins), refreshing?: false}
-
-      {:error, reason} ->
-        Logger.warning("plugin registry refresh failed: #{inspect(reason)}")
-        %{state | refreshing?: false}
-    end
+  defp load_catalog(state) do
+    state
+    |> apply_plugins(safe_fetch(state.source, :fetch_plugins, state.source_opts))
+    |> apply_addons(safe_fetch(state.source, :fetch_addons, state.source_opts))
+    |> Map.put(:refreshing?, false)
   end
 
   defp schedule_refresh(%{refreshing?: true} = state), do: state
@@ -90,9 +89,57 @@ defmodule DeveloperPortal.Registry.Store do
     source_opts = state.source_opts
 
     Task.start(fn ->
-      send(parent, {:refresh_result, source.fetch_plugins(source_opts)})
+      send(
+        parent,
+        {:refresh_result,
+         %{
+           plugins: safe_fetch(source, :fetch_plugins, source_opts),
+           addons: safe_fetch(source, :fetch_addons, source_opts)
+         }}
+      )
     end)
 
     %{state | refreshing?: true}
+  end
+
+  # A source fetch may raise (e.g. a manifest the validator rejects). Convert
+  # that into an {:error, _} so the refresh Task always reports back: otherwise
+  # the parent never resets `refreshing?` and every later refresh is skipped.
+  defp safe_fetch(source, fun, source_opts) do
+    apply(source, fun, [source_opts])
+  rescue
+    error -> {:error, error}
+  catch
+    kind, reason -> {:error, {kind, reason}}
+  end
+
+  defp apply_plugins(state, {:ok, plugins}) do
+    plugins = Validator.validate!(plugins)
+
+    if plugins != state.plugins do
+      Registry.broadcast_refresh(plugins)
+    end
+
+    %{state | plugins: plugins}
+  end
+
+  defp apply_plugins(state, {:error, reason}) do
+    Logger.warning("plugin registry refresh failed: #{inspect(reason)}")
+    state
+  end
+
+  defp apply_addons(state, {:ok, addons}) do
+    addons = Validator.validate_addons!(addons)
+
+    if addons != state.addons do
+      Registry.broadcast_addons(addons)
+    end
+
+    %{state | addons: addons}
+  end
+
+  defp apply_addons(state, {:error, reason}) do
+    Logger.warning("addon registry refresh failed: #{inspect(reason)}")
+    state
   end
 end

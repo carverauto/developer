@@ -44,11 +44,28 @@
               <p class="mt-2 text-sm text-base-content/80">
                 {if @plugin.signed,
                   do:
-                    "This plugin is presented as signed, so the UI can highlight it as a trusted release candidate pending verification policy.",
+                    "This plugin ships as a signed OCI artifact, verified against the ServiceRadar agent release trust root before it is loaded.",
                   else:
-                    "This plugin is currently surfaced as unsigned so operators can evaluate it with additional caution."}
+                    "This plugin does not yet have a signed published artifact, so operators should evaluate it with additional caution."}
               </p>
             </div>
+
+            <%= if @plugin.oci_ref do %>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  Signed OCI bundle
+                </p>
+                <p class="mt-2 text-sm text-base-content/80">
+                  Pull the signed bundle from the ServiceRadar registry, then assign it to an agent from the control plane.
+                </p>
+                <pre class="mt-3 overflow-x-auto rounded-box border border-base-300 bg-base-200 p-3 text-xs"><code>oras pull {@plugin.oci_ref}</code></pre>
+                <%= if @plugin.bundle_digest do %>
+                  <p class="mt-2 break-all text-xs text-base-content/60">
+                    Bundle digest: <code>{@plugin.bundle_digest}</code>
+                  </p>
+                <% end %>
+              </div>
+            <% end %>
 
             <%= if Enum.any?(@plugin.capabilities || []) do %>
               <div>

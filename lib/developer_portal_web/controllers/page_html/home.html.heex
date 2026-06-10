@@ -15,6 +15,7 @@
         <div class="flex flex-wrap gap-3">
           <a href={~p"/docs/v2"} class="btn btn-primary btn-wide sm:btn-md">Read docs</a>
           <a href={~p"/plugins"} class="btn btn-outline btn-wide sm:btn-md">Browse plugins</a>
+          <a href={~p"/addons"} class="btn btn-outline btn-wide sm:btn-md">Browse add-ons</a>
           <a href={~p"/contribute"} class="btn btn-ghost btn-wide sm:btn-md">Submit a plugin</a>
         </div>
       </div>
@@ -63,4 +64,47 @@
       </div>
     </div>
   </section>
+
+  <%= if Enum.any?(@featured_addons) do %>
+    <section class="px-4 pb-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
+        <div class="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+              Add-ons
+            </p>
+            <h2 class="text-2xl font-semibold">Official add-ons</h2>
+          </div>
+          <a href={~p"/addons"} class="link link-hover text-sm font-medium">View full catalog</a>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+          <%= for addon <- @featured_addons do %>
+            <article class="card border border-base-300 bg-base-100 shadow-lg">
+              <div class="card-body">
+                <div class="flex flex-wrap gap-2">
+                  <span class="badge badge-outline">{addon.language}</span>
+                  <%= if addon.supervision do %>
+                    <span class="badge badge-outline">{addon.supervision}</span>
+                  <% end %>
+                  <span class={[
+                    "badge",
+                    addon.signed && "badge-success",
+                    !addon.signed && "badge-warning"
+                  ]}>
+                    {if addon.signed, do: "Signed", else: "Unsigned"}
+                  </span>
+                </div>
+                <h3 class="card-title">{addon.name}</h3>
+                <p class="text-sm text-base-content/70">{addon.summary}</p>
+                <div class="card-actions justify-end">
+                  <a href={~p"/addons/#{addon.slug}"} class="btn btn-sm btn-outline">Details</a>
+                </div>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    </section>
+  <% end %>
 </Layouts.app>

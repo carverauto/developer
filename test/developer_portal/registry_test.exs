@@ -15,4 +15,27 @@ defmodule DeveloperPortal.RegistryTest do
     assert [%{slug: "dusk-checker"}] =
              Registry.filter_plugins(%{"q" => "Dusk", "type" => "official"})
   end
+
+  test "loads published add-on metadata with signing status" do
+    addons = Registry.list_addons()
+
+    assert %{
+             signed: true,
+             oci_ref: "registry.carverauto.dev/serviceradar/serviceradar-addon-netprobe:v1.2.99"
+           } =
+             Enum.find(addons, &(&1.slug == "netprobe"))
+
+    assert %{signed: false, oci_ref: nil} =
+             Enum.find(addons, &(&1.slug == "preview-collector"))
+  end
+
+  test "filters add-ons by query and supervision" do
+    assert [%{slug: "netprobe"}] =
+             Registry.filter_addons(%{"q" => "netprobe", "supervision" => "systemd-service"})
+  end
+
+  test "get_addon returns the add-on by slug, or nil when missing" do
+    assert %{slug: "netprobe"} = Registry.get_addon("netprobe")
+    assert Registry.get_addon("does-not-exist") == nil
+  end
 end

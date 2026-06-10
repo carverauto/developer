@@ -2,24 +2,25 @@ defmodule DeveloperPortal.RegistryValidatorTest do
   use ExUnit.Case, async: true
 
   import DeveloperPortal.RegistryPluginFixture
+  import DeveloperPortal.RegistryAddonFixture
 
   alias DeveloperPortal.Registry.Validator
 
-  test "accepts fully populated signed plugin metadata" do
+  test "accepts a signed plugin published as an OCI artifact" do
     plugin = valid_plugin()
 
     assert ^plugin = Validator.validate_plugin!(plugin)
   end
 
-  test "rejects signed plugins without signature metadata" do
-    plugin = %{valid_plugin() | signature_url: nil}
+  test "rejects signed plugins without an OCI reference" do
+    plugin = %{valid_plugin() | oci_ref: nil}
 
-    assert_raise ArgumentError, ~r/missing signature_url/, fn ->
+    assert_raise ArgumentError, ~r/missing its OCI reference/, fn ->
       Validator.validate_plugin!(plugin)
     end
   end
 
-  test "rejects signature metadata when the plugin is not marked signed" do
+  test "rejects an OCI reference on a plugin that is not marked signed" do
     plugin = %{valid_plugin() | signed: false}
 
     assert_raise ArgumentError, ~r/not marked signed/, fn ->
@@ -35,7 +36,41 @@ defmodule DeveloperPortal.RegistryValidatorTest do
     end
   end
 
+  test "accepts a signed add-on published as an OCI artifact" do
+    addon = valid_addon()
+
+    assert ^addon = Validator.validate_addon!(addon)
+  end
+
+  test "rejects signed add-ons without an OCI reference" do
+    addon = %{valid_addon() | oci_ref: nil}
+
+    assert_raise ArgumentError, ~r/missing its OCI reference/, fn ->
+      Validator.validate_addon!(addon)
+    end
+  end
+
+  test "rejects an OCI reference on an add-on that is not marked signed" do
+    addon = %{valid_addon() | signed: false}
+
+    assert_raise ArgumentError, ~r/not marked signed/, fn ->
+      Validator.validate_addon!(addon)
+    end
+  end
+
+  test "rejects duplicate add-on slugs across the catalog" do
+    addon = valid_addon()
+
+    assert_raise ArgumentError, ~r/duplicate addon slugs/, fn ->
+      Validator.validate_addons!([addon, addon])
+    end
+  end
+
   defp valid_plugin do
     build_plugin()
+  end
+
+  defp valid_addon do
+    build_addon()
   end
 end

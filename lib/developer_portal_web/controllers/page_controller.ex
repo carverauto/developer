@@ -71,7 +71,8 @@ defmodule DeveloperPortalWeb.PageController do
               docs_version: docs_version,
               versions: Docs.versions(),
               api_document: ApiDocs.document(normalized_version),
-              api_source: ApiDocs.version_source(normalized_version)
+              api_source: ApiDocs.version_source(normalized_version),
+              api_status: ApiDocs.status()
             )
         end
     end

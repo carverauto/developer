@@ -127,6 +127,16 @@
                   <a href={~p"/docs/#{@docs_version.id}/api/openapi.json"} class="btn btn-primary">
                     Portal Raw JSON
                   </a>
+                  <%= if @api_source["swagger_ui_url"] do %>
+                    <a
+                      href={@api_source["swagger_ui_url"]}
+                      class="btn btn-outline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Upstream Swagger UI
+                    </a>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -134,123 +144,207 @@
         <% end %>
 
         <%= if @api_document do %>
-          <div class="grid gap-4 md:grid-cols-2">
-            <%= for group <- @api_document.operation_groups do %>
-              <section class="card border border-base-300 bg-base-100 shadow-lg">
-                <div class="card-body">
-                  <div class="flex items-center justify-between gap-3">
-                    <h2 class="card-title">{group.name}</h2>
-                    <span class="badge badge-outline">{length(group.operations)} operations</span>
-                  </div>
+          <div class="card border border-base-300 bg-base-100 shadow-lg">
+            <div class="card-body">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                    Interactive
+                  </p>
+                  <h2 class="text-2xl font-semibold tracking-tight">Explore the API</h2>
+                  <p class="mt-1 text-sm text-base-content/70">
+                    Powered by Swagger UI, loading the portal's cached OpenAPI document.
+                  </p>
+                </div>
+                <span class="badge badge-outline">
+                  Updated {Calendar.strftime(@api_document.fetched_at, "%Y-%m-%d %H:%M UTC")}
+                </span>
+              </div>
 
-                  <div class="space-y-3">
-                    <%= for operation <- group.operations do %>
-                      <details class="collapse collapse-arrow border border-base-300 bg-base-200/30">
-                        <summary class="collapse-title">
-                          <div class="flex flex-wrap items-center gap-3">
-                            <span class={[
-                              "badge font-semibold",
-                              method_badge_class(operation.method)
-                            ]}>
-                              {operation.method}
-                            </span>
-                            <code class="text-sm font-medium">{operation.path}</code>
-                          </div>
-                          <p class="mt-2 text-sm text-base-content/70">{operation.summary}</p>
-                        </summary>
-                        <div class="collapse-content space-y-4 text-sm text-base-content/75">
-                          <%= if operation.description do %>
-                            <p>{operation.description}</p>
-                          <% end %>
+              <div
+                id="swagger-ui"
+                data-openapi-url={~p"/docs/#{@docs_version.id}/api/openapi.json"}
+                class="swagger-ui-embed mt-4 overflow-x-auto rounded-box bg-white"
+              >
+                <noscript>
+                  <p class="p-4 text-sm text-base-content/70">
+                    JavaScript is required for the interactive API explorer. Use the text summary below
+                    or the raw JSON download.
+                  </p>
+                </noscript>
+              </div>
+            </div>
+          </div>
 
-                          <div class="flex flex-wrap gap-2">
-                            <%= if operation.deprecated? do %>
-                              <span class="badge badge-warning badge-outline">Deprecated</span>
-                            <% end %>
-                            <%= for scheme <- operation.security do %>
-                              <span class="badge badge-outline">{scheme}</span>
-                            <% end %>
-                            <%= for content_type <- operation.request_body_types do %>
-                              <span class="badge badge-secondary badge-outline">
-                                {content_type}
-                              </span>
-                            <% end %>
-                          </div>
+          <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-lg">
+            <summary class="collapse-title text-lg font-semibold">
+              Text summary ({@api_document.operation_count} operations, {@api_document.tag_count} tags)
+            </summary>
+            <div class="collapse-content">
+              <div class="grid gap-4 md:grid-cols-2">
+                <%= for group <- @api_document.operation_groups do %>
+                  <section class="card border border-base-300 bg-base-100 shadow-lg">
+                    <div class="card-body">
+                      <div class="flex items-center justify-between gap-3">
+                        <h2 class="card-title">{group.name}</h2>
+                        <span class="badge badge-outline">
+                          {length(group.operations)} operations
+                        </span>
+                      </div>
 
-                          <%= if operation.parameters != [] do %>
-                            <div>
-                              <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
-                                Parameters
-                              </p>
-                              <div class="space-y-2">
-                                <%= for parameter <- operation.parameters do %>
-                                  <div class="rounded-box border border-base-300 bg-base-100 px-3 py-2">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                      <code class="font-semibold">{parameter.name}</code>
-                                      <span class="badge badge-outline badge-sm">
-                                        {parameter.location}
-                                      </span>
-                                      <%= if parameter.required? do %>
-                                        <span class="badge badge-primary badge-sm">required</span>
-                                      <% end %>
-                                      <%= if parameter.schema do %>
-                                        <span class="badge badge-ghost badge-sm">
-                                          {parameter.schema}
-                                        </span>
-                                      <% end %>
-                                    </div>
-                                    <%= if parameter.description do %>
-                                      <p class="mt-1 text-xs text-base-content/65">
-                                        {parameter.description}
-                                      </p>
-                                    <% end %>
-                                  </div>
+                      <div class="space-y-3">
+                        <%= for operation <- group.operations do %>
+                          <details class="collapse collapse-arrow border border-base-300 bg-base-200/30">
+                            <summary class="collapse-title">
+                              <div class="flex flex-wrap items-center gap-3">
+                                <span class={[
+                                  "badge font-semibold",
+                                  method_badge_class(operation.method)
+                                ]}>
+                                  {operation.method}
+                                </span>
+                                <code class="text-sm font-medium">{operation.path}</code>
+                              </div>
+                              <p class="mt-2 text-sm text-base-content/70">{operation.summary}</p>
+                            </summary>
+                            <div class="collapse-content space-y-4 text-sm text-base-content/75">
+                              <%= if operation.description do %>
+                                <p>{operation.description}</p>
+                              <% end %>
+
+                              <div class="flex flex-wrap gap-2">
+                                <%= if operation.deprecated? do %>
+                                  <span class="badge badge-warning badge-outline">
+                                    Deprecated
+                                  </span>
+                                <% end %>
+                                <%= for scheme <- operation.security do %>
+                                  <span class="badge badge-outline">{scheme}</span>
+                                <% end %>
+                                <%= for content_type <- operation.request_body_types do %>
+                                  <span class="badge badge-secondary badge-outline">
+                                    {content_type}
+                                  </span>
                                 <% end %>
                               </div>
-                            </div>
-                          <% end %>
 
-                          <div>
-                            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
-                              Responses
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                              <%= for response <- operation.response_codes do %>
-                                <span class="badge badge-outline">
-                                  {response.status}: {response.description}
-                                </span>
+                              <%= if operation.parameters != [] do %>
+                                <div>
+                                  <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                                    Parameters
+                                  </p>
+                                  <div class="space-y-2">
+                                    <%= for parameter <- operation.parameters do %>
+                                      <div class="rounded-box border border-base-300 bg-base-100 px-3 py-2">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                          <code class="font-semibold">{parameter.name}</code>
+                                          <span class="badge badge-outline badge-sm">
+                                            {parameter.location}
+                                          </span>
+                                          <%= if parameter.required? do %>
+                                            <span class="badge badge-primary badge-sm">
+                                              required
+                                            </span>
+                                          <% end %>
+                                          <%= if parameter.schema do %>
+                                            <span class="badge badge-ghost badge-sm">
+                                              {parameter.schema}
+                                            </span>
+                                          <% end %>
+                                        </div>
+                                        <%= if parameter.description do %>
+                                          <p class="mt-1 text-xs text-base-content/65">
+                                            {parameter.description}
+                                          </p>
+                                        <% end %>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                </div>
                               <% end %>
+
+                              <div>
+                                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                                  Responses
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                  <%= for response <- operation.response_codes do %>
+                                    <span class="badge badge-outline">
+                                      {response.status}: {response.description}
+                                    </span>
+                                  <% end %>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </details>
-                    <% end %>
-                  </div>
-                </div>
-              </section>
-            <% end %>
-          </div>
+                          </details>
+                        <% end %>
+                      </div>
+                    </div>
+                  </section>
+                <% end %>
+              </div>
+            </div>
+          </details>
+
+          <link rel="stylesheet" href={~p"/assets/vendor/swagger-ui/swagger-ui.css"} />
+          <script src={~p"/assets/vendor/swagger-ui/swagger-ui-bundle.js"}>
+          </script>
+          <script phx-no-format>(function () {
+            var el = document.getElementById("swagger-ui");
+            if (!el || typeof window.SwaggerUIBundle === "undefined") return;
+            if (el.dataset.rendered === "true") return;
+            el.dataset.rendered = "true";
+            window.SwaggerUIBundle({
+              url: el.getAttribute("data-openapi-url"),
+              dom_id: "#swagger-ui",
+              deepLinking: true,
+              validatorUrl: null,
+              tryItOutEnabled: true,
+              presets: [SwaggerUIBundle.presets.apis],
+              layout: "BaseLayout"
+            });
+          })();</script>
         <% else %>
           <div class="card border border-warning/50 bg-warning/10 shadow-lg">
             <div class="card-body">
               <h2 class="card-title">API reference is warming up</h2>
               <p class="text-sm text-base-content/75">
-                The portal has not cached the ServiceRadar OpenAPI document yet. Refresh shortly, or open the upstream artifact directly while the cache catches up.
+                The portal has not cached the ServiceRadar OpenAPI document yet. It retries
+                automatically &mdash; this page reloads shortly. You can also open the upstream
+                artifact directly while the cache catches up.
               </p>
-              <%= if @api_source do %>
-                <div class="card-actions justify-start">
+
+              <%= if msg = api_error_message(@api_status) do %>
+                <div class="rounded-box border border-warning/40 bg-base-100 px-4 py-3 text-sm">
+                  <p class="font-semibold text-warning">Last refresh error</p>
+                  <p class="mt-1 text-base-content/80">{msg}</p>
+                  <%= if @api_status && @api_status.last_error_at do %>
+                    <p class="mt-1 text-xs text-base-content/60">
+                      at {Calendar.strftime(@api_status.last_error_at, "%Y-%m-%d %H:%M UTC")}
+                    </p>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="card-actions justify-start">
+                <a href={~p"/docs/#{@docs_version.id}/api"} class="btn btn-primary btn-sm">
+                  Reload
+                </a>
+                <%= if @api_source do %>
                   <a
                     href={Map.fetch!(@api_source, "open_api_url")}
-                    class="btn btn-outline"
+                    class="btn btn-outline btn-sm"
                     target="_blank"
                     rel="noreferrer"
                   >
                     Open upstream OpenAPI
                   </a>
-                </div>
-              <% end %>
+                <% end %>
+              </div>
             </div>
           </div>
+
+          <script phx-no-format>setTimeout(function () { window.location.reload(); }, 20000);</script>
         <% end %>
       </div>
     </div>

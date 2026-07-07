@@ -35,6 +35,15 @@ defmodule DeveloperPortal.ApiDocs do
     Store.refresh!()
   end
 
+  @doc """
+  Refresh health of the cache (refreshing?, last error, timestamps) so the UI
+  can show the real reason a document is missing instead of a generic
+  "warming up" placeholder.
+  """
+  def status do
+    Store.status()
+  end
+
   def version_sources do
     config = Application.get_env(:developer_portal, __MODULE__, [])
     source = Keyword.get(config, :source, DeveloperPortal.ApiDocs.ServiceRadarSource)

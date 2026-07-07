@@ -7,6 +7,24 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
 
   @http_methods ~w(get post put patch delete options head trace)
 
+  # Baseline request options. The upstream ServiceRadar OpenAPI endpoint answers
+  # ~739KB and returns the body with no `content-type` header, so we:
+  #   * ask for JSON explicitly (`accept`) for content negotiation,
+  #   * disable Req's content-type-driven decode and decode the raw body
+  #     ourselves (deterministic regardless of the missing content-type),
+  #   * allow a generous receive timeout for the large payload, and
+  #   * retry transient failures.
+  # Anything here can be overridden by `req_options` in config.
+  @default_req_options [
+    decode_body: false,
+    receive_timeout: 30_000,
+    connect_options: [timeout: 15_000],
+    retry: :transient,
+    max_retries: 3
+  ]
+
+  @default_headers %{"accept" => "application/json"}
+
   @impl true
   def fetch_documents(opts) do
     with {:ok, config} <- build_config(opts) do
@@ -86,7 +104,7 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
   defp validate_optional_url(version, url, field), do: validate_url(version, url, field)
 
   defp fetch_document(version, attrs, req_options) do
-    case Req.get(Map.fetch!(attrs, "open_api_url"), req_options) do
+    case Req.get(Map.fetch!(attrs, "open_api_url"), request_options(req_options)) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         with {:ok, spec} <- decode_spec(body),
              :ok <- validate_spec(spec, version) do
@@ -100,6 +118,18 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
         {:error, {:request_failed, version, reason}}
     end
   end
+
+  defp request_options(req_options) do
+    @default_req_options
+    |> Keyword.merge(req_options)
+    |> Keyword.update(:headers, @default_headers, fn headers ->
+      Map.merge(@default_headers, normalize_headers(headers))
+    end)
+  end
+
+  defp normalize_headers(headers) when is_map(headers), do: headers
+  defp normalize_headers(headers) when is_list(headers), do: Map.new(headers)
+  defp normalize_headers(_headers), do: %{}
 
   defp decode_spec(body) when is_map(body), do: {:ok, normalize_keys(body)}
 

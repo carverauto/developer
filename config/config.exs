@@ -45,9 +45,14 @@ config :developer_portal, DeveloperPortal.ApiDocs,
         "redoc_url" => "https://demo.serviceradar.cloud/api/v2/redoc"
       }
     },
-    req_options: [receive_timeout: 15_000]
+    req_options: [receive_timeout: 30_000]
   ],
-  sync_init?: false
+  sync_init?: false,
+  # Self-healing refresh cadence (independent of the Oban cron below). On error
+  # the store retries after `error_retry_interval` instead of waiting a full
+  # interval, so a transient upstream blip recovers quickly.
+  refresh_interval: :timer.minutes(15),
+  error_retry_interval: :timer.minutes(1)
 
 config :developer_portal, Oban,
   repo: DeveloperPortal.Repo,

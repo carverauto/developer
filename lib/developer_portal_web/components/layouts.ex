@@ -16,40 +16,51 @@ defmodule DeveloperPortalWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="sr-public-shell min-h-dvh">
+    <div
+      id="portal-app-shell"
+      class="sr-public-shell min-h-[100dvh] bg-sr-canvas font-sans text-sr-ink"
+    >
       <a
+        id="portal-skip-link"
         href="#main-content"
-        class="sr-skip-link fixed left-4 top-4 z-[var(--sr-z-skip)] -translate-y-16 rounded-sr-control border border-sr-line bg-sr-raised px-4 py-2 text-sm font-semibold text-sr-ink shadow-sr-raised outline-none transition focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-sr-focus"
+        class="fixed left-4 top-3 z-[var(--sr-z-skip)] inline-flex min-h-11 -translate-y-24 items-center rounded-sr-control bg-sr-ink px-4 py-2.5 text-sm font-semibold text-sr-canvas shadow-sr-raised outline-none transition-transform duration-200 ease-sr-out focus:translate-y-0"
       >
         Skip to content
       </a>
 
-      <header class="sticky top-0 z-[var(--sr-z-shell)] border-b border-sr-line bg-sr-surface/90 backdrop-blur-md">
-        <div class="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <header class="sticky top-0 z-[var(--sr-z-shell)] border-b border-sr-line bg-sr-surface/90 backdrop-blur">
+        <div class="mx-auto flex min-h-16 max-w-[1280px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <a
             href={~p"/"}
-            class="flex min-w-0 items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-sr-focus"
+            id="portal-brand-link"
+            class="group flex min-h-11 shrink-0 items-center gap-3 rounded-sr-control outline-none focus-visible:ring-2 focus-visible:ring-sr-focus focus-visible:ring-offset-2 focus-visible:ring-offset-sr-canvas"
           >
-            <div class="flex size-11 shrink-0 items-center justify-center rounded-sr-control border border-sr-line bg-sr-control shadow-sr-control">
+            <div class="flex size-10 items-center justify-center rounded-sr-control border border-sr-line bg-sr-control shadow-sr-control">
               <img
+                id="portal-brand-logo"
                 src={~p"/images/logo.svg"}
-                alt="ServiceRadar"
-                class="size-7"
                 width="28"
                 height="28"
+                alt=""
+                aria-hidden="true"
+                class="size-7 shrink-0"
               />
             </div>
             <div class="min-w-0">
-              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
+              <p class="text-sm font-semibold tracking-tight text-sr-ink sm:text-[1.05rem]">
                 ServiceRadar
               </p>
-              <p class="truncate text-base font-semibold tracking-tight text-sr-ink">
+              <p class="hidden text-xs leading-tight text-sr-muted sm:block">
                 Developer Portal
               </p>
             </div>
           </a>
 
-          <nav class="hidden items-center gap-1 md:flex" aria-label="Primary">
+          <nav
+            id="portal-desktop-navigation"
+            aria-label="Primary navigation"
+            class="hidden items-center gap-1 md:flex"
+          >
             <.nav_link href={~p"/docs/v2"}>Docs</.nav_link>
             <.nav_link href={~p"/plugins"}>Plugins</.nav_link>
             <.nav_link href={~p"/addons"}>Add-ons</.nav_link>
@@ -61,15 +72,22 @@ defmodule DeveloperPortalWeb.Layouts do
             >
               Product docs
             </.nav_link>
-            <.theme_toggle />
           </nav>
 
-          <details id="portal-mobile-nav" class="relative md:hidden">
-            <summary class="list-none cursor-pointer rounded-sr-control border border-sr-line bg-sr-control px-3 py-2 text-sm font-semibold text-sr-ink shadow-sr-control outline-none focus-visible:ring-2 focus-visible:ring-sr-focus [&::-webkit-details-marker]:hidden">
-              Menu
+          <div id="portal-desktop-actions" class="hidden shrink-0 items-center gap-1.5 md:flex">
+            <.theme_toggle />
+          </div>
+
+          <details id="portal-mobile-navigation" class="group relative md:hidden">
+            <summary
+              id="portal-mobile-navigation-toggle"
+              class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-sr-control border border-sr-line bg-sr-control px-3.5 text-sm font-medium text-sr-ink shadow-sr-control outline-none transition-colors duration-200 ease-sr-out hover:border-sr-line-hover focus-visible:ring-2 focus-visible:ring-sr-focus [&::-webkit-details-marker]:hidden"
+            >
+              <span class="sr-only group-open:hidden">Open navigation</span>
+              <span class="sr-only hidden group-open:inline">Close navigation</span> Menu
             </summary>
-            <div class="absolute right-0 mt-2 w-56 rounded-sr-surface border border-sr-line bg-sr-raised p-2 shadow-sr-raised">
-              <div class="grid gap-1">
+            <div class="absolute right-0 z-[var(--sr-z-menu)] mt-2 w-60 rounded-sr-surface border border-sr-line bg-sr-raised p-2 shadow-sr-raised">
+              <div class="grid gap-0.5">
                 <.nav_link href={~p"/docs/v2"} class="w-full justify-start">Docs</.nav_link>
                 <.nav_link href={~p"/plugins"} class="w-full justify-start">Plugins</.nav_link>
                 <.nav_link href={~p"/addons"} class="w-full justify-start">Add-ons</.nav_link>
@@ -82,7 +100,7 @@ defmodule DeveloperPortalWeb.Layouts do
                 >
                   Product docs
                 </.nav_link>
-                <div class="border-t border-sr-line pt-2">
+                <div class="mt-1 border-t border-sr-line px-2 pt-2">
                   <.theme_toggle />
                 </div>
               </div>
@@ -182,13 +200,13 @@ defmodule DeveloperPortalWeb.Layouts do
   def theme_toggle(assigns) do
     ~H"""
     <div
-      class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle p-0.5 shadow-sr-control"
+      class="inline-flex items-center rounded-sr-control border border-sr-line bg-sr-control p-0.5 shadow-sr-control"
       role="group"
       aria-label="Color theme"
     >
       <button
         type="button"
-        class="rounded-full px-2.5 py-1.5 text-sr-muted outline-none transition-colors hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
+        class="inline-flex min-h-9 min-w-9 items-center justify-center rounded-sr-small text-sr-muted outline-none transition-colors duration-200 ease-sr-out hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
         data-theme-choice="light"
         aria-label="Light theme"
       >
@@ -196,7 +214,7 @@ defmodule DeveloperPortalWeb.Layouts do
       </button>
       <button
         type="button"
-        class="rounded-full px-2.5 py-1.5 text-sr-muted outline-none transition-colors hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
+        class="inline-flex min-h-9 min-w-9 items-center justify-center rounded-sr-small text-sr-muted outline-none transition-colors duration-200 ease-sr-out hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
         data-theme-choice="dark"
         aria-label="Dark theme"
       >

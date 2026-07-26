@@ -130,10 +130,13 @@ defmodule DeveloperPortalWeb.PortalComponents do
     ~H"""
     <a
       id={@id}
-      class={[
-        "rounded-sr-control px-3 py-2 text-sm font-medium text-sr-muted outline-none transition-colors hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus",
-        @class
-      ]}
+      class={
+        [
+          # Match marketing/control-plane topbar nav: muted ink, 11px min height, soft hover
+          "inline-flex min-h-11 items-center rounded-sr-control px-3.5 text-sm font-medium text-sr-muted outline-none transition-colors duration-200 ease-sr-out hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus",
+          @class
+        ]
+      }
       {@rest}
     >
       {render_slot(@inner_block)}

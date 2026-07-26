@@ -1,30 +1,9 @@
 defmodule DeveloperPortalWeb.CoreComponents do
   @moduledoc """
-  Provides core UI components.
+  Provides core UI components (flash, button, input, icon).
 
-  At first glance, this module may seem daunting, but its goal is to provide
-  core building blocks for your application, such as tables, forms, and
-  inputs. The components consist mostly of markup and are well-documented
-  with doc strings and declarative assigns. You may customize and style
-  them in any way you want, based on your application growth and needs.
-
-  The foundation for styling is Tailwind CSS, a utility-first CSS framework,
-  augmented with daisyUI, a Tailwind CSS plugin that provides UI components
-  and themes. Here are useful references:
-
-    * [daisyUI](https://daisyui.com/docs/intro/) - a good place to get
-      started and see the available components.
-
-    * [Tailwind CSS](https://tailwindcss.com) - the foundational framework
-      we build on. You will use it for layout, sizing, flexbox, grid, and
-      spacing.
-
-    * [Heroicons](https://heroicons.com) - see `icon/1` for usage.
-
-    * [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html) -
-      the component system used by Phoenix. Some components, such as `<.link>`
-      and `<.form>`, are defined there.
-
+  Styling uses Tailwind utilities and ServiceRadar `sr-*` design tokens,
+  aligned with the marketing site and control plane. daisyUI is not used.
   """
   use Phoenix.Component
   use Gettext, backend: DeveloperPortalWeb.Gettext
@@ -56,13 +35,13 @@ defmodule DeveloperPortalWeb.CoreComponents do
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
-      class="toast toast-top toast-end z-50"
+      class="pointer-events-none fixed right-4 top-4 z-[var(--sr-z-toast)] flex max-w-sm flex-col gap-3"
       {@rest}
     >
       <div class={[
-        "alert w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap",
-        @kind == :info && "alert-info",
-        @kind == :error && "alert-error"
+        "pointer-events-auto flex w-80 max-w-sm items-start gap-3 rounded-sr-surface border px-4 py-4 text-sm shadow-sr-raised sm:w-96 sm:max-w-md",
+        @kind == :info && "border-sr-info-line bg-sr-info-soft text-sr-info",
+        @kind == :error && "border-sr-danger-line bg-sr-danger-soft text-sr-danger"
       ]}>
         <.icon :if={@kind == :info} name="hero-information-circle" class="size-5 shrink-0" />
         <.icon :if={@kind == :error} name="hero-exclamation-circle" class="size-5 shrink-0" />
@@ -94,11 +73,19 @@ defmodule DeveloperPortalWeb.CoreComponents do
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+    variants = %{
+      "primary" =>
+        "border border-sr-brand bg-sr-brand text-sr-on-brand shadow-sr-button hover:bg-sr-brand-strong hover:border-sr-brand-strong",
+      nil =>
+        "border border-sr-line-strong bg-sr-control text-sr-ink shadow-sr-control hover:border-sr-brand hover:text-sr-brand-strong"
+    }
 
     assigns =
       assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
+        [
+          "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control px-5 py-2.5 text-sm font-semibold outline-none transition-[transform,background-color,color,border-color,box-shadow] duration-200 ease-sr-out focus-visible:ring-2 focus-visible:ring-sr-focus focus-visible:ring-offset-2 focus-visible:ring-offset-sr-canvas active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
+          Map.fetch!(variants, assigns[:variant])
+        ]
       end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
@@ -205,8 +192,8 @@ defmodule DeveloperPortalWeb.CoreComponents do
       end)
 
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
+    <div class="mb-3">
+      <label class="flex items-center gap-2 text-sm text-sr-ink">
         <input
           type="hidden"
           name={@name}
@@ -214,17 +201,19 @@ defmodule DeveloperPortalWeb.CoreComponents do
           disabled={@rest[:disabled]}
           form={@rest[:form]}
         />
-        <span class="label">
-          <input
-            type="checkbox"
-            id={@id}
-            name={@name}
-            value="true"
-            checked={@checked}
-            class={@class || "checkbox checkbox-sm"}
-            {@rest}
-          />{@label}
-        </span>
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={
+            @class ||
+              "size-4 rounded border-sr-line-strong text-sr-brand focus:ring-sr-focus"
+          }
+          {@rest}
+        />
+        <span :if={@label}>{@label}</span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
@@ -233,13 +222,17 @@ defmodule DeveloperPortalWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+    <div class="mb-3">
+      <label class="block">
+        <span :if={@label} class="mb-1.5 block text-sm font-medium text-sr-ink">{@label}</span>
         <select
           id={@id}
           name={@name}
-          class={[@class || "w-full select", @errors != [] && (@error_class || "select-error")]}
+          class={[
+            @class ||
+              "w-full rounded-sr-control border border-sr-line-strong bg-sr-control px-3 py-2.5 text-sm text-sr-ink shadow-sr-control outline-none focus:border-sr-brand focus:ring-2 focus:ring-sr-focus",
+            @errors != [] && (@error_class || "border-sr-danger")
+          ]}
           multiple={@multiple}
           {@rest}
         >
@@ -254,15 +247,16 @@ defmodule DeveloperPortalWeb.CoreComponents do
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+    <div class="mb-3">
+      <label class="block">
+        <span :if={@label} class="mb-1.5 block text-sm font-medium text-sr-ink">{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
-            @errors != [] && (@error_class || "textarea-error")
+            @class ||
+              "w-full rounded-sr-control border border-sr-line-strong bg-sr-control px-3 py-2.5 text-sm text-sr-ink shadow-sr-control outline-none focus:border-sr-brand focus:ring-2 focus:ring-sr-focus",
+            @errors != [] && (@error_class || "border-sr-danger")
           ]}
           {@rest}
         >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
@@ -275,17 +269,18 @@ defmodule DeveloperPortalWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+    <div class="mb-3">
+      <label class="block">
+        <span :if={@label} class="mb-1.5 block text-sm font-medium text-sr-ink">{@label}</span>
         <input
           type={@type}
           name={@name}
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
-            @errors != [] && (@error_class || "input-error")
+            @class ||
+              "w-full rounded-sr-control border border-sr-line-strong bg-sr-control px-3 py-2.5 text-sm text-sr-ink shadow-sr-control outline-none placeholder:text-sr-placeholder focus:border-sr-brand focus:ring-2 focus:ring-sr-focus",
+            @errors != [] && (@error_class || "border-sr-danger")
           ]}
           {@rest}
         />
@@ -298,7 +293,7 @@ defmodule DeveloperPortalWeb.CoreComponents do
   # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
+    <p class="mt-1.5 flex items-center gap-2 text-sm text-sr-danger">
       <.icon name="hero-exclamation-circle" class="size-5" />
       {render_slot(@inner_block)}
     </p>
@@ -319,7 +314,7 @@ defmodule DeveloperPortalWeb.CoreComponents do
         <h1 class="text-lg font-semibold leading-8">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
+        <p :if={@subtitle != []} class="text-sm text-sr-muted">
           {render_slot(@subtitle)}
         </p>
       </div>

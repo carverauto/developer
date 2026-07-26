@@ -1,14 +1,25 @@
 import Config
 
-# Configure your database
+# Configure your database.
+#
+# Defaults assume a local Postgres. For cluster data via kubectl port-forward:
+#
+#   kubectl -n serviceradar-developer port-forward svc/developer-portal-pg-rw 5432:5432
+#   export PGUSER="$(kubectl -n serviceradar-developer get secret developer-portal-db-credentials -o jsonpath='{.data.username}' | base64 -d)"
+#   export PGPASSWORD="$(kubectl -n serviceradar-developer get secret developer-portal-db-credentials -o jsonpath='{.data.password}' | base64 -d)"
+#   export PGDATABASE=developer_portal
+#   mix phx.server
+#
+# Or: ./scripts/dev-with-k8s-db.sh
 config :developer_portal, DeveloperPortal.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "developer_portal_dev",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  port: String.to_integer(System.get_env("PGPORT", "5432")),
+  database: System.get_env("PGDATABASE", "developer_portal_dev"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: String.to_integer(System.get_env("POOL_SIZE", "10"))
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

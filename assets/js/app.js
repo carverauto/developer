@@ -24,6 +24,17 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+// Developer portal is dark-only (no theme toggle).
+const root = document.documentElement
+root.dataset.theme = "dark"
+root.dataset.themePreference = "dark"
+try {
+  localStorage.removeItem("serviceradar.theme")
+  localStorage.removeItem("phx:theme")
+} catch (_err) {
+  // Ignore storage access failures (private mode, etc.).
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
@@ -31,7 +42,7 @@ const liveSocket = new LiveSocket("/live", Socket, {
 })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({barColors: {0: "#3ecf87"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 

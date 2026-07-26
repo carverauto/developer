@@ -1,3 +1,6 @@
+/* Tailwind v4 + ServiceRadar public design tokens (aligned with marketing/control plane).
+   daisyUI is intentionally not loaded; portal UI uses native utilities + sr-* tokens. */
+
 @import "tailwindcss" source(none);
 @source "../css";
 @source "../js";
@@ -5,165 +8,243 @@
 
 @plugin "../vendor/heroicons";
 
-@plugin "../vendor/daisyui";
+@theme inline {
+  --font-sans: var(--sr-font-sans);
+  --font-mono: var(--sr-font-mono);
 
-:root, [data-theme="light"] {
-  color-scheme: light;
-  --color-base-100: #ffffff;
-  --color-base-200: #f8fafc;
-  --color-base-300: #e2e8f0;
-  --color-base-content: #0f172a;
-  --color-primary: #0369a1;
-  --color-primary-content: #f0f9ff;
-  --color-secondary: #3b82f6;
-  --color-secondary-content: #eff6ff;
-  --color-accent: #0891b2;
-  --color-accent-content: #ecfeff;
-  --color-neutral: #cbd5e1;
-  --color-neutral-content: #1e293b;
-  --color-info: #0369a1;
-  --color-info-content: #f0f9ff;
-  --color-success: #059669;
-  --color-success-content: #f0fdf4;
-  --color-warning: #d97706;
-  --color-warning-content: #fffbeb;
-  --color-error: #dc2626;
-  --color-error-content: #fef2f2;
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
-  --size-selector: 0.21875rem;
-  --size-field: 0.21875rem;
-  --border: 1.5px;
-  --depth: 1;
-  --noise: 0;
-  --glow-primary: rgba(3, 105, 161, 0.2);
-  --glow-secondary: rgba(59, 130, 246, 0.2);
-  --glow-accent: rgba(8, 145, 178, 0.2);
+  --text-sr-caption: 0.75rem;
+  --text-sr-caption--line-height: 1.125rem;
+  --text-sr-caption--letter-spacing: 0.01em;
+  --text-sr-body: 0.9375rem;
+  --text-sr-body--line-height: 1.5rem;
+  --text-sr-title: 1.75rem;
+  --text-sr-title--line-height: 2.125rem;
+  --text-sr-title--letter-spacing: -0.025em;
+  --text-sr-display: clamp(2.75rem, 5vw, 4rem);
+  --text-sr-display--line-height: 1.02;
+  --text-sr-display--letter-spacing: -0.045em;
+
+  --color-sr-canvas: var(--sr-color-canvas);
+  --color-sr-surface: var(--sr-color-surface);
+  --color-sr-raised: var(--sr-color-raised);
+  --color-sr-subtle: var(--sr-color-subtle);
+  --color-sr-control: var(--sr-color-control);
+  --color-sr-ink: var(--sr-color-ink);
+  --color-sr-muted: var(--sr-color-muted);
+  --color-sr-placeholder: var(--sr-color-placeholder);
+  --color-sr-line: var(--sr-color-line);
+  --color-sr-line-strong: var(--sr-color-line-strong);
+  --color-sr-line-hover: var(--sr-color-line-hover);
+  --color-sr-brand: var(--sr-color-brand);
+  --color-sr-brand-strong: var(--sr-color-brand-strong);
+  --color-sr-on-brand: var(--sr-color-on-brand);
+  --color-sr-focus: var(--sr-color-focus);
+  --color-sr-skeleton: var(--sr-color-skeleton);
+  --color-sr-info: var(--sr-color-info);
+  --color-sr-info-soft: var(--sr-color-info-soft);
+  --color-sr-info-line: var(--sr-color-info-line);
+  --color-sr-success: var(--sr-color-success);
+  --color-sr-success-soft: var(--sr-color-success-soft);
+  --color-sr-success-line: var(--sr-color-success-line);
+  --color-sr-warning: var(--sr-color-warning);
+  --color-sr-warning-soft: var(--sr-color-warning-soft);
+  --color-sr-warning-line: var(--sr-color-warning-line);
+  --color-sr-danger: var(--sr-color-danger);
+  --color-sr-danger-strong: var(--sr-color-danger-strong);
+  --color-sr-danger-soft: var(--sr-color-danger-soft);
+  --color-sr-danger-line: var(--sr-color-danger-line);
+  --color-sr-on-danger: var(--sr-color-on-danger);
+
+  --radius-sr-small: var(--sr-radius-small);
+  --radius-sr-control: var(--sr-radius-control);
+  --radius-sr-surface: var(--sr-radius-surface);
+
+  --shadow-sr-control: var(--sr-shadow-control);
+  --shadow-sr-button: var(--sr-shadow-button);
+  --shadow-sr-surface: var(--sr-shadow-surface);
+  --shadow-sr-raised: var(--sr-shadow-raised);
+  --shadow-sr-nav: var(--sr-shadow-nav);
+
+  --ease-sr-out: var(--sr-ease-out);
+
+  --spacing-sr-1: var(--sr-space-1);
+  --spacing-sr-2: var(--sr-space-2);
+  --spacing-sr-3: var(--sr-space-3);
+  --spacing-sr-4: var(--sr-space-4);
+  --spacing-sr-6: var(--sr-space-6);
+  --spacing-sr-8: var(--sr-space-8);
+  --spacing-sr-12: var(--sr-space-12);
+  --spacing-sr-16: var(--sr-space-16);
 }
 
-[data-theme="dark"] {
-  color-scheme: dark;
-  --color-base-100: #1e293b;
-  --color-base-200: #0f172a;
-  --color-base-300: #020617;
-  --color-base-content: #f4f4f5;
-  --color-primary: #00d8ff;
-  --color-primary-content: #003040;
-  --color-secondary: #60a5fa;
-  --color-secondary-content: #1e3a5f;
-  --color-accent: #22d3ee;
-  --color-accent-content: #083344;
-  --color-neutral: #334155;
-  --color-neutral-content: #f4f4f5;
-  --color-info: #00d8ff;
-  --color-info-content: #003040;
-  --color-success: #00e676;
-  --color-success-content: #004d25;
-  --color-warning: #ff9a00;
-  --color-warning-content: #4d2e00;
-  --color-error: #ff2a7a;
-  --color-error-content: #4d0020;
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
-  --size-selector: 0.21875rem;
-  --size-field: 0.21875rem;
-  --border: 1px;
-  --depth: 1;
-  --noise: 0;
-  --glow-primary: rgba(0, 216, 255, 0.3);
-  --glow-secondary: rgba(96, 165, 250, 0.3);
-  --glow-accent: rgba(34, 211, 238, 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --color-base-100: #1e293b;
-    --color-base-200: #0f172a;
-    --color-base-300: #020617;
-    --color-base-content: #f4f4f5;
-    --color-primary: #00d8ff;
-    --color-primary-content: #003040;
-    --color-secondary: #60a5fa;
-    --color-secondary-content: #1e3a5f;
-    --color-accent: #22d3ee;
-    --color-accent-content: #083344;
-    --color-neutral: #334155;
-    --color-neutral-content: #f4f4f5;
-    --color-info: #00d8ff;
-    --color-info-content: #003040;
-    --color-success: #00e676;
-    --color-success-content: #004d25;
-    --color-warning: #ff9a00;
-    --color-warning-content: #4d2e00;
-    --color-error: #ff2a7a;
-    --color-error-content: #4d0020;
-    --radius-selector: 0.25rem;
-    --radius-field: 0.25rem;
-    --radius-box: 0.5rem;
-    --size-selector: 0.21875rem;
-    --size-field: 0.21875rem;
-    --border: 1px;
-    --depth: 1;
-    --noise: 0;
-    --glow-primary: rgba(0, 216, 255, 0.3);
-    --glow-secondary: rgba(96, 165, 250, 0.3);
-    --glow-accent: rgba(34, 211, 238, 0.3);
-  }
-}
-
-/* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
 @custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
-
-/* Use the data attribute for dark mode  */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-/* Make LiveView wrapper divs transparent for layout */
-[data-phx-session], [data-phx-teleported-src] { display: contents }
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
+
+:root {
+  color-scheme: light dark;
+
+  --sr-font-sans: "Avenir Next", Avenir, "Segoe UI Variable", "Segoe UI", ui-sans-serif,
+    system-ui, sans-serif;
+  --sr-font-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --sr-radius-small: 0.375rem;
+  --sr-radius-control: 0.625rem;
+  --sr-radius-surface: 0.875rem;
+
+  --sr-space-1: 0.25rem;
+  --sr-space-2: 0.5rem;
+  --sr-space-3: 0.75rem;
+  --sr-space-4: 1rem;
+  --sr-space-6: 1.5rem;
+  --sr-space-8: 2rem;
+  --sr-space-12: 3rem;
+  --sr-space-16: 4rem;
+
+  --sr-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --sr-duration-fast: 120ms;
+  --sr-duration-base: 200ms;
+  --sr-duration-slow: 320ms;
+
+  --sr-z-content: 0;
+  --sr-z-shell: 10;
+  --sr-z-menu: 20;
+  --sr-z-modal: 40;
+  --sr-z-toast: 50;
+  --sr-z-skip: 60;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
 
 body {
+  min-width: 20rem;
+  font-family: var(--sr-font-sans);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f7f9f8;
+  background: light-dark(#f7f9f8, #0a1114);
+  color: #0b1720;
+  color: light-dark(#0b1720, #edf5f1);
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--sr-font-mono);
+}
+
+.sr-public-shell {
+  color-scheme: light dark;
+  --sr-color-canvas: light-dark(#f7f9f8, #0a1114);
+  --sr-color-surface: light-dark(#fcfdfd, #10191d);
+  --sr-color-raised: light-dark(#ffffff, #152126);
+  --sr-color-subtle: light-dark(#eff4f1, #17252a);
+  --sr-color-control: light-dark(#ffffff, #111c20);
+  --sr-color-ink: light-dark(#0b1720, #edf5f1);
+  --sr-color-muted: light-dark(#5d6977, #aab8b2);
+  --sr-color-placeholder: light-dark(#667480, #87978f);
+  --sr-color-line: light-dark(#dde4e1, #26363a);
+  --sr-color-line-strong: light-dark(#c8d3ce, #3b4c50);
+  --sr-color-line-hover: light-dark(#91a49b, #587169);
+  --sr-color-brand: light-dark(#0b824d, #3ecf87);
+  --sr-color-brand-strong: light-dark(#076b3e, #5bde9b);
+  --sr-color-on-brand: light-dark(#f8fffb, #062b1a);
+  --sr-color-focus: light-dark(rgb(22 138 82 / 0.28), rgb(62 207 135 / 0.3));
+  --sr-color-skeleton: light-dark(#e7edea, #1d2b2f);
+  --sr-color-info: light-dark(#245c77, #8bc8e0);
+  --sr-color-info-soft: light-dark(#e9f4f8, #102934);
+  --sr-color-info-line: light-dark(#b7d8e5, #285064);
+  --sr-color-success: light-dark(#0a7043, #74dfa6);
+  --sr-color-success-soft: light-dark(#e9f7ef, #102b20);
+  --sr-color-success-line: light-dark(#b6dec6, #295841);
+  --sr-color-warning: light-dark(#754700, #f1ca78);
+  --sr-color-warning-soft: light-dark(#fff4d8, #302611);
+  --sr-color-warning-line: light-dark(#e9c978, #665126);
+  --sr-color-danger: light-dark(#a13338, #f0a2a7);
+  --sr-color-danger-strong: light-dark(#84282d, #ffc0c4);
+  --sr-color-danger-soft: light-dark(#fcedef, #32191c);
+  --sr-color-danger-line: light-dark(#edbac0, #6d3439);
+  --sr-color-on-danger: light-dark(#ffffff, #291013);
+  --sr-shadow-control:
+    0 1px 2px light-dark(rgb(23 48 38 / 0.05), rgb(0 0 0 / 0.2)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.035));
+  --sr-shadow-button:
+    0 5px 14px light-dark(rgb(7 107 62 / 0.16), rgb(0 0 0 / 0.2)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.13));
+  --sr-shadow-surface: 0 10px 30px light-dark(rgb(23 48 38 / 0.055), rgb(0 0 0 / 0.18));
+  --sr-shadow-raised:
+    0 18px 50px light-dark(rgb(23 48 38 / 0.09), rgb(0 0 0 / 0.26)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.04));
+  --sr-shadow-nav:
+    0 8px 24px light-dark(rgb(23 48 38 / 0.07), rgb(0 0 0 / 0.2)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.04));
+
+  min-height: 100dvh;
+  background: var(--sr-color-canvas);
+  color: var(--sr-color-ink);
+  font-family: var(--sr-font-sans);
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[data-theme="light"],
+html[data-theme="light"] .sr-public-shell,
+.sr-public-shell[data-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] .sr-public-shell,
+.sr-public-shell[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+.sr-public-shell :where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+.sr-public-shell :where(p, li, dd) {
+  text-wrap: pretty;
+}
+
+.sr-public-shell ::selection {
+  background: var(--sr-color-success-line);
+  color: var(--sr-color-ink);
+}
+
+.sr-hero-glow {
   background:
-    radial-gradient(circle at top left, color-mix(in oklab, var(--color-primary) 18%, transparent) 0, transparent 30%),
-    radial-gradient(circle at top right, color-mix(in oklab, var(--color-accent) 16%, transparent) 0, transparent 26%),
-    linear-gradient(180deg, color-mix(in oklab, var(--color-base-200) 80%, transparent), var(--color-base-100));
-  min-height: 100vh;
+    radial-gradient(ellipse 80% 50% at 15% 0%, color-mix(in oklab, var(--sr-color-brand) 14%, transparent), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, color-mix(in oklab, var(--sr-color-info) 10%, transparent), transparent 50%);
 }
 
-.hero-shell {
-  background:
-    linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 12%, transparent), transparent 45%),
-    linear-gradient(220deg, color-mix(in oklab, var(--color-secondary) 14%, transparent), transparent 40%);
-}
-
-.glow-primary {
-  box-shadow: 0 0 14px var(--glow-primary);
-}
-
-.glow-secondary {
-  box-shadow: 0 0 14px var(--glow-secondary);
-}
-
-.glow-accent {
-  box-shadow: 0 0 14px var(--glow-accent);
-}
-
+/* Docs article typography (token-aligned) */
 .docs-article {
-  --code-bg: #0b1220;
-  --code-border: color-mix(in oklab, var(--color-primary) 28%, transparent);
-  --code-text: #dbeafe;
+  --code-bg: light-dark(#0b1220, #0a1216);
+  --code-border: color-mix(in oklab, var(--sr-color-brand) 28%, transparent);
+  --code-text: light-dark(#dbeafe, #d7ebe3);
 }
 
 .docs-article h2 {
   margin-top: 3.75rem;
   padding-top: 2.25rem;
-  border-top: 1px solid var(--color-base-300);
+  border-top: 1px solid var(--sr-color-line);
   font-size: 1.55rem;
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
+  color: var(--sr-color-ink);
 }
 
 .docs-article h2:first-child {
@@ -176,7 +257,8 @@ body {
   margin-top: 2.5rem;
   font-size: 1.12rem;
   line-height: 1.35;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
+  color: var(--sr-color-ink);
 }
 
 .docs-article h2 + p,
@@ -187,6 +269,17 @@ body {
 .docs-article p,
 .docs-article li {
   line-height: 1.75;
+  color: var(--sr-color-muted);
+}
+
+.docs-article a {
+  color: var(--sr-color-brand);
+  font-weight: 500;
+  text-underline-offset: 2px;
+}
+
+.docs-article a:hover {
+  text-decoration: underline;
 }
 
 .docs-article table {
@@ -194,7 +287,12 @@ body {
 }
 
 .docs-article :where(code):not(pre code) {
-  border-color: color-mix(in oklab, var(--color-primary) 22%, var(--color-base-300));
+  border: 1px solid color-mix(in oklab, var(--sr-color-brand) 22%, var(--sr-color-line));
+  border-radius: var(--sr-radius-small);
+  background: var(--sr-color-subtle);
+  padding: 0.1rem 0.35rem;
+  color: var(--sr-color-ink);
+  font-size: 0.875em;
 }
 
 .docs-code-window {
@@ -206,6 +304,7 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
   border: 1px solid var(--code-border);
+  border-radius: var(--sr-radius-surface);
   background: var(--code-bg);
   color: var(--code-text);
   box-shadow:
@@ -222,12 +321,12 @@ body {
   position: absolute;
   top: 0.9rem;
   right: 1rem;
-  border: 1px solid color-mix(in oklab, var(--color-primary) 38%, transparent);
+  border: 1px solid color-mix(in oklab, var(--sr-color-brand) 38%, transparent);
   border-radius: 999px;
-  background: color-mix(in oklab, var(--color-primary) 16%, transparent);
+  background: color-mix(in oklab, var(--sr-color-brand) 16%, transparent);
   padding: 0.15rem 0.55rem;
-  color: color-mix(in oklab, var(--code-text) 88%, var(--color-primary));
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: color-mix(in oklab, var(--code-text) 88%, var(--sr-color-brand));
+  font-family: var(--sr-font-sans);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -302,5 +401,20 @@ body {
 
 .docs-code-window .err {
   color: #fecaca;
-  background: color-mix(in oklab, var(--color-error) 24%, transparent);
+  background: color-mix(in oklab, var(--sr-color-danger) 24%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .sr-public-shell *,
+  .sr-public-shell *::before,
+  .sr-public-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

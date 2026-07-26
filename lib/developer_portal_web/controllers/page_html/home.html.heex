@@ -1,107 +1,113 @@
 <Layouts.app flash={@flash}>
-  <section class="hero-shell px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-    <div class="mx-auto max-w-4xl">
-      <div class="space-y-6">
-        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
-          WebAssembly plugins, versioned docs, trusted distribution
+  <section class="sr-hero-glow border-b border-sr-line px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <div class="mx-auto max-w-[1280px]">
+      <div class="max-w-3xl space-y-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
+          WebAssembly plugins · versioned docs · trusted distribution
         </p>
-        <h1 class="max-w-4xl text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
+        <h1 class="text-4xl font-semibold tracking-tight text-sr-ink sm:text-5xl lg:text-6xl">
           Build, publish, and discover ServiceRadar extensions in one place.
         </h1>
-        <p class="max-w-2xl text-lg leading-8 text-base-content/72">
-          Find the docs you need, browse available plugins, and quickly see which packages are official
-          and signed.
+        <p class="max-w-2xl text-lg leading-8 text-sr-muted">
+          Find the docs you need, browse available plugins and native add-ons, and quickly see which
+          packages are official and signed.
         </p>
         <div class="flex flex-wrap gap-3">
-          <a href={~p"/docs/v2"} class="btn btn-primary btn-wide sm:btn-md">Read docs</a>
-          <a href={~p"/plugins"} class="btn btn-outline btn-wide sm:btn-md">Browse plugins</a>
-          <a href={~p"/addons"} class="btn btn-outline btn-wide sm:btn-md">Browse add-ons</a>
-          <a href={~p"/contribute"} class="btn btn-ghost btn-wide sm:btn-md">Submit a plugin</a>
+          <.portal_button href={~p"/docs/v2"} variant={:primary}>Read docs</.portal_button>
+          <.portal_button href={~p"/plugins"} variant={:secondary}>Browse plugins</.portal_button>
+          <.portal_button href={~p"/addons"} variant={:secondary}>Browse add-ons</.portal_button>
+          <.portal_button href={~p"/contribute"} variant={:quiet}>Submit a plugin</.portal_button>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="px-4 py-8 pb-16 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-7xl">
+  <section class="px-4 py-12 pb-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-[1280px]">
       <div class="mb-6 flex items-end justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">Plugins</p>
-          <h2 class="text-2xl font-semibold">Official plugins</h2>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">Plugins</p>
+          <h2 class="mt-2 text-2xl font-semibold tracking-tight text-sr-ink">Official plugins</h2>
         </div>
-        <a href={~p"/plugins"} class="link link-hover text-sm font-medium">View full directory</a>
+        <a
+          href={~p"/plugins"}
+          class="text-sm font-medium text-sr-brand underline-offset-2 hover:underline"
+        >
+          View full directory
+        </a>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-3">
         <%= for plugin <- @featured_plugins do %>
-          <article class="card border border-base-300 bg-base-100 shadow-lg">
-            <div class="card-body">
-              <div class="flex flex-wrap gap-2">
-                <span class={[
-                  "badge",
-                  plugin.type == "official" && "badge-primary",
-                  plugin.type == "community" && "badge-secondary"
-                ]}>
-                  {String.capitalize(plugin.type)}
-                </span>
-                <span class="badge badge-outline">{plugin.language}</span>
-                <span class={[
-                  "badge",
-                  plugin.signed && "badge-success",
-                  !plugin.signed && "badge-warning"
-                ]}>
-                  {if plugin.signed, do: "Signed", else: "Unsigned"}
-                </span>
-              </div>
-              <h3 class="card-title">{plugin.name}</h3>
-              <p class="text-sm text-base-content/70">{plugin.summary}</p>
-              <div class="card-actions justify-end">
-                <a href={~p"/plugins/#{plugin.slug}"} class="btn btn-sm btn-outline">Details</a>
-              </div>
+          <.portal_surface as="article" tone={:default} padding={:default} class="flex flex-col">
+            <div class="flex flex-wrap gap-2">
+              <.portal_badge tone={if(plugin.type == "official", do: :brand, else: :info)}>
+                {String.capitalize(plugin.type)}
+              </.portal_badge>
+              <.portal_badge>{plugin.language}</.portal_badge>
+              <.portal_badge tone={if(plugin.signed, do: :success, else: :warning)}>
+                {if plugin.signed, do: "Signed", else: "Unsigned"}
+              </.portal_badge>
             </div>
-          </article>
+            <h3 class="mt-4 text-lg font-semibold text-sr-ink">{plugin.name}</h3>
+            <p class="mt-2 flex-1 text-sm leading-6 text-sr-muted">{plugin.summary}</p>
+            <div class="mt-4">
+              <.portal_button
+                href={~p"/plugins/#{plugin.slug}"}
+                variant={:secondary}
+                size={:small}
+              >
+                Details
+              </.portal_button>
+            </div>
+          </.portal_surface>
         <% end %>
       </div>
     </div>
   </section>
 
   <%= if Enum.any?(@featured_addons) do %>
-    <section class="px-4 pb-16 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-7xl">
+    <section class="border-t border-sr-line px-4 py-12 pb-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-[1280px]">
         <div class="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
-              Add-ons
-            </p>
-            <h2 class="text-2xl font-semibold">Official add-ons</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">Add-ons</p>
+            <h2 class="mt-2 text-2xl font-semibold tracking-tight text-sr-ink">
+              Official add-ons
+            </h2>
           </div>
-          <a href={~p"/addons"} class="link link-hover text-sm font-medium">View full catalog</a>
+          <a
+            href={~p"/addons"}
+            class="text-sm font-medium text-sr-brand underline-offset-2 hover:underline"
+          >
+            View full catalog
+          </a>
         </div>
 
         <div class="grid gap-4 lg:grid-cols-3">
           <%= for addon <- @featured_addons do %>
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <div class="flex flex-wrap gap-2">
-                  <span class="badge badge-outline">{addon.language}</span>
-                  <%= if addon.supervision do %>
-                    <span class="badge badge-outline">{addon.supervision}</span>
-                  <% end %>
-                  <span class={[
-                    "badge",
-                    addon.signed && "badge-success",
-                    !addon.signed && "badge-warning"
-                  ]}>
-                    {if addon.signed, do: "Signed", else: "Unsigned"}
-                  </span>
-                </div>
-                <h3 class="card-title">{addon.name}</h3>
-                <p class="text-sm text-base-content/70">{addon.summary}</p>
-                <div class="card-actions justify-end">
-                  <a href={~p"/addons/#{addon.slug}"} class="btn btn-sm btn-outline">Details</a>
-                </div>
+            <.portal_surface as="article" tone={:default} padding={:default} class="flex flex-col">
+              <div class="flex flex-wrap gap-2">
+                <.portal_badge>{addon.language}</.portal_badge>
+                <%= if addon.supervision do %>
+                  <.portal_badge>{addon.supervision}</.portal_badge>
+                <% end %>
+                <.portal_badge tone={if(addon.signed, do: :success, else: :warning)}>
+                  {if addon.signed, do: "Signed", else: "Unsigned"}
+                </.portal_badge>
               </div>
-            </article>
+              <h3 class="mt-4 text-lg font-semibold text-sr-ink">{addon.name}</h3>
+              <p class="mt-2 flex-1 text-sm leading-6 text-sr-muted">{addon.summary}</p>
+              <div class="mt-4">
+                <.portal_button
+                  href={~p"/addons/#{addon.slug}"}
+                  variant={:secondary}
+                  size={:small}
+                >
+                  Details
+                </.portal_button>
+              </div>
+            </.portal_surface>
           <% end %>
         </div>
       </div>

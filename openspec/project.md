@@ -21,7 +21,7 @@ This project is intended to be the single source of truth for:
 - Bazel
 - BuildBuddy
 - TailwindCSS
-- daisyUI
+
 - Markdown-based docs, likely compiled or loaded from the repository at build time
 - Git-backed content and registry workflow
 
@@ -41,7 +41,7 @@ Planned supporting patterns and libraries:
 - Use `PascalCase` for modules and LiveView/component module names.
 - Keep HEEx templates clean and readable; extract repeated markup into function components instead of duplicating large template blocks.
 - Prefer semantic HTML and accessible LiveView interactions.
-- Tailwind utility usage should be intentional and consistent; use daisyUI components as the baseline UI language before adding one-off custom styling.
+- Tailwind utility usage should be intentional and consistent; use native Tailwind utilities and ServiceRadar `sr-*` design tokens (no daisyUI).
 - Avoid heavy custom JavaScript. Reach for LiveView first, and add client-side JS only when LiveView is insufficient.
 
 ### Architecture Patterns
@@ -128,7 +128,7 @@ Important domain concepts:
 - ServiceRadar API documentation and versioned platform behavior
 - `serviceradar-sdk-go`
 - `serviceradar-sdk-rust`
-- Phoenix, LiveView, Ash Framework, TailwindCSS, and daisyUI
+- Phoenix, LiveView, Ash Framework, TailwindCSS v4 with ServiceRadar `sr-*` tokens (no daisyUI)
 - `serviceradar-cnpg`, the ServiceRadar-managed CloudNativePG-based backend stack, including required database extensions
 - `registry.carverauto.dev` (Harbor) as the source for `serviceradar-cnpg` images and related backend artifacts
 - Kubernetes

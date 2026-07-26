@@ -339,14 +339,14 @@
               <div class="mt-4 flex flex-wrap items-center justify-start gap-3">
                 <a
                   href={~p"/docs/#{@docs_version.id}/api"}
-                  class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-brand bg-sr-brand px-5 py-2.5 text-sm font-semibold text-sr-on-brand shadow-sr-button outline-none transition hover:bg-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus btn-sm"
+                  class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-brand bg-sr-brand px-5 py-2.5 text-sm font-semibold text-sr-on-brand shadow-sr-button outline-none transition hover:bg-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
                 >
                   Reload
                 </a>
                 <%= if @api_source do %>
                   <a
                     href={Map.fetch!(@api_source, "open_api_url")}
-                    class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus btn-sm"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
                     target="_blank"
                     rel="noreferrer"
                   >

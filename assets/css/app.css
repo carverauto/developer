@@ -129,6 +129,8 @@ body {
   min-width: 20rem;
   font-family: var(--sr-font-sans);
   font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background: #f7f9f8;
   background: light-dark(#f7f9f8, #0a1114);
   color: #0b1720;
@@ -191,7 +193,10 @@ samp {
   min-height: 100dvh;
   background: var(--sr-color-canvas);
   color: var(--sr-color-ink);
+  font-family: var(--sr-font-sans);
   font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html[data-theme="light"],

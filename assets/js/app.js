@@ -24,34 +24,16 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
-// Dark is the portal default (aligned with marketing). Light is opt-in via toggle.
-const themeStorageKey = "serviceradar.theme"
-
-const resolveTheme = preference => {
-  if (preference === "light") return "light"
-  return "dark"
+// Developer portal is dark-only (no theme toggle).
+const root = document.documentElement
+root.dataset.theme = "dark"
+root.dataset.themePreference = "dark"
+try {
+  localStorage.removeItem("serviceradar.theme")
+  localStorage.removeItem("phx:theme")
+} catch (_err) {
+  // Ignore storage access failures (private mode, etc.).
 }
-
-const applyThemePreference = preference => {
-  const root = document.documentElement
-  const normalized = preference === "light" ? "light" : "dark"
-  root.dataset.themePreference = normalized
-  root.dataset.theme = resolveTheme(normalized)
-}
-
-const storedPreference = localStorage.getItem(themeStorageKey)
-const initialThemePreference =
-  storedPreference === "light" || storedPreference === "dark" ? storedPreference : "dark"
-applyThemePreference(initialThemePreference)
-
-window.addEventListener("click", event => {
-  const button = event.target.closest("[data-theme-choice]")
-  if (!button) return
-
-  const choice = button.dataset.themeChoice === "light" ? "light" : "dark"
-  localStorage.setItem(themeStorageKey, choice)
-  applyThemePreference(choice)
-})
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {

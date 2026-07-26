@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-theme-preference="dark" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title default="ServiceRadar Developer Portal" suffix=" · developer.serviceradar.cloud">
       {assigns[:page_title]}
@@ -10,6 +11,11 @@
     <link rel="icon" type="image/svg+xml" href={~p"/images/logo.svg"} />
     <link rel="alternate icon" href="/favicon.ico" sizes="any" />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script>
+      // Force dark before paint (also enforced in app.js).
+      document.documentElement.dataset.theme = "dark"
+      document.documentElement.dataset.themePreference = "dark"
+    </script>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
   </head>

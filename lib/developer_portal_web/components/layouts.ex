@@ -74,10 +74,6 @@ defmodule DeveloperPortalWeb.Layouts do
             </.nav_link>
           </nav>
 
-          <div id="portal-desktop-actions" class="hidden shrink-0 items-center gap-1.5 md:flex">
-            <.theme_toggle />
-          </div>
-
           <details id="portal-mobile-navigation" class="group relative md:hidden">
             <summary
               id="portal-mobile-navigation-toggle"
@@ -100,9 +96,6 @@ defmodule DeveloperPortalWeb.Layouts do
                 >
                   Product docs
                 </.nav_link>
-                <div class="mt-1 border-t border-sr-line px-2 pt-2">
-                  <.theme_toggle />
-                </div>
               </div>
             </div>
           </details>
@@ -193,33 +186,6 @@ defmodule DeveloperPortalWeb.Layouts do
         {gettext("Attempting to reconnect")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
-    </div>
-    """
-  end
-
-  def theme_toggle(assigns) do
-    ~H"""
-    <div
-      class="inline-flex items-center rounded-sr-control border border-sr-line bg-sr-control p-0.5 shadow-sr-control"
-      role="group"
-      aria-label="Color theme"
-    >
-      <button
-        type="button"
-        class="inline-flex min-h-9 min-w-9 items-center justify-center rounded-sr-small text-sr-muted outline-none transition-colors duration-200 ease-sr-out hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
-        data-theme-choice="light"
-        aria-label="Light theme"
-      >
-        <.icon name="hero-sun-micro" class="size-4" />
-      </button>
-      <button
-        type="button"
-        class="inline-flex min-h-9 min-w-9 items-center justify-center rounded-sr-small text-sr-muted outline-none transition-colors duration-200 ease-sr-out hover:bg-sr-subtle hover:text-sr-ink focus-visible:ring-2 focus-visible:ring-sr-focus"
-        data-theme-choice="dark"
-        aria-label="Dark theme"
-      >
-        <.icon name="hero-moon-micro" class="size-4" />
-      </button>
     </div>
     """
   end

@@ -8,12 +8,29 @@ defmodule DeveloperPortalWeb.PageHTML do
 
   embed_templates "page_html/*"
 
-  def method_badge_class("GET"), do: "badge-info"
-  def method_badge_class("POST"), do: "badge-success"
-  def method_badge_class("PUT"), do: "badge-secondary"
-  def method_badge_class("PATCH"), do: "badge-warning"
-  def method_badge_class("DELETE"), do: "badge-error"
-  def method_badge_class(_method), do: "badge-outline"
+  def method_badge_class("GET"),
+    do:
+      "inline-flex items-center rounded-full border border-sr-info-line bg-sr-info-soft px-2.5 py-0.5 text-xs font-medium text-sr-info"
+
+  def method_badge_class("POST"),
+    do:
+      "inline-flex items-center rounded-full border border-sr-success-line bg-sr-success-soft px-2.5 py-0.5 text-xs font-medium text-sr-success"
+
+  def method_badge_class("PUT"),
+    do:
+      "inline-flex items-center rounded-full border border-sr-info-line bg-sr-info-soft px-2.5 py-0.5 text-xs font-medium text-sr-info"
+
+  def method_badge_class("PATCH"),
+    do:
+      "inline-flex items-center rounded-full border border-sr-warning-line bg-sr-warning-soft px-2.5 py-0.5 text-xs font-medium text-sr-warning"
+
+  def method_badge_class("DELETE"),
+    do:
+      "inline-flex items-center rounded-full border border-sr-danger-line bg-sr-danger-soft px-2.5 py-0.5 text-xs font-medium text-sr-danger"
+
+  def method_badge_class(_method),
+    do:
+      "inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted"
 
   def api_display_version(nil), do: "unknown"
 

@@ -1,22 +1,22 @@
 <Layouts.app flash={@flash}>
   <section class="px-4 py-16 sm:px-6 lg:px-8">
     <div class={[
-      "mx-auto max-w-7xl gap-8",
+      "mx-auto max-w-[1280px] gap-8",
       length(@versions) > 1 && "grid lg:grid-cols-[260px_1fr]"
     ]}>
       <%= if length(@versions) > 1 do %>
-        <aside class="card h-fit border border-base-300 bg-base-100 shadow-lg">
-          <div class="card-body">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+        <aside class="rounded-sr-surface h-fit border border-sr-line bg-sr-surface shadow-sr-surface">
+          <div class="space-y-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
               Versions
             </p>
-            <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
+            <div class="menu gap-2 rounded-sr-surface bg-sr-subtle/50 p-2">
               <%= for version <- @versions do %>
                 <a
                   href={~p"/docs/#{version.id}"}
                   class={[
-                    "rounded-btn px-3 py-2 text-sm",
-                    version.id == @docs_version.id && "bg-primary text-primary-content"
+                    "rounded-sr-control px-3 py-2 text-sm text-sr-muted hover:bg-sr-subtle hover:text-sr-ink",
+                    version.id == @docs_version.id && "bg-sr-brand text-sr-on-brand"
                   ]}
                 >
                   {version.label}
@@ -29,15 +29,18 @@
 
       <div class="space-y-8">
         <div class="space-y-4">
-          <h1 class="text-4xl font-semibold tracking-tight">{@docs_version.title}</h1>
-          <p class="max-w-3xl text-lg leading-8 text-base-content/72">{@docs_version.summary}</p>
+          <h1 class="text-4xl font-semibold tracking-tight text-sr-ink">{@docs_version.title}</h1>
+          <p class="max-w-3xl text-lg leading-8 text-sr-muted">{@docs_version.summary}</p>
           <div class="flex flex-wrap gap-3">
-            <a href={~p"/docs/#{@docs_version.id}/api"} class="btn btn-primary">
+            <a
+              href={~p"/docs/#{@docs_version.id}/api"}
+              class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-brand bg-sr-brand px-5 py-2.5 text-sm font-semibold text-sr-on-brand shadow-sr-button outline-none transition hover:bg-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
+            >
               API Reference
             </a>
             <a
               href="https://code.carverauto.dev/carverauto/serviceradar-sdk-go"
-              class="btn btn-outline"
+              class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
               target="_blank"
               rel="noreferrer"
             >
@@ -45,13 +48,18 @@
             </a>
             <a
               href="https://code.carverauto.dev/carverauto/serviceradar-sdk-rust"
-              class="btn btn-outline"
+              class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
               target="_blank"
               rel="noreferrer"
             >
               Rust SDK Repo
             </a>
-            <a href={~p"/contribute"} class="btn btn-outline">Contribution Guide</a>
+            <a
+              href={~p"/contribute"}
+              class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
+            >
+              Contribution Guide
+            </a>
           </div>
         </div>
 
@@ -59,21 +67,21 @@
           <%= for section <- @docs_version.sections do %>
             <article
               id={"docs-section-#{section.id}"}
-              class="group flex min-h-52 flex-col rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+              class="group flex min-h-52 flex-col rounded-lg border border-sr-line bg-sr-surface p-5 shadow-sr-control transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sr-surface"
             >
               <div class="flex flex-1 flex-col gap-4">
                 <div class="space-y-3">
                   <div class="flex items-start justify-between gap-3">
                     <h2 class="text-xl font-semibold tracking-tight">{section.title}</h2>
-                    <span class="shrink-0 rounded-full border border-base-300 px-2.5 py-1 text-xs font-medium text-base-content/70">
+                    <span class="shrink-0 rounded-full border border-sr-line px-2.5 py-1 text-xs font-medium text-sr-muted">
                       {section.audience}
                     </span>
                   </div>
-                  <p class="text-sm leading-6 text-base-content/70">{section.description}</p>
+                  <p class="text-sm leading-6 text-sr-muted">{section.description}</p>
                 </div>
                 <a
                   href={~p"/docs/#{@docs_version.id}/#{section.id}"}
-                  class="mt-auto inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary transition group-hover:translate-x-0.5"
+                  class="mt-auto inline-flex w-fit items-center gap-2 text-sm font-semibold text-sr-brand transition group-hover:translate-x-0.5"
                 >
                   Open guide <.icon name="hero-arrow-right" class="h-4 w-4" />
                 </a>

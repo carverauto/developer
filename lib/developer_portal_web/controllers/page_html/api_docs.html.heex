@@ -1,14 +1,14 @@
 <Layouts.app flash={@flash}>
   <section class="px-4 py-16 sm:px-6 lg:px-8">
-    <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_1fr]">
-      <aside class="card h-fit border border-base-300 bg-base-100 shadow-lg">
-        <div class="card-body space-y-6">
+    <div class="mx-auto grid max-w-[1280px] gap-8 lg:grid-cols-[260px_1fr]">
+      <aside class="rounded-sr-surface h-fit border border-sr-line bg-sr-surface shadow-sr-surface">
+        <div class="space-y-6">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
               API version
             </p>
-            <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
-              <span class="rounded-btn bg-primary px-3 py-2 text-sm text-primary-content">
+            <div class="menu gap-2 rounded-sr-surface bg-sr-subtle/50 p-2">
+              <span class="rounded-sr-control bg-sr-brand px-3 py-2 text-sm font-medium text-sr-on-brand">
                 {if @api_document,
                   do: api_display_version(@api_document.api_version),
                   else: "Pending"}
@@ -17,14 +17,17 @@
           </div>
 
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">Browse</p>
-            <div class="menu gap-2 rounded-box bg-base-200/50 p-2">
-              <a href={~p"/docs/#{@docs_version.id}"} class="rounded-btn px-3 py-2 text-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">Browse</p>
+            <div class="menu gap-2 rounded-sr-surface bg-sr-subtle/50 p-2">
+              <a
+                href={~p"/docs/#{@docs_version.id}"}
+                class="rounded-sr-control px-3 py-2 text-sm text-sr-muted hover:bg-sr-subtle hover:text-sr-ink"
+              >
                 Guides
               </a>
               <a
                 href={~p"/docs/#{@docs_version.id}/api"}
-                class="rounded-btn bg-primary px-3 py-2 text-sm text-primary-content"
+                class="rounded-sr-control bg-sr-brand px-3 py-2 text-sm font-medium text-sr-on-brand"
               >
                 API Reference
               </a>
@@ -35,13 +38,15 @@
 
       <div class="space-y-8">
         <div class="space-y-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
             {if @api_document,
               do: "API V" <> api_display_version(@api_document.api_version),
               else: "API"}
           </p>
-          <h1 class="text-4xl font-semibold tracking-tight">ServiceRadar API Reference</h1>
-          <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+          <h1 class="text-4xl font-semibold tracking-tight text-sr-ink">
+            ServiceRadar API Reference
+          </h1>
+          <p class="max-w-3xl text-lg leading-8 text-sr-muted">
             {(@api_document && @api_document.summary) ||
               "Browse the current API reference and download the OpenAPI document."}
           </p>
@@ -49,29 +54,29 @@
 
         <%= if @api_source do %>
           <div class="grid gap-4 md:grid-cols-4">
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+              <div class="space-y-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                   Source
                 </p>
                 <p class="text-lg font-semibold">
                   {Map.get(@api_source, "source_name", "ServiceRadar")}
                 </p>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-sr-muted">
                   {Map.get(@api_source, "surface", "API")}
                 </p>
               </div>
             </article>
 
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+              <div class="space-y-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                   OpenAPI
                 </p>
                 <p class="text-lg font-semibold">
                   {if @api_document, do: @api_document.openapi_version, else: "Pending"}
                 </p>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-sr-muted">
                   API version {if @api_document,
                     do: api_display_version(@api_document.api_version),
                     else: "unknown"}
@@ -79,29 +84,29 @@
               </div>
             </article>
 
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+              <div class="space-y-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                   Operations
                 </p>
                 <p class="text-lg font-semibold">
                   {if @api_document, do: @api_document.operation_count, else: 0}
                 </p>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-sr-muted">
                   {if @api_document, do: @api_document.tag_count, else: 0} tags
                 </p>
               </div>
             </article>
 
-            <article class="card border border-base-300 bg-base-100 shadow-lg">
-              <div class="card-body">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+            <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+              <div class="space-y-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                   Schemas
                 </p>
                 <p class="text-lg font-semibold">
                   {if @api_document, do: @api_document.schema_count, else: 0}
                 </p>
-                <p class="text-sm text-base-content/70">
+                <p class="text-sm text-sr-muted">
                   Cached {if @api_document,
                     do: Calendar.strftime(@api_document.fetched_at, "%Y-%m-%d %H:%M UTC"),
                     else: "not yet"}
@@ -110,27 +115,30 @@
             </article>
           </div>
 
-          <div class="card border border-base-300 bg-base-100 shadow-lg">
-            <div class="card-body">
+          <div class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+            <div class="space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                     API
                   </p>
                   <h2 class="text-2xl font-semibold tracking-tight">Reference downloads</h2>
-                  <p class="mt-2 max-w-3xl text-sm text-base-content/70">
+                  <p class="mt-2 max-w-3xl text-sm text-sr-muted">
                     Open the JSON artifact or use the upstream API reference tools.
                   </p>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                  <a href={~p"/docs/#{@docs_version.id}/api/openapi.json"} class="btn btn-primary">
+                  <a
+                    href={~p"/docs/#{@docs_version.id}/api/openapi.json"}
+                    class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-brand bg-sr-brand px-5 py-2.5 text-sm font-semibold text-sr-on-brand shadow-sr-button outline-none transition hover:bg-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
+                  >
                     Portal Raw JSON
                   </a>
                   <%= if @api_source["swagger_ui_url"] do %>
                     <a
                       href={@api_source["swagger_ui_url"]}
-                      class="btn btn-outline"
+                      class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus"
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -144,19 +152,19 @@
         <% end %>
 
         <%= if @api_document do %>
-          <div class="card border border-base-300 bg-base-100 shadow-lg">
-            <div class="card-body">
+          <div class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+            <div class="space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                     Interactive
                   </p>
                   <h2 class="text-2xl font-semibold tracking-tight">Explore the API</h2>
-                  <p class="mt-1 text-sm text-base-content/70">
+                  <p class="mt-1 text-sm text-sr-muted">
                     Powered by Swagger UI, loading the portal's cached OpenAPI document.
                   </p>
                 </div>
-                <span class="badge badge-outline">
+                <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
                   Updated {Calendar.strftime(@api_document.fetched_at, "%Y-%m-%d %H:%M UTC")}
                 </span>
               </div>
@@ -164,10 +172,10 @@
               <div
                 id="swagger-ui"
                 data-openapi-url={~p"/docs/#{@docs_version.id}/api/openapi.json"}
-                class="swagger-ui-embed mt-4 overflow-x-auto rounded-box bg-white"
+                class="swagger-ui-embed mt-4 overflow-x-auto rounded-sr-surface bg-white"
               >
                 <noscript>
-                  <p class="p-4 text-sm text-base-content/70">
+                  <p class="p-4 text-sm text-sr-muted">
                     JavaScript is required for the interactive API explorer. Use the text summary below
                     or the raw JSON download.
                   </p>
@@ -176,53 +184,55 @@
             </div>
           </div>
 
-          <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-lg">
+          <details class="collapse collapse-arrow border border-sr-line bg-sr-surface shadow-sr-surface">
             <summary class="collapse-title text-lg font-semibold">
               Text summary ({@api_document.operation_count} operations, {@api_document.tag_count} tags)
             </summary>
             <div class="collapse-content">
               <div class="grid gap-4 md:grid-cols-2">
                 <%= for group <- @api_document.operation_groups do %>
-                  <section class="card border border-base-300 bg-base-100 shadow-lg">
-                    <div class="card-body">
+                  <section class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+                    <div class="space-y-4">
                       <div class="flex items-center justify-between gap-3">
-                        <h2 class="card-title">{group.name}</h2>
-                        <span class="badge badge-outline">
+                        <h2 class="text-lg font-semibold text-sr-ink">{group.name}</h2>
+                        <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
                           {length(group.operations)} operations
                         </span>
                       </div>
 
                       <div class="space-y-3">
                         <%= for operation <- group.operations do %>
-                          <details class="collapse collapse-arrow border border-base-300 bg-base-200/30">
+                          <details class="collapse collapse-arrow border border-sr-line bg-sr-subtle/30">
                             <summary class="collapse-title">
                               <div class="flex flex-wrap items-center gap-3">
                                 <span class={[
-                                  "badge font-semibold",
+                                  " font-semibold",
                                   method_badge_class(operation.method)
                                 ]}>
                                   {operation.method}
                                 </span>
                                 <code class="text-sm font-medium">{operation.path}</code>
                               </div>
-                              <p class="mt-2 text-sm text-base-content/70">{operation.summary}</p>
+                              <p class="mt-2 text-sm text-sr-muted">{operation.summary}</p>
                             </summary>
-                            <div class="collapse-content space-y-4 text-sm text-base-content/75">
+                            <div class="collapse-content space-y-4 text-sm text-sr-ink/75">
                               <%= if operation.description do %>
                                 <p>{operation.description}</p>
                               <% end %>
 
                               <div class="flex flex-wrap gap-2">
                                 <%= if operation.deprecated? do %>
-                                  <span class="badge badge-warning badge-outline">
+                                  <span class="inline-flex items-center rounded-full border border-sr-warning-line bg-sr-warning-soft px-2.5 py-0.5 text-xs font-medium text-sr-warning">
                                     Deprecated
                                   </span>
                                 <% end %>
                                 <%= for scheme <- operation.security do %>
-                                  <span class="badge badge-outline">{scheme}</span>
+                                  <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
+                                    {scheme}
+                                  </span>
                                 <% end %>
                                 <%= for content_type <- operation.request_body_types do %>
-                                  <span class="badge badge-secondary badge-outline">
+                                  <span class="inline-flex items-center rounded-full border border-sr-info-line bg-sr-info-soft px-2.5 py-0.5 text-xs font-medium text-sr-info">
                                     {content_type}
                                   </span>
                                 <% end %>
@@ -230,30 +240,30 @@
 
                               <%= if operation.parameters != [] do %>
                                 <div>
-                                  <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                                  <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                                     Parameters
                                   </p>
                                   <div class="space-y-2">
                                     <%= for parameter <- operation.parameters do %>
-                                      <div class="rounded-box border border-base-300 bg-base-100 px-3 py-2">
+                                      <div class="rounded-sr-surface border border-sr-line bg-sr-surface px-3 py-2">
                                         <div class="flex flex-wrap items-center gap-2">
                                           <code class="font-semibold">{parameter.name}</code>
-                                          <span class="badge badge-outline badge-sm">
+                                          <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
                                             {parameter.location}
                                           </span>
                                           <%= if parameter.required? do %>
-                                            <span class="badge badge-primary badge-sm">
+                                            <span class="inline-flex items-center rounded-full border border-sr-brand/30 bg-sr-brand/10 px-2.5 py-0.5 text-xs font-medium text-sr-brand">
                                               required
                                             </span>
                                           <% end %>
                                           <%= if parameter.schema do %>
-                                            <span class="badge badge-ghost badge-sm">
+                                            <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
                                               {parameter.schema}
                                             </span>
                                           <% end %>
                                         </div>
                                         <%= if parameter.description do %>
-                                          <p class="mt-1 text-xs text-base-content/65">
+                                          <p class="mt-1 text-xs text-sr-ink/65">
                                             {parameter.description}
                                           </p>
                                         <% end %>
@@ -264,12 +274,12 @@
                               <% end %>
 
                               <div>
-                                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
                                   Responses
                                 </p>
                                 <div class="flex flex-wrap gap-2">
                                   <%= for response <- operation.response_codes do %>
-                                    <span class="badge badge-outline">
+                                    <span class="inline-flex items-center rounded-full border border-sr-line bg-sr-subtle px-2.5 py-0.5 text-xs font-medium text-sr-muted">
                                       {response.status}: {response.description}
                                     </span>
                                   <% end %>
@@ -290,50 +300,53 @@
           <script src={~p"/assets/vendor/swagger-ui/swagger-ui-bundle.js"}>
           </script>
           <script phx-no-format>(function () {
-            var el = document.getElementById("swagger-ui");
-            if (!el || typeof window.SwaggerUIBundle === "undefined") return;
-            if (el.dataset.rendered === "true") return;
-            el.dataset.rendered = "true";
-            window.SwaggerUIBundle({
-              url: el.getAttribute("data-openapi-url"),
-              dom_id: "#swagger-ui",
-              deepLinking: true,
-              validatorUrl: null,
-              tryItOutEnabled: true,
-              presets: [SwaggerUIBundle.presets.apis],
-              layout: "BaseLayout"
-            });
-          })();</script>
+           var el = document.getElementById("swagger-ui");
+           if (!el || typeof window.SwaggerUIBundle === "undefined") return;
+           if (el.dataset.rendered === "true") return;
+           el.dataset.rendered = "true";
+           window.SwaggerUIBundle({
+           url: el.getAttribute("data-openapi-url"),
+           dom_id: "#swagger-ui",
+           deepLinking: true,
+           validatorUrl: null,
+           tryItOutEnabled: true,
+           presets: [SwaggerUIBundle.presets.apis],
+           layout: "BaseLayout"
+           });
+           })();</script>
         <% else %>
-          <div class="card border border-warning/50 bg-warning/10 shadow-lg">
-            <div class="card-body">
-              <h2 class="card-title">API reference is warming up</h2>
-              <p class="text-sm text-base-content/75">
+          <div class="rounded-sr-surface border border-sr-warning-line bg-sr-warning-soft shadow-sr-surface">
+            <div class="space-y-4">
+              <h2 class="text-lg font-semibold text-sr-ink">API reference is warming up</h2>
+              <p class="text-sm text-sr-ink/75">
                 The portal has not cached the ServiceRadar OpenAPI document yet. It retries
                 automatically &mdash; this page reloads shortly. You can also open the upstream
                 artifact directly while the cache catches up.
               </p>
 
               <%= if msg = api_error_message(@api_status) do %>
-                <div class="rounded-box border border-warning/40 bg-base-100 px-4 py-3 text-sm">
+                <div class="rounded-sr-surface border border-sr-warning-line bg-sr-surface px-4 py-3 text-sm">
                   <p class="font-semibold text-warning">Last refresh error</p>
-                  <p class="mt-1 text-base-content/80">{msg}</p>
+                  <p class="mt-1 text-sr-muted">{msg}</p>
                   <%= if @api_status && @api_status.last_error_at do %>
-                    <p class="mt-1 text-xs text-base-content/60">
+                    <p class="mt-1 text-xs text-sr-muted">
                       at {Calendar.strftime(@api_status.last_error_at, "%Y-%m-%d %H:%M UTC")}
                     </p>
                   <% end %>
                 </div>
               <% end %>
 
-              <div class="card-actions justify-start">
-                <a href={~p"/docs/#{@docs_version.id}/api"} class="btn btn-primary btn-sm">
+              <div class="mt-4 flex flex-wrap items-center justify-start gap-3">
+                <a
+                  href={~p"/docs/#{@docs_version.id}/api"}
+                  class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-brand bg-sr-brand px-5 py-2.5 text-sm font-semibold text-sr-on-brand shadow-sr-button outline-none transition hover:bg-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus btn-sm"
+                >
                   Reload
                 </a>
                 <%= if @api_source do %>
                   <a
                     href={Map.fetch!(@api_source, "open_api_url")}
-                    class="btn btn-outline btn-sm"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-sr-control border border-sr-line-strong bg-sr-control px-5 py-2.5 text-sm font-semibold text-sr-ink shadow-sr-control outline-none transition hover:border-sr-brand hover:text-sr-brand-strong focus-visible:ring-2 focus-visible:ring-sr-focus btn-sm"
                     target="_blank"
                     rel="noreferrer"
                   >

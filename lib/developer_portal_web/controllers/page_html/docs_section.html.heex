@@ -4,13 +4,13 @@
       <aside class="h-fit space-y-4 lg:sticky lg:top-6">
         <a
           href={~p"/docs/#{@docs_version.id}"}
-          class="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:-translate-x-0.5"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-sr-brand transition hover:-translate-x-0.5"
         >
           <.icon name="hero-arrow-left" class="h-4 w-4" /> Back to docs
         </a>
 
-        <nav class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
-          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+        <nav class="rounded-lg border border-sr-line bg-sr-surface p-3 shadow-sr-control">
+          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
             Guides
           </p>
           <div class="space-y-1">
@@ -20,9 +20,9 @@
                 class={[
                   "block rounded-md px-2.5 py-2 text-sm transition",
                   section.id == @docs_section.id &&
-                    "bg-primary text-primary-content",
+                    "bg-sr-brand text-sr-on-brand",
                   section.id != @docs_section.id &&
-                    "text-base-content/72 hover:bg-base-200 hover:text-base-content"
+                    "text-sr-muted hover:bg-sr-subtle hover:text-sr-ink"
                 ]}
               >
                 {section.title}
@@ -32,25 +32,25 @@
         </nav>
       </aside>
 
-      <article class="min-w-0 rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
-        <header class="mb-8 border-b border-base-300 pb-6">
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+      <article class="min-w-0 rounded-lg border border-sr-line bg-sr-surface p-6 shadow-sr-control sm:p-8">
+        <header class="mb-8 border-b border-sr-line pb-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
             {@docs_section.audience}
           </p>
           <h1 class="mt-3 text-4xl font-semibold tracking-tight">{@docs_section.title}</h1>
-          <p class="mt-4 max-w-3xl text-lg leading-8 text-base-content/72">
+          <p class="mt-4 max-w-3xl text-lg leading-8 text-sr-muted">
             {@docs_section.description}
           </p>
         </header>
 
-        <div class="docs-article prose prose-base max-w-none text-base-content/82">
+        <div class="docs-article prose prose-base max-w-none text-sr-ink/82">
           {@docs_section.html}
         </div>
       </article>
 
       <aside class="hidden h-fit xl:sticky xl:top-6 xl:block">
-        <nav class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
-          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-secondary">
+        <nav class="rounded-lg border border-sr-line bg-sr-surface p-3 shadow-sr-control">
+          <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
             On this page
           </p>
           <div class="space-y-0.5">
@@ -58,7 +58,7 @@
               <a
                 href={"##{item.id}"}
                 class={[
-                  "block rounded-md py-1.5 text-sm text-base-content/70 transition hover:bg-base-200 hover:text-base-content",
+                  "block rounded-md py-1.5 text-sm text-sr-muted transition hover:bg-sr-subtle hover:text-sr-ink",
                   item.level == 2 && "px-2 font-medium",
                   item.level == 3 && "pr-2 pl-5"
                 ]}

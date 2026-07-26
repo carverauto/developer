@@ -2,40 +2,42 @@
   <section class="px-4 py-16 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-5xl space-y-8">
       <div class="space-y-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sr-brand">
           Contribution workflow
         </p>
-        <h1 class="text-4xl font-semibold tracking-tight">
+        <h1 class="text-4xl font-semibold tracking-tight text-sr-ink">
           Submit a plugin through a reviewed PR.
         </h1>
-        <p class="max-w-3xl text-lg leading-8 text-base-content/72">
+        <p class="max-w-3xl text-lg leading-8 text-sr-muted">
           Package your plugin, open a pull request, and include the files users need to install it.
         </p>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-5">
         <%= for {step, idx} <- Enum.with_index([
-          {"Develop", "Build the plugin with the Go or Rust SDK and compile it to WASM."},
-          {"Package", "Prepare the manifest, config schema, checksum, signature, and WASM artifact set."},
-          {"Submit", "Open a pull request with the published package files and installation details."},
-          {"Review", "Maintainers review the package contents, trust fields, and install guidance."},
-          {"Publish", "After merge, the plugin appears in the public registry."}
-        ], 1) do %>
-          <article class="card border border-base-300 bg-base-100 shadow-lg">
-            <div class="card-body">
-              <span class="badge badge-primary badge-outline">Step {idx}</span>
-              <h2 class="card-title text-lg">{elem(step, 0)}</h2>
-              <p class="text-sm text-base-content/70">{elem(step, 1)}</p>
+ {"Develop", "Build the plugin with the Go or Rust SDK and compile it to WASM."},
+ {"Package", "Prepare the manifest, config schema, checksum, signature, and WASM artifact set."},
+ {"Submit", "Open a pull request with the published package files and installation details."},
+ {"Review", "Maintainers review the package contents, trust fields, and install guidance."},
+ {"Publish", "After merge, the plugin appears in the public registry."}
+ ], 1) do %>
+          <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+            <div class="space-y-4">
+              <span class="inline-flex items-center rounded-full border border-sr-brand/30 bg-sr-brand/10 px-2.5 py-0.5 text-xs font-medium text-sr-brand">
+                Step {idx}
+              </span>
+              <h2 class="text-lg">{elem(step, 0)}</h2>
+              <p class="text-sm text-sr-muted">{elem(step, 1)}</p>
             </div>
           </article>
         <% end %>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-2">
-        <article class="card border border-base-300 bg-base-100 shadow-lg">
-          <div class="card-body">
-            <h2 class="card-title">Required package contents</h2>
-            <ul class="space-y-2 text-sm text-base-content/80">
+        <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+          <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-sr-ink">Required package contents</h2>
+            <ul class="space-y-2 text-sm text-sr-muted">
               <li>Name, slug, author, version, and category</li>
               <li>Language or SDK target such as Go or Rust</li>
               <li>Manifest and config schema files users can download directly</li>
@@ -46,10 +48,10 @@
           </div>
         </article>
 
-        <article class="card border border-base-300 bg-base-100 shadow-lg">
-          <div class="card-body">
-            <h2 class="card-title">Review expectations</h2>
-            <ul class="space-y-2 text-sm text-base-content/80">
+        <article class="rounded-sr-surface border border-sr-line bg-sr-surface p-6 shadow-sr-surface">
+          <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-sr-ink">Review expectations</h2>
+            <ul class="space-y-2 text-sm text-sr-muted">
               <li>
                 Official and community entries must be clearly distinguishable.
               </li>

@@ -4,12 +4,11 @@ metadata:
   name: developer-portal-pg
   namespace: serviceradar-developer
 spec:
-  # Single instance until the old replica image is recovered; HA can be re-enabled
-  # after both nodes can pull a registry-resident CNPG image.
-  instances: 1
+  instances: 2
 
-  # Previous tag 18.3.0-sr2-a78b3afd was GC'd from Harbor (404), which left the
-  # second instance in ImagePullBackOff and blocked Argo sync waves indefinitely.
+  # Pin by digest: the floating 18.3.0-sr2-a78b3afd tag was GC'd from Harbor and
+  # left replicas in ImagePullBackOff (blocking Argo health). Use the same
+  # digest as control-plane / demo.
   imageName: registry.carverauto.dev/serviceradar/serviceradar-cnpg:18.3.0-sr5@sha256:c349a1d34aef056f818630e0766501b5c98fa7598bdeee38d59d677a94cb18c9
 
   postgresql:

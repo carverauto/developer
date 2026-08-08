@@ -300,20 +300,20 @@
           <script src={~p"/assets/vendor/swagger-ui/swagger-ui-bundle.js"}>
           </script>
           <script phx-no-format>(function () {
-           var el = document.getElementById("swagger-ui");
-           if (!el || typeof window.SwaggerUIBundle === "undefined") return;
-           if (el.dataset.rendered === "true") return;
-           el.dataset.rendered = "true";
-           window.SwaggerUIBundle({
-           url: el.getAttribute("data-openapi-url"),
-           dom_id: "#swagger-ui",
-           deepLinking: true,
-           validatorUrl: null,
-           tryItOutEnabled: true,
-           presets: [SwaggerUIBundle.presets.apis],
-           layout: "BaseLayout"
-           });
-           })();</script>
+                     var el = document.getElementById("swagger-ui");
+                     if (!el || typeof window.SwaggerUIBundle === "undefined") return;
+                     if (el.dataset.rendered === "true") return;
+                     el.dataset.rendered = "true";
+                     window.SwaggerUIBundle({
+                     url: el.getAttribute("data-openapi-url"),
+                     dom_id: "#swagger-ui",
+                     deepLinking: true,
+                     validatorUrl: null,
+                     tryItOutEnabled: true,
+                     presets: [SwaggerUIBundle.presets.apis],
+                     layout: "BaseLayout"
+                     });
+                     })();</script>
         <% else %>
           <div class="rounded-sr-surface border border-sr-warning-line bg-sr-warning-soft shadow-sr-surface">
             <div class="space-y-4">

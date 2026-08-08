@@ -5,6 +5,8 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
 
   alias DeveloperPortal.ApiDocs.Document
 
+  require Logger
+
   @http_methods ~w(get post put patch delete options head trace)
 
   # Baseline request options. The upstream ServiceRadar OpenAPI endpoint answers
@@ -24,6 +26,12 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
   ]
 
   @default_headers %{"accept" => "application/json"}
+
+  # Bundled with the release so the portal still serves API docs when the
+  # cluster cannot reach Forgejo (common cause of empty cache / GSC 5xx).
+  @default_fallback_paths %{
+    "v2" => "priv/static/api/openapi-v2.json"
+  }
 
   @impl true
   def fetch_documents(opts) do
@@ -104,6 +112,26 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
   defp validate_optional_url(version, url, field), do: validate_url(version, url, field)
 
   defp fetch_document(version, attrs, req_options) do
+    case fetch_remote_document(version, attrs, req_options) do
+      {:ok, document} ->
+        {:ok, document}
+
+      {:error, remote_reason} ->
+        case fetch_fallback_document(version, attrs) do
+          {:ok, document} ->
+            Logger.warning(
+              "api docs: using bundled OpenAPI fallback for #{version} after remote failure: #{inspect(remote_reason)}"
+            )
+
+            {:ok, document}
+
+          {:error, _fallback_reason} ->
+            {:error, remote_reason}
+        end
+    end
+  end
+
+  defp fetch_remote_document(version, attrs, req_options) do
     case Req.get(Map.fetch!(attrs, "open_api_url"), request_options(req_options)) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         with {:ok, spec} <- decode_spec(body),
@@ -117,6 +145,63 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
       {:error, reason} ->
         {:error, {:request_failed, version, reason}}
     end
+  end
+
+  defp fetch_fallback_document(version, attrs) do
+    path = resolve_fallback_path(version, attrs)
+
+    with true <- is_binary(path) and path != "",
+         {:ok, body} <- File.read(path),
+         {:ok, spec} <- decode_spec(body),
+         :ok <- validate_spec(spec, version) do
+      document = %{build_document(version, attrs, spec) | upstream_url: "file://#{path}"}
+      {:ok, document}
+    else
+      false -> {:error, {:no_fallback_path, version}}
+      {:error, reason} -> {:error, {:fallback_unreadable, version, reason}}
+    end
+  end
+
+  defp resolve_fallback_path(version, attrs) do
+    case Map.fetch(attrs, "fallback_path") do
+      # Explicit empty string disables fallback (used in tests).
+      {:ok, ""} ->
+        nil
+
+      {:ok, path} when is_binary(path) ->
+        expand_path(path)
+
+      :error ->
+        case Map.fetch(@default_fallback_paths, version) do
+          {:ok, path} -> expand_path(path)
+          :error -> nil
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  defp expand_path(path) do
+    cond do
+      Path.type(path) == :absolute ->
+        path
+
+      File.exists?(path) ->
+        Path.expand(path)
+
+      true ->
+        app_path = Application.app_dir(:developer_portal, path)
+
+        if File.exists?(app_path) do
+          app_path
+        else
+          Path.expand(path)
+        end
+    end
+  rescue
+    # App may not be loaded yet in some test contexts.
+    _ -> Path.expand(path)
   end
 
   defp request_options(req_options) do

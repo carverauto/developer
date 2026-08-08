@@ -40,17 +40,15 @@ config :developer_portal, DeveloperPortal.ApiDocs,
         "surface" => "ServiceRadar API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",
-        # Source the OpenAPI document straight from the serviceradar repo (the
-        # committed artifact), not the live demo site. Forgejo serves the raw
-        # file at /raw/branch/<ref>/<path>. Override per environment with
-        # SERVICERADAR_API_DOCS_V2_OPENAPI_URL (see config/runtime.exs).
+        # Prefer the committed artifact from the serviceradar repo (Forgejo raw
+        # URL). Override per environment with SERVICERADAR_API_DOCS_V2_OPENAPI_URL.
+        # When remote fetch fails (common in-cluster), fall back to the bundled
+        # copy under priv/static/api so /docs/v2/api/openapi.json never 503s.
         "open_api_url" =>
-          "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/elixir/web-ng/priv/static/openapi.json"
-        # swagger_ui_url / redoc_url are intentionally omitted: the demo-hosted
-        # Swagger and ReDoc UIs are gated behind auth. The portal renders the
-        # spec via its own embedded Swagger UI (served from the portal's cached
-        # copy), so it no longer links out to the demo UIs. Set
-        # SERVICERADAR_API_DOCS_V2_SWAGGER_URL / _REDOC_URL to re-enable a link.
+          "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/elixir/web-ng/priv/static/openapi.json",
+        "fallback_path" => "priv/static/api/openapi-v2.json"
+        # swagger_ui_url / redoc_url intentionally omitted: demo UIs are auth-gated.
+        # Portal embeds Swagger UI from the cached/bundled spec.
       }
     },
     req_options: [receive_timeout: 30_000]

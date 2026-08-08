@@ -70,7 +70,7 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSourceTest do
     assert {:ok, %{"v2" => _document}} = ServiceRadarSource.fetch_documents(opts)
   end
 
-  test "surfaces a real error when upstream returns a non-200 status" do
+  test "surfaces a real error when upstream fails and no fallback is available" do
     Req.Test.stub(__MODULE__.Boom, fn conn ->
       Plug.Conn.send_resp(conn, 503, "unavailable")
     end)
@@ -79,7 +79,9 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSourceTest do
       versions: %{
         "v2" => %{
           "label" => "V2 API",
-          "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api"
+          "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api",
+          # Explicit empty path disables the default bundled fallback.
+          "fallback_path" => ""
         }
       },
       req_options: [plug: {Req.Test, __MODULE__.Boom}, retry: false]
@@ -87,5 +89,27 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSourceTest do
 
     assert {:error, {:unexpected_status, "v2", 503, _body}} =
              ServiceRadarSource.fetch_documents(opts)
+  end
+
+  test "falls back to a local OpenAPI document when upstream is unavailable" do
+    Req.Test.stub(__MODULE__.BoomFallback, fn conn ->
+      Plug.Conn.send_resp(conn, 503, "unavailable")
+    end)
+
+    opts = [
+      versions: %{
+        "v2" => %{
+          "label" => "V2 API",
+          "open_api_url" => "https://demo.serviceradar.cloud/api/v2/open_api",
+          "fallback_path" => @fixture_path
+        }
+      },
+      req_options: [plug: {Req.Test, __MODULE__.BoomFallback}, retry: false]
+    ]
+
+    assert {:ok, %{"v2" => document}} = ServiceRadarSource.fetch_documents(opts)
+    assert document.openapi_version == "3.0.0"
+    assert document.operation_count > 0
+    assert String.starts_with?(document.upstream_url, "file://")
   end
 end

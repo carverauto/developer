@@ -26,7 +26,7 @@ The SDK handles:
 ## Install
 
 ```bash
-go get code.carverauto.dev/carverauto/serviceradar-sdk-go
+go get github.com/carverauto/serviceradar-sdk-go
 ```
 
 The module targets `go 1.25` and is compiled with TinyGo for the `wasi` target.
@@ -45,7 +45,7 @@ package main
 import (
     "fmt"
 
-    "code.carverauto.dev/carverauto/serviceradar-sdk-go/sdk"
+    "github.com/carverauto/serviceradar-sdk-go/sdk"
 )
 
 type Config struct {

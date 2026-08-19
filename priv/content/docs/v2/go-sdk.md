@@ -10,7 +10,7 @@ plugins in Go and compile them to a sandboxed WebAssembly artifact with TinyGo.
 The SDK owns the low-level host ABI so your plugin code stays focused on the
 check itself.
 
-Repository: <https://code.carverauto.dev/carverauto/serviceradar-sdk-go>
+Repository: <https://github.com/carverauto/serviceradar-sdk-go>
 
 The SDK handles:
 

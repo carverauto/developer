@@ -10,7 +10,7 @@ the [Go SDK](go-sdk) implements. It targets WebAssembly and hides the low-level
 host ABI behind concrete, serde-native domain types like `PluginResult`,
 `Metric`, `Widget`, `Event`, and `HttpClient`.
 
-Repository: <https://code.carverauto.dev/carverauto/serviceradar-sdk-rust>
+Repository: <https://github.com/carverauto/serviceradar-sdk-rust>
 
 The crate includes:
 

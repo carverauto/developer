@@ -28,4 +28,4 @@ replicas:
 
 images:
   - name: registry.carverauto.dev/serviceradar/developer-portal
-    newTag: sha-757ee5e69ecb
+    newTag: sha-21e2efe93a60

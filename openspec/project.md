@@ -53,7 +53,7 @@ Planned supporting patterns and libraries:
 - Content should be version-aware from the start. Docs routes and content organization must support multiple API/SDK versions such as `v1` and future versions like `v2-beta`.
 - Keep documentation content and plugin package metadata structured, validated, and easy to review in pull requests.
 - Prefer build-time or startup-time loading of docs and plugin package metadata for simplicity, speed, and operational reliability.
-- Plugin registry entries should be derived from the Forgejo-backed package repository, including manifests, schemas, signatures, checksums, and WASM artifacts that users download through the portal.
+- Plugin registry entries should be derived from the GitHub-backed ServiceRadar repository, including manifests, schemas, signatures, checksums, and WASM artifacts that users download through the portal.
 - The system should expose whether an extension or plugin artifact is signed and surface signature-related trust information clearly in the UI.
 - User authentication is part of the platform model. The site should support login-protected capabilities using Authentik as the IdP, with access controlled through a dedicated group for this site and GitHub-backed authentication upstream.
 - Kubernetes deployment configuration should live in-repo using Kustomize with `k8s/base`, `k8s/staging`, and `k8s/prod` overlays so application and deployment changes evolve together.
@@ -87,7 +87,7 @@ Planned supporting patterns and libraries:
 - Prefer small, focused PRs with clear scope.
 - Keep commit messages explicit and descriptive. Conventional Commits are preferred if the team adopts them consistently.
 - Do not bypass review for registry or docs content that affects what is published on `developer.serviceradar.cloud`.
-- Community plugin submissions should land through the documented PR workflow and include the published package files the registry reads from Forgejo.
+- Community plugin submissions should land through the documented PR workflow and include the published package files the registry reads from GitHub.
 
 ## Domain Context
 ServiceRadar supports an extension model based on WebAssembly plugins. The primary plugin-authoring languages and SDK targets for this portal are:

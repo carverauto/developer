@@ -390,7 +390,7 @@ at `sdk.MaxHTTPResponseBytes` (4 MiB).
 
 ## CI and versioning
 
-The repository's `.forgejo/workflows/ci.yml` runs formatting, vet, lint, and
-tests on every change. Consumers pin a tagged module version with `go get`. The
+The repository's `.github/workflows/ci.yml` runs tests and TinyGo example
+builds on every change. Consumers pin a tagged module version with `go get`. The
 [Rust SDK](rust-sdk) targets the same V2 plugin contract for teams that prefer
 Rust-native tooling.

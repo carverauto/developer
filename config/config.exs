@@ -14,7 +14,7 @@ config :developer_portal,
 config :developer_portal, DeveloperPortal.Registry,
   source: DeveloperPortal.Registry.ForgejoSource,
   source_opts: [
-    api_base_url: "https://code.carverauto.dev/api/v1",
+    api_base_url: "https://api.github.com",
     owner: "carverauto",
     repo: "serviceradar",
     ref: "staging",
@@ -40,12 +40,12 @@ config :developer_portal, DeveloperPortal.ApiDocs,
         "surface" => "ServiceRadar API",
         "source_name" => "ServiceRadar",
         "source_change" => "add-versioned-openapi-publish",
-        # Prefer the committed artifact from the serviceradar repo (Forgejo raw
-        # URL). Override per environment with SERVICERADAR_API_DOCS_V2_OPENAPI_URL.
+        # Prefer the committed artifact from the serviceradar repo on GitHub.
+        # Override per environment with SERVICERADAR_API_DOCS_V2_OPENAPI_URL.
         # When remote fetch fails (common in-cluster), fall back to the bundled
         # copy under priv/static/api so /docs/v2/api/openapi.json never 503s.
         "open_api_url" =>
-          "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/elixir/web-ng/priv/static/openapi.json",
+          "https://raw.githubusercontent.com/carverauto/serviceradar/staging/elixir/web-ng/priv/static/openapi.json",
         "fallback_path" => "priv/static/api/openapi-v2.json"
         # swagger_ui_url / redoc_url intentionally omitted: demo UIs are auth-gated.
         # Portal embeds Swagger UI from the cached/bundled spec.

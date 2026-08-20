@@ -23,20 +23,37 @@ end
 config :developer_portal, DeveloperPortalWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+github_api? = fn url ->
+  is_binary(url) and String.contains?(url, "api.github.com")
+end
+
+registry_runtime_opts = fn ->
+  configured =
+    Application.get_env(:developer_portal, DeveloperPortal.Registry, [])
+    |> Keyword.get(:source_opts, [])
+
+  api_base_url =
+    System.get_env("GITHUB_API_BASE_URL") ||
+      System.get_env("FORGEJO_API_BASE_URL") ||
+      Keyword.get(configured, :api_base_url)
+
+  content_base_url =
+    System.get_env("REGISTRY_CONTENT_BASE_URL") ||
+      System.get_env("GITHUB_CONTENT_BASE_URL") ||
+      if github_api?.(api_base_url) do
+        nil
+      else
+        System.get_env("FORGEJO_CONTENT_BASE_URL")
+      end
+
+  [api_base_url: api_base_url, content_base_url: content_base_url]
+end
+
 if config_env() != :test do
   registry_source_opts =
     Application.get_env(:developer_portal, DeveloperPortal.Registry, [])
     |> Keyword.get(:source_opts, [])
-    |> Keyword.merge(
-      api_base_url:
-        System.get_env("FORGEJO_API_BASE_URL") ||
-          Keyword.get(
-            Application.get_env(:developer_portal, DeveloperPortal.Registry, [])
-            |> Keyword.get(:source_opts, []),
-            :api_base_url
-          ),
-      content_base_url: System.get_env("FORGEJO_CONTENT_BASE_URL")
-    )
+    |> Keyword.merge(registry_runtime_opts.())
 
   config :developer_portal, DeveloperPortal.Registry, source_opts: registry_source_opts
 

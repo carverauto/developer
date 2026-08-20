@@ -1,6 +1,6 @@
 defmodule DeveloperPortal.Registry do
   @moduledoc """
-  Forgejo-backed plugin registry with an in-memory cache.
+  GitHub-backed plugin registry with an in-memory cache.
   """
 
   alias DeveloperPortal.Registry.Store

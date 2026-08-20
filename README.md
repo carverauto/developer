@@ -4,7 +4,7 @@ Phoenix/LiveView application for `developer.serviceradar.cloud`, plus the OpenSp
 
 ## Local Development
 
-The plugin registry is no longer backed by local files under `priv/content/plugins`. The app loads plugin manifests from the configured Forgejo repository on startup and refreshes them periodically through Oban.
+The plugin registry is no longer backed by local files under `priv/content/plugins`. The app loads plugin manifests from the configured GitHub repository (`carverauto/serviceradar` on `staging`) on startup and refreshes them periodically through Oban. User-facing source/README/manifest links point at GitHub.
 
 To start the Phoenix server locally:
 

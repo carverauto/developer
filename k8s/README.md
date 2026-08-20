@@ -22,6 +22,7 @@ The application expects two credential sources at deploy time:
 Required keys for `developer-portal-secrets`:
 
 - `secret_key_base`
+- `github_token` (optional; raises GitHub API rate limits for the plugin registry)
 
 A non-applied example is provided in [secret-template.yaml](/home/mfreeman/src/community/k8s/base/secret-template.yaml).
 A non-applied DB bootstrap example is provided in [db-credentials-template.yaml](/home/mfreeman/src/community/k8s/base/db-credentials-template.yaml).
@@ -49,3 +50,5 @@ Required non-secret runtime config comes from `developer-portal-config`:
 - `PGHOST`
 - `PGPORT`
 - `PGDATABASE`
+- `FORGEJO_API_BASE_URL` / `FORGEJO_CONTENT_BASE_URL` (in-cluster fetch)
+- `GITHUB_API_BASE_URL` (optional override; user-facing plugin links are rewritten to GitHub either way)

@@ -112,10 +112,10 @@ cargo test
 ```
 
 CI runs `fmt`, `clippy`, the test suite, native and wasm example builds, and
-`cargo publish --dry-run`. Releases are automated in Forgejo Actions: bump
+`cargo publish --dry-run`. Releases are automated in GitHub Actions: bump
 `version` in `Cargo.toml`, push to `main`, then push a matching tag such as
-`v0.1.4`. The publish workflow verifies the tag matches the crate version before
-running `cargo publish`.
+`v0.1.5`. The publish workflow runs `cargo publish --locked` with
+`CARGO_REGISTRY_TOKEN`.
 
 ## Result and domain types
 

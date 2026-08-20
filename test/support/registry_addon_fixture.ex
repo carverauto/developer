@@ -34,8 +34,7 @@ defmodule DeveloperPortal.RegistryAddonFixture do
           oci_digest: "sha256:435df8df28f8715f7d06eb6aa0972badfd5fd12c24d26cb7fb5a954c9c69bdb3",
           bundle_digest:
             "sha256:bfe5ce99bfacb0b150d140fd0be7ce58a8749370b32fcb466102854dd59f0e45",
-          source_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/addons/netprobe",
+          source_url: "https://github.com/carverauto/serviceradar/tree/staging/addons/netprobe",
           readme_url: nil,
           docs_path: "/docs/v2/addon-netprobe",
           official: true

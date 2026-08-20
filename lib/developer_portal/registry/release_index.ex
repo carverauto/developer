@@ -1,7 +1,7 @@
 defmodule DeveloperPortal.Registry.ReleaseIndex do
   @moduledoc """
   Reads the published signing indexes that the ServiceRadar release pipeline
-  attaches to Forgejo releases.
+  attaches to GitHub releases.
 
   The repository tree never contains the signed bundles themselves — the
   signed WASM plugins and native add-ons are published to an OCI registry and
@@ -50,7 +50,7 @@ defmodule DeveloperPortal.Registry.ReleaseIndex do
 
   defp latest_stable_release(config) do
     url =
-      "#{config.api_base_url}/repos/#{config.owner}/#{config.repo}/releases?limit=#{releases_limit(config)}"
+      "#{config.api_base_url}/repos/#{config.owner}/#{config.repo}/releases?per_page=#{releases_limit(config)}&limit=#{releases_limit(config)}"
 
     case Req.get(url, config.req_options) do
       {:ok, %Req.Response{status: 200, body: releases}} when is_list(releases) ->
@@ -119,11 +119,10 @@ defmodule DeveloperPortal.Registry.ReleaseIndex do
   @doc """
   Rewrites a release-asset URL onto the configured `content_base_url`.
 
-  Forgejo emits `browser_download_url` using its public ROOT_URL, but in the
-  cluster the portal can only reach Forgejo via the internal content host. This
-  mirrors how `ForgejoSource` fetches raw manifest content, so the signing index
-  is reachable in every environment. With no `content_base_url` the URL is used
-  as-is.
+  Some git hosts emit `browser_download_url` using a public ROOT_URL the cluster
+  cannot reach. When `content_base_url` is set, the host/scheme/port are rewritten
+  onto that internal content host. With no `content_base_url` the URL is used
+  as-is (GitHub release assets and raw.githubusercontent.com).
   """
   def content_url(%{content_base_url: nil}, url), do: url
   def content_url(%{content_base_url: ""}, url), do: url

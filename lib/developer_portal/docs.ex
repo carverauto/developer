@@ -105,7 +105,15 @@ defmodule DeveloperPortal.Docs do
 
   defp markdown_to_html(markdown, toc) do
     markdown
-    |> Earmark.as_html!()
+    |> MDEx.to_html!(
+      extension: [
+        strikethrough: true,
+        table: true,
+        autolink: true,
+        tasklist: true,
+        footnotes: true
+      ]
+    )
     |> render_code_windows()
     |> add_heading_ids(toc)
     |> Phoenix.HTML.raw()

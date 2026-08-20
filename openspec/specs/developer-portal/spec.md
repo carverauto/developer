@@ -86,15 +86,16 @@ The system SHALL document how developers submit plugin package files through a p
 - **THEN** the system explains how to prepare manifests, schemas, signatures, WASM artifacts, submit a pull request, and complete review expectations
 
 ### Requirement: Repo-Backed Plugin Cache
-The system SHALL load plugin registry entries from a Forgejo-backed repository instead of local filesystem content.
+The system SHALL load plugin registry entries from the GitHub-backed ServiceRadar repository instead of local filesystem content.
 
 #### Scenario: Application starts
 - **WHEN** the portal application boots
-- **THEN** it loads plugin entries from the configured Forgejo repository into an in-memory cache
+- **THEN** it loads plugin entries from the configured GitHub repository into an in-memory cache
 - **AND** the plugin UI reads from that cache rather than `priv/content/plugins`
+- **AND** user-facing source, README, and manifest links point at GitHub
 
 #### Scenario: Registry refreshes
-- **WHEN** the application refreshes plugin data from the configured Forgejo repository
+- **WHEN** the application refreshes plugin data from the configured GitHub repository
 - **THEN** updated entries become available to new requests without requiring a redeploy
 
 ### Requirement: Kubernetes GitOps Deployment

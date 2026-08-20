@@ -21,13 +21,13 @@ defmodule DeveloperPortal.Registry.TestSource do
          category: "streaming",
          signed: true,
          source_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/unifi-protect",
+           "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/unifi-protect",
          readme_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/unifi-protect/README.md",
+           "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/unifi-protect/README.md",
          manifest_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/unifi-protect/plugin.stream.yaml",
+           "https://github.com/carverauto/serviceradar/blob/staging/go/cmd/wasm-plugins/unifi-protect/plugin.stream.yaml",
          config_schema_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/unifi-protect/config.stream.schema.json",
+           "https://github.com/carverauto/serviceradar/blob/staging/go/cmd/wasm-plugins/unifi-protect/config.stream.schema.json",
          wasm_url: nil,
          artifact_url: nil,
          signature_url: nil,
@@ -53,11 +53,11 @@ defmodule DeveloperPortal.Registry.TestSource do
          description: "Monitors Dusk blockchain nodes via WebSocket API",
          signed: false,
          source_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/dusk-checker",
+           "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/dusk-checker",
          readme_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/dusk-checker/README.md",
+           "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/dusk-checker/README.md",
          manifest_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/dusk-checker/manifest.json",
+           "https://github.com/carverauto/serviceradar/blob/staging/go/cmd/wasm-plugins/dusk-checker/manifest.json",
          config_schema_url: nil,
          wasm_url: nil,
          artifact_url: nil,
@@ -67,7 +67,7 @@ defmodule DeveloperPortal.Registry.TestSource do
          signature_digest: nil,
          bundle_digest: nil,
          installation:
-           "Review the standard manifest in Forgejo; the signed bundle will be published to the ServiceRadar registry on the next release.",
+           "Review the standard manifest on GitHub; the signed bundle will be published to the ServiceRadar registry on the next release.",
          allowed_ports: [8080, 443, 9000]
        })
      ]}
@@ -98,9 +98,9 @@ defmodule DeveloperPortal.Registry.TestSource do
          oci_digest: "sha256:sample-oci",
          bundle_digest: "sha256:sample-bundle",
          source_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/addons/sample-addon",
+           "https://github.com/carverauto/serviceradar/tree/staging/addons/sample-addon",
          readme_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/addons/sample-addon/README.md",
+           "https://github.com/carverauto/serviceradar/tree/staging/addons/sample-addon/README.md",
          docs_path: "/docs/v2/addon-sample"
        }),
        build_addon(%{
@@ -120,7 +120,7 @@ defmodule DeveloperPortal.Registry.TestSource do
          oci_digest: nil,
          bundle_digest: nil,
          source_url:
-           "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/addons/preview-collector",
+           "https://github.com/carverauto/serviceradar/tree/staging/addons/preview-collector",
          readme_url: nil,
          docs_path: "/docs/v2/addons"
        })

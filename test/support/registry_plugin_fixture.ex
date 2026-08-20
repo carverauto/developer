@@ -20,13 +20,13 @@ defmodule DeveloperPortal.RegistryPluginFixture do
           category: "monitoring",
           signed: true,
           source_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/axis",
+            "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/axis",
           readme_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/src/branch/staging/go/cmd/wasm-plugins/axis/README.md",
+            "https://github.com/carverauto/serviceradar/tree/staging/go/cmd/wasm-plugins/axis/README.md",
           manifest_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/plugin.yaml",
+            "https://github.com/carverauto/serviceradar/blob/staging/go/cmd/wasm-plugins/axis/plugin.yaml",
           config_schema_url:
-            "https://code.carverauto.dev/carverauto/serviceradar/raw/branch/staging/go/cmd/wasm-plugins/axis/config.schema.json",
+            "https://github.com/carverauto/serviceradar/blob/staging/go/cmd/wasm-plugins/axis/config.schema.json",
           wasm_url: nil,
           artifact_url: nil,
           signature_url: nil,

@@ -7,6 +7,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
   alias DeveloperPortal.Registry.Addon
   alias DeveloperPortal.Registry.Plugin
+  alias DeveloperPortal.Registry.PublicURL
   alias DeveloperPortal.Registry.ReleaseIndex
   alias DeveloperPortal.Registry.Validator
 
@@ -106,13 +107,13 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       language: language,
       category: categorize_plugin(manifest, kind),
       signed: signed,
-      source_url: source_url,
-      readme_url: readme_url,
-      manifest_url: download_url(manifest_entry),
-      config_schema_url: config_schema_url(kind, directory, dist),
-      wasm_url: find_download_url(dist, @wasm_candidates),
-      artifact_url: find_download_url(dist, @checksum_candidates),
-      signature_url: find_download_url(dist, @signature_candidates),
+      source_url: PublicURL.githubize(source_url),
+      readme_url: PublicURL.githubize(readme_url),
+      manifest_url: PublicURL.githubize(download_url(manifest_entry)),
+      config_schema_url: PublicURL.githubize(config_schema_url(kind, directory, dist)),
+      wasm_url: PublicURL.githubize(find_download_url(dist, @wasm_candidates)),
+      artifact_url: PublicURL.githubize(find_download_url(dist, @checksum_candidates)),
+      signature_url: PublicURL.githubize(find_download_url(dist, @signature_candidates)),
       oci_ref: published && published["oci_ref"],
       oci_digest: published && published["oci_digest"],
       signature_digest: published && published["upload_signature_digest"],
@@ -207,8 +208,8 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       oci_ref: published && published["oci_ref"],
       oci_digest: published && published["oci_digest"],
       bundle_digest: published && published["bundle_digest"],
-      source_url: entry["html_url"],
-      readme_url: html_or_download_url(directory["README.md"]),
+      source_url: PublicURL.githubize(entry["html_url"]),
+      readme_url: PublicURL.githubize(html_or_download_url(directory["README.md"])),
       docs_path: "/docs/v2/" <> Map.get(@addon_docs, id, "addons"),
       official: true
     }
@@ -256,7 +257,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
        wasm_index_asset: Keyword.get(merged, :wasm_index_asset),
        addon_index_asset: Keyword.get(merged, :addon_index_asset),
        releases_limit: Keyword.get(merged, :releases_limit),
-       req_options: Keyword.get(merged, :req_options, [])
+       req_options: merge_req_options(Keyword.get(merged, :req_options, []))
      }}
   rescue
     error in KeyError -> {:error, error}
@@ -384,7 +385,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   defp installation_text(kind, nil) do
     package = if kind == "stream", do: "streaming", else: "standard"
 
-    "Review the #{package} manifest in Forgejo; the signed bundle will be published to the ServiceRadar registry on the next release."
+    "Review the #{package} manifest on GitHub; the signed bundle will be published to the ServiceRadar registry on the next release."
   end
 
   defp installation_text(_kind, release) when is_map(release) do
@@ -452,4 +453,24 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   end
 
   defp integer_list(_values), do: []
+
+  defp merge_req_options(req_options) do
+    headers =
+      (Keyword.get(req_options, :headers, []) ++ github_headers())
+      |> Enum.uniq_by(fn {name, _value} -> String.downcase(to_string(name)) end)
+
+    Keyword.put(req_options, :headers, headers)
+  end
+
+  defp github_headers do
+    user_agent = [{"user-agent", "serviceradar-developer-portal"}]
+
+    case System.get_env("GITHUB_TOKEN") || System.get_env("GH_TOKEN") do
+      token when is_binary(token) and token != "" ->
+        [{"authorization", "Bearer #{token}"} | user_agent]
+
+      _ ->
+        user_agent
+    end
+  end
 end

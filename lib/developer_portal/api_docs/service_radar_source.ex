@@ -28,7 +28,7 @@ defmodule DeveloperPortal.ApiDocs.ServiceRadarSource do
   @default_headers %{"accept" => "application/json"}
 
   # Bundled with the release so the portal still serves API docs when the
-  # cluster cannot reach Forgejo (common cause of empty cache / GSC 5xx).
+  # cluster cannot reach the upstream OpenAPI URL (common cause of empty cache / GSC 5xx).
   @default_fallback_paths %{
     "v2" => "priv/static/api/openapi-v2.json"
   }

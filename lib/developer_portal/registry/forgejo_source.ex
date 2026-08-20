@@ -63,17 +63,12 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
             manifest_entry ->
               [
-                build_plugin(
-                  config,
-                  manifest_entry,
-                  manifest.kind,
-                  source_url,
-                  readme_url,
-                  directory,
-                  dist,
-                  language,
-                  index
-                )
+                build_plugin(config, manifest_entry, manifest.kind, language, index, %{
+                  source_url: source_url,
+                  readme_url: readme_url,
+                  directory: directory,
+                  dist: dist
+                })
               ]
           end
         end)
@@ -87,17 +82,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       []
   end
 
-  defp build_plugin(
-         config,
-         manifest_entry,
-         kind,
-         source_url,
-         readme_url,
-         directory,
-         dist,
-         language,
-         index
-       ) do
+  defp build_plugin(config, manifest_entry, kind, language, index, urls) do
     manifest = fetch_manifest!(config, manifest_entry)
     slug = fetch_id!(manifest)
     release = Map.get(index, slug)
@@ -107,6 +92,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     # enforces, so a future index entry that lists an OCI ref without a signature
     # can never crash the whole refresh.
     published = if signed, do: release, else: nil
+    %{source_url: source_url, readme_url: readme_url, directory: directory, dist: dist} = urls
 
     %Plugin{
       slug: slug,

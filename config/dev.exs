@@ -5,8 +5,11 @@ import Config
 # Defaults assume a local Postgres. For cluster data via kubectl port-forward:
 #
 #   kubectl -n serviceradar-developer port-forward svc/developer-portal-pg-rw 5432:5432
-#   export PGUSER="$(kubectl -n serviceradar-developer get secret developer-portal-db-credentials -o jsonpath='{.data.username}' | base64 -d)"
-#   export PGPASSWORD="$(kubectl -n serviceradar-developer get secret developer-portal-db-credentials -o jsonpath='{.data.password}' | base64 -d)"
+#   secret=developer-portal-db-credentials
+#   export PGUSER="$(kubectl -n serviceradar-developer get secret $secret \
+#     -o jsonpath='{.data.username}' | base64 -d)"
+#   export PGPASSWORD="$(kubectl -n serviceradar-developer get secret $secret \
+#     -o jsonpath='{.data.password}' | base64 -d)"
 #   export PGDATABASE=developer_portal
 #   mix phx.server
 #

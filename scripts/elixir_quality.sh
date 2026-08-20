@@ -92,7 +92,35 @@ if [[ "${skip_credo}" != "true" ]]; then
   run mix credo --strict
 fi
 
-run mix hex.audit
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+run_hex_audit() {
+  echo
+  echo "==> mix hex.audit"
+
+  local output
+  local status
+
+  set +e
+  output="$(mix hex.audit 2>&1)"
+  status=$?
+  set -e
+
+  printf '%s\n' "${output}"
+
+  if [[ "${status}" -eq 0 ]]; then
+    return 0
+  fi
+
+  if [[ ! -f ".deps_audit_ignore" ]]; then
+    return "${status}"
+  fi
+
+  printf '%s\n' "${output}" | awk -v ignore_file=".deps_audit_ignore" \
+    -f "${script_dir}/lib/hex-audit-filter.awk"
+}
+
+run_hex_audit
 
 deps_audit_args=()
 if [[ -f ".deps_audit_ignore" ]]; then

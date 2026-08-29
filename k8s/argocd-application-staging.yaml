@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://git.carverauto.dev/carverauto/developer.git
+    repoURL: https://github.com/carverauto/developer.git
     targetRevision: HEAD
     path: k8s/staging
   destination:

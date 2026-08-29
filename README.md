@@ -1,5 +1,7 @@
 # ServiceRadar Developer Portal
 
+Source of truth: https://github.com/carverauto/developer
+
 Phoenix/LiveView application for `developer.serviceradar.cloud`, plus the OpenSpec and Kubernetes GitOps scaffolding for the developer portal.
 
 ## Local Development
@@ -25,6 +27,11 @@ The app requires the usual Phoenix runtime config in deployed environments:
 ## Kubernetes
 
 Kubernetes manifests live under `k8s/` with `base`, `staging`, and `prod` overlays. The deployment derives DB access from the shared `developer-portal-db-credentials` CNPG bootstrap secret plus `PG*` config in `developer-portal-config`, and uses `developer-portal-secrets` for `SECRET_KEY_BASE`. Argo CD also gets a PreSync migration Job from `k8s/base/migration-job.yaml` so schema changes run before the Deployment rolls. See [k8s/README.md](/home/mfreeman/src/community/k8s/README.md).
+
+CI, image publish, and deploy run on GitHub Actions (`.github/workflows`).
+Required repository secrets: `BUILDBUDDY_ORG_API_KEY`, `HARBOR_ROBOT_USERNAME`,
+`HARBOR_ROBOT_SECRET`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`,
+`ARGOCD_SERVER`, `ARGOCD_AUTH_TOKEN`.
 
 ## Build and Release
 

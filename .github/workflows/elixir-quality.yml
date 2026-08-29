@@ -1,0 +1,65 @@
+name: Elixir Quality
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'config/**'
+      - 'test/**'
+      - 'mix.exs'
+      - 'mix.lock'
+      - '.formatter.exs'
+      - '.credo.exs'
+      - '.credo.base.exs'
+      - '.credo.ex_dna.exs'
+      - '.credo.ex_slop.exs'
+      - '.sobelow-conf'
+      - '.deps_audit_ignore'
+      - '.tool-versions'
+      - 'scripts/elixir_quality.sh'
+      - '.github/workflows/elixir-quality.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'config/**'
+      - 'test/**'
+      - 'mix.exs'
+      - 'mix.lock'
+      - '.formatter.exs'
+      - '.credo.exs'
+      - '.credo.base.exs'
+      - '.credo.ex_dna.exs'
+      - '.credo.ex_slop.exs'
+      - '.sobelow-conf'
+      - '.deps_audit_ignore'
+      - '.tool-versions'
+      - 'scripts/elixir_quality.sh'
+      - '.github/workflows/elixir-quality.yml'
+
+jobs:
+  quality:
+    name: Elixir Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Elixir quality contract
+        run: |
+          docker run --rm \
+            -v "${PWD}:${PWD}" \
+            -w "${PWD}" \
+            -e HEX_HOME=/tmp/hex \
+            -e MIX_HOME=/tmp/mix \
+            -e MIX_BUILD_PATH=/tmp/developer_portal_quality/_build \
+            docker.io/library/elixir:1.19.4-otp-28 \
+            bash -lc './scripts/elixir_quality.sh --project . --phoenix --skip-dialyzer'

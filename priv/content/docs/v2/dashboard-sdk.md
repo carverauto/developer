@@ -226,7 +226,7 @@ npm update @carverauto/serviceradar-dashboard-sdk @carverauto/serviceradar-cli
 To move to a specific published version:
 
 ```bash
-npm install @carverauto/serviceradar-dashboard-sdk@0.1.4 @carverauto/serviceradar-cli@0.1.4
+npm install @carverauto/serviceradar-dashboard-sdk@0.2.0 @carverauto/serviceradar-cli@0.1.4
 ```
 
 Commit `package-lock.json` whenever resolved package versions change, and
@@ -418,6 +418,63 @@ function SiteCount() {
 
 Keep shape objects at module scope. Their identity is part of the projection
 cache key, so recreating them on every render defeats the cache.
+
+## Stats Frames Versus Row Frames
+
+A `stats:` frame is a GROUP BY. A short result is the complete grouping,
+not a truncated dump, and it must not be paged.
+
+```
+in:composite_results stats:count() as n by check,verdict
+in:composite_results stats:"count() as n by check, input_key, input_value, input_stale"
+```
+
+`in:composite_results` honours `stats:` as of the host that shipped with
+SDK 0.2.0. Previously the clause was ignored and every matching row came
+back, which is **BREAKING** for anyone who depended on that dump.
+Unsupported aggregations (`sum`, …) and group fields (`hostname`, …)
+return `InvalidRequest`. Only `count()` is supported. Vantage rollups
+unnest `inputs` with `jsonb_each`; empty or null `inputs` contribute no
+rows.
+
+Row frames that can exceed the host page size should page, not raise
+`limit:`. Device tables that also resolve hostnames via
+`in:devices uid:(…)` must declare `limit` ≤ 200 so every uid on the page
+fits the SRQL IN-list cap.
+
+## Paging Row Frames
+
+Do **not** put `cursor:` in the query string. Cursors are request
+metadata, the same as every other SRQL entity. `api.srql.page(frameId,
+cursor)` re-runs **that frame only** at the signed cursor. The query
+text, dashboard URL, and other frames stay put.
+
+```jsx
+import {useDashboardFramePagination} from "@carverauto/serviceradar-dashboard-sdk/react"
+
+function ResultsPager() {
+  const paging = useDashboardFramePagination("results")
+  if (!paging.next) return null
+  return <button type="button" onClick={paging.next}>Next</button>
+}
+```
+
+`useDashboardFramePagination` reads `frame.pagination.{next_cursor,
+prev_cursor, limit}` and returns `{next, prev, page, nextCursor,
+prevCursor, limit}`. Missing or empty cursors throw; they never fall
+through to `api.srql.update`. On a host that has not deployed
+`api.srql.page` yet, a well-formed `page()` call is a no-op so packages
+stay compatible.
+
+`api.srql.update` remints the stream and the next run starts at offset
+0. `frames:refresh` clears stored cursors. Require the `srql.execute`
+capability, same as `update`.
+
+Sort a device table with `sort:device_uid:asc` so pages do not shuffle.
+Hostname search that cannot be expressed as an `in:composite_results`
+filter stays client-side **on the current page**.
+
+Requires `@carverauto/serviceradar-dashboard-sdk` 0.2.0.
 
 ## Filtering And Queries
 

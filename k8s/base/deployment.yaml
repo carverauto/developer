@@ -27,7 +27,7 @@ spec:
       containers:
         - name: developer-portal
           image: registry.carverauto.dev/serviceradar/developer-portal:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -74,10 +74,10 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 512Mi
             limits:
               cpu: "1"
-              memory: 512Mi
+              memory: 2Gi
           readinessProbe:
             httpGet:
               path: /

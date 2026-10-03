@@ -6,10 +6,12 @@ metadata:
 spec:
   instances: 2
 
-  # Pin by digest: the floating 18.3.0-sr2-a78b3afd tag was GC'd from Harbor and
-  # left replicas in ImagePullBackOff (blocking Argo health). Use the same
-  # digest as control-plane / demo.
-  imageName: registry.carverauto.dev/serviceradar/serviceradar-cnpg:18.3.0-sr5@sha256:c349a1d34aef056f818630e0766501b5c98fa7598bdeee38d59d677a94cb18c9
+  # Pin by digest. The previous 18.3.0-sr5@sha256:c349a1d3... digest was
+  # garbage-collected from Harbor, leaving replicas in ImagePullBackOff
+  # (serviceradar-control#34). 18.4.0-sr4 is the digest the control-plane and
+  # demo clusters run; this DB only uses plpgsql, so the PG 18.3 -> 18.4 minor
+  # bump needs no extension changes.
+  imageName: registry.carverauto.dev/serviceradar/serviceradar-cnpg:18.4.0-sr4@sha256:59e442dec59fac3149e3a3c49ba0cc2987bfb052bca1a0ea8c01b4bb31427d1d
 
   postgresql:
     parameters:

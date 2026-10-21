@@ -10,5 +10,4 @@ data:
   PGHOST: developer-portal-pg-rw.serviceradar-developer.svc.cluster.local
   PGPORT: "5432"
   PGDATABASE: developer_portal
-  FORGEJO_API_BASE_URL: http://forgejo-http.forgejo.svc.cluster.local:3000/api/v1
-  FORGEJO_CONTENT_BASE_URL: http://forgejo-http.forgejo.svc.cluster.local:3000
+  GITHUB_API_BASE_URL: https://api.github.com

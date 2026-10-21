@@ -13,10 +13,12 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
   @manifest_files [
     %{name: "plugin.yaml", kind: "check"},
+    %{name: "plugin.local.yaml", kind: "check", schema_variant: "local"},
     %{name: "plugin.console.yaml", kind: "console"},
     %{name: "plugin.inventory_sync.yaml", kind: "inventory_sync"},
     %{name: "plugin.stream.yaml", kind: "stream"},
     %{name: "manifest.json", kind: "check"},
+    %{name: "manifest.local.json", kind: "check", schema_variant: "local"},
     %{name: "manifest.console.json", kind: "console"},
     %{name: "manifest.inventory_sync.json", kind: "inventory_sync"},
     %{name: "manifest.stream.json", kind: "stream"}
@@ -64,7 +66,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
 
             manifest_entry ->
               [
-                build_plugin(config, manifest_entry, manifest.kind, language, index, %{
+                build_plugin(config, manifest_entry, manifest, language, index, %{
                   source_url: source_url,
                   readme_url: readme_url,
                   directory: directory,
@@ -83,7 +85,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       []
   end
 
-  defp build_plugin(config, manifest_entry, kind, language, index, urls) do
+  defp build_plugin(config, manifest_entry, %{kind: kind} = variant, language, index, urls) do
     manifest = fetch_manifest!(config, manifest_entry)
     slug = fetch_id!(manifest)
     release = Map.get(index, slug)
@@ -94,6 +96,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
     # can never crash the whole refresh.
     published = if signed, do: release, else: nil
     %{source_url: source_url, readme_url: readme_url, directory: directory, dist: dist} = urls
+    schema_variant = Map.get(variant, :schema_variant, kind)
 
     %Plugin{
       slug: slug,
@@ -110,7 +113,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
       source_url: PublicURL.githubize(source_url),
       readme_url: PublicURL.githubize(readme_url),
       manifest_url: PublicURL.githubize(download_url(manifest_entry)),
-      config_schema_url: PublicURL.githubize(config_schema_url(kind, directory, dist)),
+      config_schema_url: PublicURL.githubize(config_schema_url(schema_variant, directory, dist)),
       wasm_url: PublicURL.githubize(find_download_url(dist, @wasm_candidates)),
       artifact_url: PublicURL.githubize(find_download_url(dist, @checksum_candidates)),
       signature_url: PublicURL.githubize(find_download_url(dist, @signature_candidates)),
@@ -338,6 +341,7 @@ defmodule DeveloperPortal.Registry.ForgejoSource do
   end
 
   defp schema_candidates("stream"), do: ["config.stream.schema.json"]
+  defp schema_candidates("local"), do: ["config.local.schema.json"]
   defp schema_candidates("console"), do: ["config.console.schema.json", "config.schema.json"]
 
   defp schema_candidates("inventory_sync"),

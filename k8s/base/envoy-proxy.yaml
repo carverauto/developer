@@ -12,6 +12,9 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
+        container:
+          # Includes the GHSA-3wvj-j6qm-62mr Brotli fix.
+          image: docker.io/envoyproxy/envoy:distroless-v1.37.10@sha256:1a7419aa065833fd08cf2976d7a01063e0e1a84b220436ebc16c1d827b7c98fd
         patch:
           type: StrategicMerge
           value:
